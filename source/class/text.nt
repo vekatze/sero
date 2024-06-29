@@ -1,0 +1,52 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int8, append-text},
+  core.binary {binary, binary-access},
+  core.control {loop},
+  core.text {_Text},
+  this.class {Marshal, _proceed, marshal},
+  this.class.int64 {decode-int64, encode-int64},
+}
+
+define encode-text(b: &builder, x: &text): unit {
+  pin len = core.text.text-byte-length(x) in
+  encode-int64(b, len);
+  append-text(b, x)
+}
+
+define decode-text(b: &binary, cursor-ref: &cell(int)): ?text {
+  try len = decode-int64(b, cursor-ref) in
+  let buf = create(len) in
+  let cursor = *core.cell.read(cursor-ref) in
+  let _ on buf =
+    loop(len, function (k) {
+      let v = binary-access(b, add-int(cursor, k)) in
+      append-int8(buf, v)
+    })
+  in
+  let result = get(buf) in
+  _proceed(cursor-ref, len);
+  Right(_Text(result))
+}
+
+constant as-marshal: marshal(text) {
+  Marshal of {
+    encode = encode-text,
+    decode = decode-text,
+  }
+}
+
+define zen(): unit {
+  let buf = create(4) in
+  let value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
+  let _ on buf = encode-text(buf, value) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval = decode-text(b, cursor-ref) in
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [v])
+  }
+}
