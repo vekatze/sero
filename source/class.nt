@@ -1,0 +1,17 @@
+import {
+  binary-builder.entity {builder},
+  core.binary {binary},
+}
+
+data marshal(a) {
+| Marshal(
+    encode: (buffer: &builder, value: &a) -> unit,
+    decode: (bytes: &binary, cursor: &cell(int)) -> ?a,
+  )
+}
+
+define _proceed(cursor: &cell(int), offset: int): unit {
+  mutate(cursor, function (x) {
+    add-int(x, offset)
+  })
+}

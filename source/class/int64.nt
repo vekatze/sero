@@ -1,0 +1,62 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int64-big-endian},
+  core.binary {binary, binary-access, binary-length},
+  core.control {discard},
+  core.int.show {show-int},
+  this.class {Marshal, _proceed, marshal},
+}
+
+define encode-int64(b: &builder, x: &int64): unit {
+  append-int64-big-endian(b, *x)
+}
+
+define decode-int64(b: &binary, cursor-ref: &cell(int)): ?int64 {
+  let cursor = *core.cell.read(cursor-ref) in
+  if lt-int(binary-length(b), add-int(cursor, 8)) {
+    none()
+  } else {
+    let v7 = binary-access(b, add-int(cursor, 0)) in
+    let v6 = binary-access(b, add-int(cursor, 1)) in
+    let v5 = binary-access(b, add-int(cursor, 2)) in
+    let v4 = binary-access(b, add-int(cursor, 3)) in
+    let v3 = binary-access(b, add-int(cursor, 4)) in
+    let v2 = binary-access(b, add-int(cursor, 5)) in
+    let v1 = binary-access(b, add-int(cursor, 6)) in
+    let v0 = binary-access(b, add-int(cursor, 7)) in
+    let tmp = 0 in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v7), 56)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v6), 48)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v5), 40)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v4), 32)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v3), 24)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v2), 16)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v1), 8)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v0), 0)) in
+    _proceed(cursor-ref, 8);
+    Right(tmp)
+  }
+}
+
+constant as-marshal: marshal(int64) {
+  Marshal of {
+    encode = encode-int64,
+    decode = decode-int64,
+  }
+}
+
+define zen(): unit {
+  let buf = create(8) in
+  pin val = -9223372036854775807 in
+  let _ on buf = encode-int64(buf, val) in
+  let b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval on b = decode-int64(b, cursor-ref) in
+  discard(b);
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-int(v)])
+  }
+}

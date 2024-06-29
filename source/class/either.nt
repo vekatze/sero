@@ -1,0 +1,75 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int8},
+  core.binary {binary, binary-access, binary-length},
+  core.int.show {show-int},
+  this.class {Marshal, _proceed, marshal},
+  this.class.bool,
+  this.class.int64,
+}
+
+inline encode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &builder, x-or-y: &either(a, b)) -> unit {
+  function (buf: &builder, x-or-y: &either(a, b)): unit {
+    case x-or-y {
+    | Left(x) =>
+      append-int8(buf, 0);
+      m1::encode(buf, x);
+    | Right(y) =>
+      append-int8(buf, 1);
+      m2::encode(buf, y);
+    }
+  }
+}
+
+inline decode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, cursor-ref: &cell(int)) -> ?either(a, b) {
+  function (buf: &binary, cursor-ref: &cell(int)): ?either(a, b) {
+    let cursor = *core.cell.read(cursor-ref) in
+    if lt-int(binary-length(buf), add-int(cursor, 1)) {
+      none()
+    } else {
+      let v = binary-access(buf, add-int(cursor, 0)) in
+      if eq-int8(v, 0) {
+        _proceed(cursor-ref, 1);
+        try l = m1::decode(buf, cursor-ref) in
+        Right(Left(l))
+      } else-if eq-int8(v, 1) {
+        _proceed(cursor-ref, 1);
+        try r = m2::decode(buf, cursor-ref) in
+        Right(Right(r))
+      } else {
+        none()
+      }
+    }
+  }
+}
+
+inline as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(either(a, b)) {
+  Marshal of {
+    encode = encode-either(!m1, !m2),
+    decode = decode-either(!m1, !m2),
+  }
+}
+
+constant either-int-bool: marshal(either(int, bool)) {
+  as-marshal(this.class.int64.as-marshal, this.class.bool.as-marshal)
+}
+
+define zen(): unit {
+  let buf = create(8) in
+  pin val = Left(-1234) in
+  let _ on buf = either-int-bool::encode(buf, val) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval = either-int-bool::decode(b, cursor-ref) in
+  match mval {
+  | Left(_) =>
+    print("left\n");
+  | Right(x-or-y) =>
+    match x-or-y {
+    | Left(x) =>
+      printf("int: {}\n", [show-int(x)])
+    | Right(_) =>
+      print("bool\n");
+    }
+  }
+}

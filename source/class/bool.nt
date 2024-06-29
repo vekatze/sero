@@ -1,0 +1,53 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int8},
+  core.binary {binary, binary-access, binary-length},
+  core.control {discard},
+  this.class {Marshal, _proceed, marshal},
+}
+
+define encode-bool(b: &builder, x: &bool): unit {
+  if *x {
+    append-int8(b, 1)
+  } else {
+    append-int8(b, 0)
+  }
+}
+
+define decode-bool(b: &binary, cursor-ref: &cell(int)): ?bool {
+  let cursor = *core.cell.read(cursor-ref) in
+  if lt-int(binary-length(b), add-int(cursor, 1)) {
+    none()
+  } else {
+    let v = binary-access(b, add-int(cursor, 0)) in
+    _proceed(cursor-ref, 1);
+    Right(eq-int8(v, 1))
+  }
+}
+
+constant as-marshal: marshal(bool) {
+  Marshal of {
+    encode = encode-bool,
+    decode = decode-bool,
+  }
+}
+
+define zen(): unit {
+  let buf = create(1) in
+  pin val = True in
+  let _ on buf = encode-bool(buf, val) in
+  let b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval on b = decode-bool(b, cursor-ref) in
+  discard(b);
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    if v {
+      print("true\n")
+    } else {
+      print("false\n")
+    }
+  }
+}

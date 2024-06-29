@@ -1,0 +1,54 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int32-big-endian},
+  core.binary {binary, binary-access, binary-length},
+  core.control {discard},
+  core.int.show {show-int},
+  this.class {Marshal, _proceed, marshal},
+}
+
+define encode-int32(b: &builder, x: &int32): unit {
+  append-int32-big-endian(b, *x)
+}
+
+define decode-int32(b: &binary, cursor-ref: &cell(int)): ?int32 {
+  let cursor = *core.cell.read(cursor-ref) in
+  if lt-int(binary-length(b), add-int(cursor, 4)) {
+    none()
+  } else {
+    let v3 = binary-access(b, add-int(cursor, 0)) in
+    let v2 = binary-access(b, add-int(cursor, 1)) in
+    let v1 = binary-access(b, add-int(cursor, 2)) in
+    let v0 = binary-access(b, add-int(cursor, 3)) in
+    let tmp = 0 in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v3), 24)) in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v2), 16)) in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v1), 8)) in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v0), 0)) in
+    _proceed(cursor-ref, 4);
+    Right(tmp)
+  }
+}
+
+constant as-marshal: marshal(int32) {
+  Marshal of {
+    encode = encode-int32,
+    decode = decode-int32,
+  }
+}
+
+define zen(): unit {
+  let buf = create(4) in
+  pin val = -2147483648 in
+  let _ on buf = encode-int32(buf, val) in
+  let b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval on b = decode-int32(b, cursor-ref) in
+  discard(b);
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-int(sext-int32-int(v))])
+  }
+}

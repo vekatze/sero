@@ -1,0 +1,41 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int32-big-endian},
+  core.binary {binary},
+  core.rune {_Rune},
+  core.rune.show {show-rune},
+  this.class {Marshal, marshal},
+  this.class.int32 {decode-int32},
+}
+
+define encode-rune(b: &builder, x: &rune): unit {
+  tie _Rune(val) = x in
+  append-int32-big-endian(b, *val)
+}
+
+define decode-rune(b: &binary, cursor-ref: &cell(int)): ?rune {
+  try v = decode-int32(b, cursor-ref) in
+  Right(_Rune(v))
+}
+
+constant as-marshal: marshal(rune) {
+  Marshal of {
+    encode = encode-rune,
+    decode = decode-rune,
+  }
+}
+
+define zen(): unit {
+  let buf = create(4) in
+  pin val = `あ` in
+  let _ on buf = encode-rune(buf, val) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval = decode-rune(b, cursor-ref) in
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-rune(v)])
+  }
+}

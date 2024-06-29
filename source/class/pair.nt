@@ -1,0 +1,52 @@
+import {
+  binary-builder.entity {builder, create, get},
+  core.binary {binary},
+  core.int.show {show-int},
+  this.class {Marshal, marshal},
+  this.class.bool,
+  this.class.int64,
+}
+
+inline encode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &builder, xy: &pair(a, b)) -> unit {
+  function (buf: &builder, xy: &pair(a, b)): unit {
+    tie Pair(x, y) = xy in
+    m1::encode(buf, x);
+    m2::encode(buf, y);
+  }
+}
+
+inline decode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, cursor-ref: &cell(int)) -> ?pair(a, b) {
+  function (buf: &binary, cursor-ref: &cell(int)): ?pair(a, b) {
+    try l = m1::decode(buf, cursor-ref) in
+    try r = m2::decode(buf, cursor-ref) in
+    Right(Pair(l, r))
+  }
+}
+
+inline as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(pair(a, b)) {
+  Marshal of {
+    encode = encode-pair(!m1, !m2),
+    decode = decode-pair(!m1, !m2),
+  }
+}
+
+constant pair-int-bool: marshal(pair(int, bool)) {
+  as-marshal(this.class.int64.as-marshal, this.class.bool.as-marshal)
+}
+
+define zen(): unit {
+  let buf = create(8) in
+  pin val = Pair(-1234, True) in
+  let _ on buf = pair-int-bool::encode(buf, val) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval = pair-int-bool::decode(b, cursor-ref) in
+  match mval {
+  | Left(_) =>
+    print("left\n");
+  | Right(xy) =>
+    let Pair(x, y) = xy in
+    printf("int: {}\n", [show-int(x)]);
+    printf("bool: {}\n", [core.bool.show.show(y)])
+  }
+}
