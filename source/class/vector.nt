@@ -1,0 +1,57 @@
+import {
+  binary-builder.entity {builder, create, get},
+  core.binary {binary},
+  core.int.show {show-int},
+  core.vector {vector},
+  this.class {Marshal, marshal},
+  this.class.int64 {decode-int64, encode-int64},
+}
+
+inline encode-vector<a>(m: marshal(a)): (b: &builder, xs: &vector(a)) -> unit {
+  function (b: &builder, xs: &vector(a)): unit {
+    pin len = core.vector.length(xs) in
+    encode-int64(b, len);
+    core.vector.for-N(xs, function (x) {
+      m::encode(b, x);
+    });
+  }
+}
+
+inline decode-vector<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?vector(a) {
+  function (b: &binary, cursor-ref: &cell(int)): ?vector(a) {
+    try len = decode-int64(b, cursor-ref) in
+    core.vector.create-maybe(len, function (_) {
+      try value = m::decode(b, cursor-ref) in
+      Right(value)
+    })
+  }
+}
+
+inline as-marshal<a>(!m: marshal(a)): marshal(vector(a)) {
+  Marshal of {
+    encode = encode-vector(!m),
+    decode = decode-vector(!m),
+  }
+}
+
+constant int-vector: marshal(vector(int)) {
+  as-marshal(this.class.int64.as-marshal)
+}
+
+define zen(): unit {
+  let buf = create(8) in
+  pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
+  let _ on buf = int-vector::encode(buf, val) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval = int-vector::decode(b, cursor-ref) in
+  match mval {
+  | Left(_) =>
+    print("left\n");
+  | Right(vs) =>
+    print("int-vector\n");
+    core.vector.for(vs, function (v) {
+      printf("val: {}\n", [show-int(v)])
+    })
+  }
+}
