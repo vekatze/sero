@@ -33,6 +33,11 @@ constant as-marshal: marshal(text) {
   Marshal of {
     encode = encode-text,
     decode = decode-text,
+    necess = {
+      function (x) {
+        quote {x}
+      }
+    },
   }
 }
 

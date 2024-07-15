@@ -33,6 +33,11 @@ constant as-marshal: marshal(binary) {
   Marshal of {
     encode = encode-binary,
     decode = decode-binary,
+    necess = {
+      function (x) {
+        quote {x}
+      }
+    },
   }
 }
 

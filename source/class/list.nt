@@ -3,6 +3,7 @@ import {
   binary-builder.scene {append-int8},
   core.binary {binary, binary-access, binary-length},
   core.int.show {show-int},
+  core.magic,
   this.class {Marshal, _proceed, marshal},
   this.class.int64,
 }
@@ -42,10 +43,17 @@ inline decode-list<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?l
   }
 }
 
+inline necess-list<a>(_: (a) -> meta a): (xs: list(a)) -> meta list(a) {
+  function (xs) {
+    core.magic.cast(list(a), meta list(a), xs)
+  }
+}
+
 inline as-marshal<a>(!m: marshal(a)): marshal(list(a)) {
   Marshal of {
     encode = encode-list(!m),
     decode = decode-list(!m),
+    necess = necess-list(!m::necess),
   }
 }
 

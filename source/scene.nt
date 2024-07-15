@@ -1,0 +1,83 @@
+import {
+  binary-builder.entity {create, get},
+  core.binary.io,
+  core.control {discard},
+  core.errno {get-error-message, system},
+  core.file.flag {for-r, for-rw},
+  core.file.mode {default-file-mode},
+  core.foreign {O_CREAT},
+  core.int.show {show-int},
+  this.class {Marshal, marshal},
+  this.class.int64,
+  this.class.list,
+}
+
+inline save<a>(m: marshal(a), value: &a, path: &text, buffer-size: int): system(unit) {
+  let buf = create(buffer-size) in
+  let _ on buf = m::encode(buf, value) in
+  pin bytes = get(buf) in
+  try target-file = open(path, for-rw, default-file-mode) in
+  core.binary.io.write(bytes, target-file)
+}
+
+inline _lift-nes<a>(nes: (a) -> meta a): (?a) -> meta ?a {
+  function (x: ?a) {
+    match x {
+    | Left(_) =>
+      box {none()}
+    | Right(v) =>
+      let v' = nes(v) in
+      box {
+        Right(
+          letbox tmp = v' in
+          tmp,
+        )
+      }
+    }
+  }
+}
+
+define load<a>(m: marshal(a), path: &text): system(?a) {
+  let Marshal of {necess, decode} = m in
+  try source-file = open(path, for-r, []) in
+  try content = core.binary.io.read(source-file, 1024) in
+  let cursor-ref = new-cell(0) in
+  letbox-T result: ?a on content, cursor-ref =
+    let necess' = _lift-nes(necess) in
+    necess'(decode(content, cursor-ref))
+  in
+  discard(content);
+  discard(cursor-ref);
+  Right(result)
+}
+
+define _quote-int(i: int): meta int {
+  quote {i}
+}
+
+constant marshal-list-int: marshal(list(int)) {
+  this.class.list.as-marshal(this.class.int64.as-marshal)
+}
+
+define zen(): unit {
+  printf("O_CREAT: {}\n", [show-int(O_CREAT)]);
+  printf("mode: {}\n", [show-int(core.file.mode.interpret(default-file-mode))]);
+  pin value: list(int) = [1, 2, 3, 42342, 5, 6] in
+  let path = "test.bin" in
+  let _ = save(marshal-list-int, value, path, 10) in
+  let v = load(marshal-list-int, path) in
+  match v {
+  | Left(e) =>
+    printf("left: {}\n", [get-error-message(e)]);
+  | Right(v) =>
+    print("right\n");
+    match v {
+    | Left(_) =>
+      print("right-left")
+    | Right(xs) =>
+      for(xs, function (x) {
+        printf("right-right: {}\n", [show-int(x)])
+      })
+    }
+  }
+}

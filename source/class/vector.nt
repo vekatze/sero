@@ -2,6 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   core.binary {binary},
   core.int.show {show-int},
+  core.magic,
   core.vector {vector},
   this.class {Marshal, marshal},
   this.class.int64 {decode-int64, encode-int64},
@@ -27,10 +28,17 @@ inline decode-vector<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> 
   }
 }
 
+inline necess-vector<a>(_: (a) -> meta a): (xs: vector(a)) -> meta vector(a) {
+  function (xs) {
+    core.magic.cast(vector(a), meta vector(a), xs)
+  }
+}
+
 inline as-marshal<a>(!m: marshal(a)): marshal(vector(a)) {
   Marshal of {
     encode = encode-vector(!m),
     decode = decode-vector(!m),
+    necess = necess-vector(!m::necess),
   }
 }
 

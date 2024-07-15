@@ -29,6 +29,11 @@ constant as-marshal: marshal(bool) {
   Marshal of {
     encode = encode-bool,
     decode = decode-bool,
+    necess = {
+      function (x) {
+        quote {x}
+      }
+    },
   }
 }
 

@@ -34,6 +34,11 @@ constant as-marshal: marshal(int32) {
   Marshal of {
     encode = encode-int32,
     decode = decode-int32,
+    necess = {
+      function (x) {
+        quote {x}
+      }
+    },
   }
 }
 

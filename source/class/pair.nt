@@ -2,6 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   core.binary {binary},
   core.int.show {show-int},
+  core.magic,
   this.class {Marshal, marshal},
   this.class.bool,
   this.class.int64,
@@ -23,10 +24,17 @@ inline decode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, cursor-
   }
 }
 
+inline necess-pair<a, b>(_: marshal(a), _: marshal(b)): (pair(a, b)) -> meta pair(a, b) {
+  function (x) {
+    core.magic.cast(pair(a, b), meta pair(a, b), x)
+  }
+}
+
 inline as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(pair(a, b)) {
   Marshal of {
     encode = encode-pair(!m1, !m2),
     decode = decode-pair(!m1, !m2),
+    necess = necess-pair(!m1, !m2),
   }
 }
 

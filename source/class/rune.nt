@@ -22,6 +22,11 @@ constant as-marshal: marshal(rune) {
   Marshal of {
     encode = encode-rune,
     decode = decode-rune,
+    necess = {
+      function (x) {
+        quote {x}
+      }
+    },
   }
 }
 

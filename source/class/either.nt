@@ -3,6 +3,7 @@ import {
   binary-builder.scene {append-int8},
   core.binary {binary, binary-access, binary-length},
   core.int.show {show-int},
+  core.magic,
   this.class {Marshal, _proceed, marshal},
   this.class.bool,
   this.class.int64,
@@ -43,10 +44,17 @@ inline decode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, curso
   }
 }
 
+inline necess-either<a, b>(_: marshal(a), _: marshal(b)): (either(a, b)) -> meta either(a, b) {
+  function (x) {
+    core.magic.cast(either(a, b), meta either(a, b), x)
+  }
+}
+
 inline as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(either(a, b)) {
   Marshal of {
     encode = encode-either(!m1, !m2),
     decode = decode-either(!m1, !m2),
+    necess = necess-either(!m1, !m2),
   }
 }
 

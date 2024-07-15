@@ -42,6 +42,11 @@ constant as-marshal: marshal(float64) {
   Marshal of {
     encode = encode-float64,
     decode = decode-float64,
+    necess = {
+      function (x) {
+        quote {x}
+      }
+    },
   }
 }
 

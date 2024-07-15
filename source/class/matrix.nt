@@ -2,6 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   core.binary {binary},
   core.int.show {show-int},
+  core.magic,
   core.matrix {Matrix, get-col-size, get-content, get-row-size, matrix, print-mat},
   this.class {Marshal, marshal},
   this.class.int64 {decode-int64, encode-int64},
@@ -28,10 +29,17 @@ inline decode-matrix<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> 
   }
 }
 
+inline necess-matrix<a>(_: (a) -> meta a): (xs: matrix(a)) -> meta matrix(a) {
+  function (xs) {
+    core.magic.cast(matrix(a), meta matrix(a), xs)
+  }
+}
+
 inline as-marshal<a>(!m: marshal(a)): marshal(matrix(a)) {
   Marshal of {
     encode = encode-matrix(!m),
     decode = decode-matrix(!m),
+    necess = necess-matrix(!m::necess),
   }
 }
 
