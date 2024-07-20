@@ -12,7 +12,7 @@ inline encode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &builder, xy: &p
   function (buf: &builder, xy: &pair(a, b)): unit {
     tie Pair(x, y) = xy in
     m1::encode(buf, x);
-    m2::encode(buf, y);
+    m2::encode(buf, y)
   }
 }
 
@@ -51,7 +51,7 @@ define zen(): unit {
   let mval = pair-int-bool::decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
-    print("left\n");
+    print("left\n")
   | Right(xy) =>
     let Pair(x, y) = xy in
     printf("int: {}\n", [show-int(x)]);

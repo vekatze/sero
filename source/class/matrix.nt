@@ -62,7 +62,7 @@ define zen(): unit {
   let mval = int-matrix::decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
-    print("left\n");
+    print("left\n")
   | Right(xys) =>
     print("int-matrix\n");
     pin xys = xys in

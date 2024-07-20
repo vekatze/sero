@@ -13,9 +13,9 @@
       enable-preset true,
     },
     binary-builder {
-      digest "Wxd3nVWbWn8Zi0u9_2K4U5CVI6_6bvbUywggSzCOsxE",
+      digest "l5ThJPdCLzi1sCAElsvrajKICLf0b-ZWFhKz-9eshnQ",
       mirror [
-        "https://github.com/vekatze/binary-builder/raw/main/archive/0-1-1.tar.zst",
+        "https://github.com/vekatze/binary-builder/raw/main/archive/0-1-2.tar.zst",
       ],
     },
   },

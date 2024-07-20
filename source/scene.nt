@@ -68,7 +68,7 @@ define zen(): unit {
   let v = load(marshal-list-int, path) in
   match v {
   | Left(e) =>
-    printf("left: {}\n", [get-error-message(e)]);
+    printf("left: {}\n", [get-error-message(e)])
   | Right(v) =>
     print("right\n");
     match v {

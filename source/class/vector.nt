@@ -13,8 +13,8 @@ inline encode-vector<a>(m: marshal(a)): (b: &builder, xs: &vector(a)) -> unit {
     pin len = core.vector.length(xs) in
     encode-int64(b, len);
     core.vector.for-N(xs, function (x) {
-      m::encode(b, x);
-    });
+      m::encode(b, x)
+    })
   }
 }
 
@@ -55,7 +55,7 @@ define zen(): unit {
   let mval = int-vector::decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
-    print("left\n");
+    print("left\n")
   | Right(vs) =>
     print("int-vector\n");
     core.vector.for(vs, function (v) {

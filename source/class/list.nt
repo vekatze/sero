@@ -70,7 +70,7 @@ define zen(): unit {
   let mval = int-list::decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
-    print("left\n");
+    print("left\n")
   | Right(vs) =>
     print("int-list\n");
     for(vs, function (v) {
