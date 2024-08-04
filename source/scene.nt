@@ -14,7 +14,10 @@ import {
 
 inline save<a>(m: marshal(a), value: &a, path: &text, buffer-size: int): system(unit) {
   let buf = create(buffer-size) in
-  let _ on buf = m::encode(buf, value) in
+  let _ on buf =
+    let Marshal of {encode} = m in
+    encode(buf, value)
+  in
   pin bytes = get(buf) in
   try target-file = open(path, for-rw, default-file-mode) in
   core.binary.io.write(bytes, target-file)

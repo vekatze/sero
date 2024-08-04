@@ -1,7 +1,7 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
-  core.binary {binary, binary-access, binary-length},
+  core.binary {binary-access, binary-length},
   core.int.show {show-int},
   core.magic,
   this.class {Marshal, _proceed, marshal},
@@ -14,8 +14,9 @@ inline encode-list<a>(m: marshal(a)): (b: &builder, xs: &list(a)) -> unit {
     | Nil =>
       append-int8(b, 0)
     | Cons(y, ys) =>
+      let Marshal of {encode} = m in
       append-int8(b, 1);
-      m::encode(b, y);
+      encode(b, y);
       self(b, ys)
     }
   }
@@ -32,8 +33,9 @@ inline decode-list<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?l
         _proceed(cursor-ref, 1);
         Right(Nil)
       } else-if eq-int8(v, 1) {
+        let Marshal of {decode} = m in
         _proceed(cursor-ref, 1);
-        try v = m::decode(b, cursor-ref) in
+        try v = decode(b, cursor-ref) in
         try vs = self(b, cursor-ref) in
         Right(Cons(v, vs))
       } else {
@@ -50,10 +52,11 @@ inline necess-list<a>(_: (a) -> meta a): (xs: list(a)) -> meta list(a) {
 }
 
 inline as-marshal<a>(!m: marshal(a)): marshal(list(a)) {
+  let Marshal of {necess} = !m in
   Marshal of {
     encode = encode-list(!m),
     decode = decode-list(!m),
-    necess = necess-list(!m::necess),
+    necess = necess-list(necess),
   }
 }
 
@@ -62,12 +65,13 @@ constant int-list: marshal(list(int)) {
 }
 
 define zen(): unit {
+  let Marshal of {encode, decode} = int-list in
   let buf = create(8) in
   pin val = [1, 2, -123, 1384910234] in
-  let _ on buf = int-list::encode(buf, val) in
+  let _ on buf = encode(buf, val) in
   pin b = get(buf) in
   pin cursor-ref = new-cell(0) in
-  let mval = int-list::decode(b, cursor-ref) in
+  let mval = decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
     print("left\n")

@@ -1,7 +1,7 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
-  core.binary {binary, binary-access, binary-length},
+  core.binary {binary-access, binary-length},
   core.int.show {show-int},
   core.magic,
   this.class {Marshal, _proceed, marshal},
@@ -13,11 +13,13 @@ inline encode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &builder, x-or
   function (buf: &builder, x-or-y: &either(a, b)): unit {
     case x-or-y {
     | Left(x) =>
+      let Marshal of {encode} = m1 in
       append-int8(buf, 0);
-      m1::encode(buf, x)
+      encode(buf, x)
     | Right(y) =>
+      let Marshal of {encode} = m2 in
       append-int8(buf, 1);
-      m2::encode(buf, y)
+      encode(buf, y)
     }
   }
 }
@@ -31,11 +33,13 @@ inline decode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, curso
       let v = binary-access(buf, add-int(cursor, 0)) in
       if eq-int8(v, 0) {
         _proceed(cursor-ref, 1);
-        try l = m1::decode(buf, cursor-ref) in
+        let Marshal of {decode} = m1 in
+        try l = decode(buf, cursor-ref) in
         Right(Left(l))
       } else-if eq-int8(v, 1) {
         _proceed(cursor-ref, 1);
-        try r = m2::decode(buf, cursor-ref) in
+        let Marshal of {decode} = m2 in
+        try r = decode(buf, cursor-ref) in
         Right(Right(r))
       } else {
         none()
@@ -63,12 +67,13 @@ constant either-int-bool: marshal(either(int, bool)) {
 }
 
 define zen(): unit {
+  let Marshal of {encode, decode} = either-int-bool in
   let buf = create(8) in
   pin val = Left(-1234) in
-  let _ on buf = either-int-bool::encode(buf, val) in
+  let _ on buf = encode(buf, val) in
   pin b = get(buf) in
   pin cursor-ref = new-cell(0) in
-  let mval = either-int-bool::decode(b, cursor-ref) in
+  let mval = decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
     print("left\n")

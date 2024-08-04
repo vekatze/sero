@@ -1,21 +1,19 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int32-big-endian},
-  core.binary {binary},
-  core.rune {_Rune},
+  core.rune {from-int, to-int32},
   core.rune.show {show-rune},
   this.class {Marshal, marshal},
   this.class.int32 {decode-int32},
 }
 
 define encode-rune(b: &builder, x: &rune): unit {
-  tie _Rune(val) = x in
-  append-int32-big-endian(b, *val)
+  append-int32-big-endian(b, to-int32(*x))
 }
 
 define decode-rune(b: &binary, cursor-ref: &cell(int)): ?rune {
   try v = decode-int32(b, cursor-ref) in
-  Right(_Rune(v))
+  from-int(zext-int32-int(v))
 }
 
 constant as-marshal: marshal(rune) {

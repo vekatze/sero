@@ -1,6 +1,5 @@
 import {
   binary-builder.entity {builder, create, get},
-  core.binary {binary},
   core.int.show {show-int},
   core.magic,
   core.vector {vector},
@@ -13,7 +12,8 @@ inline encode-vector<a>(m: marshal(a)): (b: &builder, xs: &vector(a)) -> unit {
     pin len = core.vector.length(xs) in
     encode-int64(b, len);
     core.vector.for-N(xs, function (x) {
-      m::encode(b, x)
+      let Marshal of {encode} = m in
+      encode(b, x)
     })
   }
 }
@@ -22,7 +22,8 @@ inline decode-vector<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> 
   function (b: &binary, cursor-ref: &cell(int)): ?vector(a) {
     try len = decode-int64(b, cursor-ref) in
     core.vector.create-maybe(len, function (_) {
-      try value = m::decode(b, cursor-ref) in
+      let Marshal of {decode} = m in
+      try value = decode(b, cursor-ref) in
       Right(value)
     })
   }
@@ -35,10 +36,11 @@ inline necess-vector<a>(_: (a) -> meta a): (xs: vector(a)) -> meta vector(a) {
 }
 
 inline as-marshal<a>(!m: marshal(a)): marshal(vector(a)) {
+  let Marshal of {necess} = !m in
   Marshal of {
     encode = encode-vector(!m),
     decode = decode-vector(!m),
-    necess = necess-vector(!m::necess),
+    necess = necess-vector(necess),
   }
 }
 
@@ -47,12 +49,13 @@ constant int-vector: marshal(vector(int)) {
 }
 
 define zen(): unit {
+  let Marshal of {encode, decode} = int-vector in
   let buf = create(8) in
   pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
-  let _ on buf = int-vector::encode(buf, val) in
+  let _ on buf = encode(buf, val) in
   pin b = get(buf) in
   pin cursor-ref = new-cell(0) in
-  let mval = int-vector::decode(b, cursor-ref) in
+  let mval = decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
     print("left\n")

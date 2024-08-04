@@ -1,6 +1,5 @@
 import {
   binary-builder.entity {builder, create, get},
-  core.binary {binary},
   core.int.show {show-int},
   core.magic,
   core.matrix {Matrix, get-col-size, get-content, get-row-size, matrix, print-mat},
@@ -36,10 +35,11 @@ inline necess-matrix<a>(_: (a) -> meta a): (xs: matrix(a)) -> meta matrix(a) {
 }
 
 inline as-marshal<a>(!m: marshal(a)): marshal(matrix(a)) {
+  let Marshal of {necess} = !m in
   Marshal of {
     encode = encode-matrix(!m),
     decode = decode-matrix(!m),
-    necess = necess-matrix(!m::necess),
+    necess = necess-matrix(necess),
   }
 }
 
@@ -48,6 +48,7 @@ constant int-matrix: marshal(matrix(int)) {
 }
 
 define zen(): unit {
+  let Marshal of {encode, decode} = int-matrix in
   let buf = create(8) in
   pin val =
     core.matrix.new([
@@ -56,10 +57,10 @@ define zen(): unit {
       [3, 4, 5, 6],
     ])
   in
-  let _ on buf = int-matrix::encode(buf, val) in
+  let _ on buf = encode(buf, val) in
   pin b = get(buf) in
   pin cursor-ref = new-cell(0) in
-  let mval = int-matrix::decode(b, cursor-ref) in
+  let mval = decode(b, cursor-ref) in
   match mval {
   | Left(_) =>
     print("left\n")
