@@ -8,13 +8,13 @@ import {
   this.class.int64,
 }
 
-inline encode-list<a>(m: marshal(a)): (b: &builder, xs: &list(a)) -> unit {
+inline encode-list<a>(!m: marshal(a)): (b: &builder, xs: &list(a)) -> unit {
   define self(b: &builder, xs: &list(a)): unit {
     case xs {
     | Nil =>
       append-int8(b, 0)
     | Cons(y, ys) =>
-      let Marshal of {encode} = m in
+      let Marshal of {encode} = !m in
       append-int8(b, 1);
       encode(b, y);
       self(b, ys)
@@ -22,7 +22,7 @@ inline encode-list<a>(m: marshal(a)): (b: &builder, xs: &list(a)) -> unit {
   }
 }
 
-inline decode-list<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?list(a) {
+inline decode-list<a>(!m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?list(a) {
   define self(b: &binary, cursor-ref: &cell(int)): ?list(a) {
     let cursor = *core.cell.read(cursor-ref) in
     if lt-int(binary-length(b), add-int(cursor, 1)) {
@@ -33,7 +33,7 @@ inline decode-list<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?l
         _proceed(cursor-ref, 1);
         Right(Nil)
       } else-if eq-int8(v, 1) {
-        let Marshal of {decode} = m in
+        let Marshal of {decode} = !m in
         _proceed(cursor-ref, 1);
         try v = decode(b, cursor-ref) in
         try vs = self(b, cursor-ref) in
