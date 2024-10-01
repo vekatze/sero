@@ -1,3 +1,7 @@
+import {
+  this.scene {zen},
+}
+
 define main(): unit {
-  print("Hello, world!\n")
+  zen()
 }
