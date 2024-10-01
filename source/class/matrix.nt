@@ -1,5 +1,7 @@
 import {
   binary-builder.entity {builder, create, get},
+  core.binary {binary},
+  core.cell {cell},
   core.int.show {show-int},
   core.magic,
   core.matrix {Matrix, get-col-size, get-content, get-row-size, matrix, print-mat},

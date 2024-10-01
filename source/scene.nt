@@ -3,10 +3,12 @@ import {
   core.binary.io,
   core.control {discard},
   core.errno {get-error-message, system},
+  core.file {close, open},
   core.file.flag {for-r, for-rw},
   core.file.mode {default-file-mode},
   core.foreign {O_CREAT},
   core.int.show {show-int},
+  core.list {for},
   this.class {Marshal, marshal},
   this.class.int64,
   this.class.list,
@@ -20,7 +22,8 @@ inline save<a>(m: marshal(a), value: &a, path: &text, buffer-size: int): system(
   in
   pin bytes = get(buf) in
   try target-file = open(path, for-rw, default-file-mode) in
-  core.binary.io.write(bytes, target-file)
+  let _ = core.binary.io.write(bytes, target-file) in
+  close(target-file)
 }
 
 inline _lift-nes<a>(nes: (a) -> meta a): (?a) -> meta ?a {
@@ -44,6 +47,7 @@ define load<a>(m: marshal(a), path: &text): system(?a) {
   let Marshal of {necess, decode} = m in
   try source-file = open(path, for-r, []) in
   try content = core.binary.io.read(source-file, 1024) in
+  try _ = close(source-file) in
   let cursor-ref = new-cell(0) in
   letbox-T result: ?a on content, cursor-ref =
     let necess' = _lift-nes(necess) in

@@ -1,7 +1,8 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
-  core.binary {binary-access, binary-length},
+  core.binary {binary, binary-access, binary-length},
+  core.cell {cell},
   core.int.show {show-int},
   core.magic,
   this.class {Marshal, _proceed, marshal},

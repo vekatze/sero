@@ -1,6 +1,7 @@
 import {
   binary-builder.entity {builder},
   core.binary {binary},
+  core.cell {cell, mutate},
 }
 
 data marshal(a) {

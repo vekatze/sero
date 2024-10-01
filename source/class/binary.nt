@@ -2,6 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-binary, append-int8},
   core.binary {binary, binary-access, binary-length},
+  core.cell {cell},
   core.control {loop},
   core.text {_Text},
   this.class {Marshal, _proceed, marshal},

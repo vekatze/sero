@@ -2,6 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int32-big-endian},
   core.binary {binary, binary-access, binary-length},
+  core.cell {cell},
   core.control {discard},
   core.int.show {show-int},
   this.class {Marshal, _proceed, marshal},
