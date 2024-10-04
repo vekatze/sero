@@ -63,8 +63,9 @@ define zen(): unit {
     print("left\n")
   | Right(vs) =>
     print("int-vector\n");
-    core.vector.for(vs, function (v) {
-      printf("val: {}\n", [show-int(v)])
+    pin vs = vs in
+    core.vector.for-N(vs, function (v) {
+      printf("val: {}\n", [show-int(*v)])
     })
   }
 }
