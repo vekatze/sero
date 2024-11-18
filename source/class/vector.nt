@@ -13,7 +13,7 @@ inline encode-vector<a>(m: marshal(a)): (b: &builder, xs: &vector(a)) -> unit {
   function (b: &builder, xs: &vector(a)): unit {
     pin len = core.vector.length(xs) in
     encode-int64(b, len);
-    core.vector.for-N(xs, function (x) {
+    core.vector.for-N(xs, function (x, _) {
       let Marshal of {encode} = m in
       encode(b, x)
     })
@@ -64,7 +64,7 @@ define zen(): unit {
   | Right(vs) =>
     print("int-vector\n");
     pin vs = vs in
-    core.vector.for-N(vs, function (v) {
+    core.vector.for-N(vs, function (v, _) {
       printf("val: {}\n", [show-int(*v)])
     })
   }

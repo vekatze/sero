@@ -1,6 +1,7 @@
 import {
   binary-builder.entity {create, get},
   core.binary.io,
+  core.c-int {from-c-int},
   core.control {discard},
   core.errno {get-error-message, system},
   core.file {close, open},
@@ -67,8 +68,8 @@ constant marshal-list-int: marshal(list(int)) {
 }
 
 define zen(): unit {
-  printf("O_CREAT: {}\n", [show-int(O_CREAT)]);
-  printf("mode: {}\n", [show-int(core.file.mode.interpret(default-file-mode))]);
+  printf("O_CREAT: {}\n", [show-int(from-c-int(O_CREAT))]);
+  printf("mode: {}\n", [show-int(from-c-int(core.file.mode.interpret(default-file-mode)))]);
   pin value: list(int) = [1, 2, 3, 42342, 5, 6] in
   let path = "test.bin" in
   let _ = save(marshal-list-int, value, path, 10) in
