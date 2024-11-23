@@ -5,7 +5,7 @@
 ## Installation
 
 ```sh
-neut get marshal https://github.com/vekatze/marshal/raw/main/archive/0-1-11.tar.zst
+neut get marshal https://github.com/vekatze/marshal/raw/main/archive/0-1-12.tar.zst
 ```
 
 ## Types
