@@ -2,7 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
   core.binary {binary, binary-access, binary-length},
-  core.cell {cell},
+  core.cell {new-cell},
   core.control {discard},
   this.class {Marshal, _proceed, marshal},
 }
@@ -16,7 +16,7 @@ define encode-bool(b: &builder, x: &bool): unit {
 }
 
 define decode-bool(b: &binary, cursor-ref: &cell(int)): ?bool {
-  let cursor = *core.cell.read(cursor-ref) in
+  let cursor = core.cell.clone(cursor-ref) in
   if lt-int(binary-length(b), add-int(cursor, 1)) {
     none()
   } else {

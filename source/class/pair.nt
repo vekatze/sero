@@ -2,7 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   core.binary {binary},
   core.bool.show,
-  core.cell {cell},
+  core.cell {new-cell},
   core.int.show {show-int},
   core.magic,
   this.class {Marshal, marshal},

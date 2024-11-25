@@ -2,7 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
   core.binary {binary, binary-access, binary-length},
-  core.cell {cell},
+  core.cell {new-cell},
   core.int.show {show-int},
   core.magic,
   this.class {Marshal, _proceed, marshal},
@@ -27,7 +27,7 @@ inline encode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &builder, x-or
 
 inline decode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, cursor-ref: &cell(int)) -> ?either(a, b) {
   function (buf: &binary, cursor-ref: &cell(int)): ?either(a, b) {
-    let cursor = *core.cell.read(cursor-ref) in
+    let cursor = core.cell.clone(cursor-ref) in
     if lt-int(binary-length(buf), add-int(cursor, 1)) {
       none()
     } else {

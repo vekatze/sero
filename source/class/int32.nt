@@ -2,7 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int32-big-endian},
   core.binary {binary, binary-access, binary-length},
-  core.cell {cell},
+  core.cell {new-cell},
   core.control {discard},
   core.int.show {show-int},
   this.class {Marshal, _proceed, marshal},
@@ -13,7 +13,7 @@ define encode-int32(b: &builder, x: &int32): unit {
 }
 
 define decode-int32(b: &binary, cursor-ref: &cell(int)): ?int32 {
-  let cursor = *core.cell.read(cursor-ref) in
+  let cursor = core.cell.clone(cursor-ref) in
   if lt-int(binary-length(b), add-int(cursor, 4)) {
     none()
   } else {

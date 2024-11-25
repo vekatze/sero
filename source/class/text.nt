@@ -2,7 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8, append-text},
   core.binary {binary, binary-access},
-  core.cell {cell},
+  core.cell {new-cell},
   core.control {loop},
   core.text {_Text},
   this.class {Marshal, _proceed, marshal},
@@ -18,7 +18,7 @@ define encode-text(b: &builder, x: &text): unit {
 define decode-text(b: &binary, cursor-ref: &cell(int)): ?text {
   try len = decode-int64(b, cursor-ref) in
   let buf = create(len) in
-  let cursor = *core.cell.read(cursor-ref) in
+  let cursor = core.cell.clone(cursor-ref) in
   let _ on buf =
     loop(len, function (k) {
       let v = binary-access(b, add-int(cursor, k)) in

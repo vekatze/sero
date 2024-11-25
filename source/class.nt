@@ -1,7 +1,7 @@
 import {
   binary-builder.entity {builder},
   core.binary {binary},
-  core.cell {cell, mutate},
+  core.cell {mutate},
 }
 
 data marshal(a) {
@@ -14,6 +14,6 @@ data marshal(a) {
 
 define _proceed(cursor: &cell(int), offset: int): unit {
   mutate(cursor, function (x) {
-    add-int(x, offset)
+    quote {add-int(x, offset)}
   })
 }

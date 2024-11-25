@@ -2,7 +2,7 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
   core.binary {binary, binary-access, binary-length},
-  core.cell {cell},
+  core.cell {new-cell},
   core.int.show {show-int},
   core.list {for},
   core.magic,
@@ -26,7 +26,7 @@ inline encode-list<a>(!m: marshal(a)): (b: &builder, xs: &list(a)) -> unit {
 
 inline decode-list<a>(!m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?list(a) {
   define self(b: &binary, cursor-ref: &cell(int)): ?list(a) {
-    let cursor = *core.cell.read(cursor-ref) in
+    let cursor = core.cell.clone(cursor-ref) in
     if lt-int(binary-length(b), add-int(cursor, 1)) {
       none()
     } else {

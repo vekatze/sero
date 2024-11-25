@@ -1,7 +1,7 @@
 import {
   binary-builder.entity {builder, create, get},
   core.binary {binary},
-  core.cell {cell},
+  core.cell {new-cell},
   core.int.show {show-int},
   core.magic,
   core.vector {vector},
