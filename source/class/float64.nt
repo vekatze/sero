@@ -15,7 +15,7 @@ define encode-float64(b: &builder, x: &float64): unit {
 define decode-float64(b: &binary, cursor-ref: &cell(int)): ?float64 {
   let cursor = core.cell.clone(cursor-ref) in
   if lt-int(binary-length(b), add-int(cursor, 8)) {
-    none()
+    none
   } else {
     let v7 = binary-access(b, add-int(cursor, 0)) in
     let v6 = binary-access(b, add-int(cursor, 1)) in
@@ -39,7 +39,7 @@ define decode-float64(b: &binary, cursor-ref: &cell(int)): ?float64 {
   }
 }
 
-constant as-marshal: marshal(float64) {
+inline as-marshal: marshal(float64) {
   Marshal of {
     encode = encode-float64,
     decode = decode-float64,

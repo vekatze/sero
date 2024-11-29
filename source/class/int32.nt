@@ -15,7 +15,7 @@ define encode-int32(b: &builder, x: &int32): unit {
 define decode-int32(b: &binary, cursor-ref: &cell(int)): ?int32 {
   let cursor = core.cell.clone(cursor-ref) in
   if lt-int(binary-length(b), add-int(cursor, 4)) {
-    none()
+    none
   } else {
     let v3 = binary-access(b, add-int(cursor, 0)) in
     let v2 = binary-access(b, add-int(cursor, 1)) in
@@ -31,7 +31,7 @@ define decode-int32(b: &binary, cursor-ref: &cell(int)): ?int32 {
   }
 }
 
-constant as-marshal: marshal(int32) {
+inline as-marshal: marshal(int32) {
   Marshal of {
     encode = encode-int32,
     decode = decode-int32,

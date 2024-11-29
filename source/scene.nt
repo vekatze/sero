@@ -32,7 +32,7 @@ inline _lift-nes<a>(nes: (a) -> meta a): (?a) -> meta ?a {
   function (x: ?a) {
     match x {
     | Left(_) =>
-      box {none()}
+      box {none}
     | Right(v) =>
       let v' = nes(v) in
       box {
@@ -64,7 +64,7 @@ define _quote-int(i: int): meta int {
   quote {i}
 }
 
-constant marshal-list-int: marshal(list(int)) {
+inline marshal-list-int: marshal(list(int)) {
   this.class.list.as-marshal(this.class.int64.as-marshal)
 }
 

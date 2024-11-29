@@ -46,7 +46,7 @@ inline as-marshal<a>(!m: marshal(a)): marshal(vector(a)) {
   }
 }
 
-constant int-vector: marshal(vector(int)) {
+inline int-vector: marshal(vector(int)) {
   as-marshal(this.class.int64.as-marshal)
 }
 

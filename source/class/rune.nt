@@ -18,7 +18,7 @@ define decode-rune(b: &binary, cursor-ref: &cell(int)): ?rune {
   from-int(zext-int32-int(v))
 }
 
-constant as-marshal: marshal(rune) {
+inline as-marshal: marshal(rune) {
   Marshal of {
     encode = encode-rune,
     decode = decode-rune,

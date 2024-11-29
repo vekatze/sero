@@ -15,7 +15,7 @@ define encode-int64(b: &builder, x: &int64): unit {
 define decode-int64(b: &binary, cursor-ref: &cell(int)): ?int64 {
   let cursor = core.cell.clone(cursor-ref) in
   if lt-int(binary-length(b), add-int(cursor, 8)) {
-    none()
+    none
   } else {
     let v7 = binary-access(b, add-int(cursor, 0)) in
     let v6 = binary-access(b, add-int(cursor, 1)) in
@@ -39,7 +39,7 @@ define decode-int64(b: &binary, cursor-ref: &cell(int)): ?int64 {
   }
 }
 
-constant as-marshal: marshal(int64) {
+inline as-marshal: marshal(int64) {
   Marshal of {
     encode = encode-int64,
     decode = decode-int64,

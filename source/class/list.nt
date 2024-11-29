@@ -28,7 +28,7 @@ inline decode-list<a>(!m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?
   define self(b: &binary, cursor-ref: &cell(int)): ?list(a) {
     let cursor = core.cell.clone(cursor-ref) in
     if lt-int(binary-length(b), add-int(cursor, 1)) {
-      none()
+      none
     } else {
       let v = binary-access(b, add-int(cursor, 0)) in
       if eq-int8(v, 0) {
@@ -41,7 +41,7 @@ inline decode-list<a>(!m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?
         try vs = self(b, cursor-ref) in
         Right(Cons(v, vs))
       } else {
-        none()
+        none
       }
     }
   }
@@ -62,7 +62,7 @@ inline as-marshal<a>(!m: marshal(a)): marshal(list(a)) {
   }
 }
 
-constant int-list: marshal(list(int)) {
+inline int-list: marshal(list(int)) {
   as-marshal(this.class.int64.as-marshal)
 }
 

@@ -30,7 +30,7 @@ define decode-binary(b: &binary, cursor-ref: &cell(int)): ?binary {
   Right(result)
 }
 
-constant as-marshal: marshal(binary) {
+inline as-marshal: marshal(binary) {
   Marshal of {
     encode = encode-binary,
     decode = decode-binary,

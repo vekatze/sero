@@ -29,7 +29,7 @@ inline decode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, curso
   function (buf: &binary, cursor-ref: &cell(int)): ?either(a, b) {
     let cursor = core.cell.clone(cursor-ref) in
     if lt-int(binary-length(buf), add-int(cursor, 1)) {
-      none()
+      none
     } else {
       let v = binary-access(buf, add-int(cursor, 0)) in
       if eq-int8(v, 0) {
@@ -43,7 +43,7 @@ inline decode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, curso
         try r = decode(buf, cursor-ref) in
         Right(Right(r))
       } else {
-        none()
+        none
       }
     }
   }
@@ -63,7 +63,7 @@ inline as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(either(a, b))
   }
 }
 
-constant either-int-bool: marshal(either(int, bool)) {
+inline either-int-bool: marshal(either(int, bool)) {
   as-marshal(this.class.int64.as-marshal, this.class.bool.as-marshal)
 }
 

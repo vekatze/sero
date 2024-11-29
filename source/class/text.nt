@@ -30,7 +30,7 @@ define decode-text(b: &binary, cursor-ref: &cell(int)): ?text {
   Right(_Text(result))
 }
 
-constant as-marshal: marshal(text) {
+inline as-marshal: marshal(text) {
   Marshal of {
     encode = encode-text,
     decode = decode-text,

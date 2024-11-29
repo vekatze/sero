@@ -18,7 +18,7 @@ define encode-bool(b: &builder, x: &bool): unit {
 define decode-bool(b: &binary, cursor-ref: &cell(int)): ?bool {
   let cursor = core.cell.clone(cursor-ref) in
   if lt-int(binary-length(b), add-int(cursor, 1)) {
-    none()
+    none
   } else {
     let v = binary-access(b, add-int(cursor, 0)) in
     _proceed(cursor-ref, 1);
@@ -26,7 +26,7 @@ define decode-bool(b: &binary, cursor-ref: &cell(int)): ?bool {
   }
 }
 
-constant as-marshal: marshal(bool) {
+inline as-marshal: marshal(bool) {
   Marshal of {
     encode = encode-bool,
     decode = decode-bool,

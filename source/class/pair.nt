@@ -44,7 +44,7 @@ inline as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(pair(a, b)) {
   }
 }
 
-constant pair-int-bool: marshal(pair(int, bool)) {
+inline pair-int-bool: marshal(pair(int, bool)) {
   as-marshal(this.class.int64.as-marshal, this.class.bool.as-marshal)
 }
 
