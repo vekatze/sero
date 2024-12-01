@@ -34,19 +34,19 @@ define load<a>(m: marshal(a), path: &text): system(?a)
 You can quickly construct values of type `marshal(a)` by using some of the following terms:
 
 ```neut
-constant this.class.binary.as-marshal: marshal(binary)
+inline this.class.binary.as-marshal: marshal(binary)
 
-constant this.class.bool.as-marshal: marshal(bool)
+inline this.class.bool.as-marshal: marshal(bool)
 
-constant this.class.float64.as-marshal: marshal(float64)
+inline this.class.float64.as-marshal: marshal(float64)
 
-constant this.class.int32.as-marshal: marshal(int32)
+inline this.class.int32.as-marshal: marshal(int32)
 
-constant this.class.int64.as-marshal: marshal(int64)
+inline this.class.int64.as-marshal: marshal(int64)
 
-constant this.class.rune.as-marshal: marshal(rune)
+inline this.class.rune.as-marshal: marshal(rune)
 
-constant this.class.text.as-marshal: marshal(text)
+inline this.class.text.as-marshal: marshal(text)
 
 inline this.class.either.as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(either(a, b))
 
