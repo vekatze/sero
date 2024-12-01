@@ -63,7 +63,7 @@ inline this.class.vector.as-marshal<a>(!m: marshal(a)): marshal(vector(a))
 
 ```neut
 // Creates a class to save/load values of type list(int)
-constant marshal-list-int: marshal(list(int)) {
+inline marshal-list-int: marshal(list(int)) {
   marshal.class.list.as-marshal(marshal.class.int64.as-marshal)
 }
 
