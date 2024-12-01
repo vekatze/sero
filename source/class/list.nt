@@ -33,13 +33,13 @@ inline decode-list<a>(!m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?
       let v = binary-access(b, add-int(cursor, 0)) in
       if eq-int8(v, 0) {
         _proceed(cursor-ref, 1);
-        Right(Nil)
+        OK(Nil)
       } else-if eq-int8(v, 1) {
         let Marshal of {decode} = !m in
         _proceed(cursor-ref, 1);
         try v = decode(b, cursor-ref) in
         try vs = self(b, cursor-ref) in
-        Right(Cons(v, vs))
+        OK(Cons(v, vs))
       } else {
         none
       }
@@ -75,9 +75,9 @@ define zen(): unit {
   pin cursor-ref = new-cell(0) in
   let mval = decode(b, cursor-ref) in
   match mval {
-  | Left(_) =>
+  | Error(_) =>
     print("left\n")
-  | Right(vs) =>
+  | OK(vs) =>
     print("int-list\n");
     for(vs, function (v) {
       printf("val: {}\n", [show-int(v)])

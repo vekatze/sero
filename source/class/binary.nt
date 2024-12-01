@@ -27,7 +27,7 @@ define decode-binary(b: &binary, cursor-ref: &cell(int)): ?binary {
   in
   let result = get(buf) in
   _proceed(cursor-ref, len);
-  Right(result)
+  OK(result)
 }
 
 inline as-marshal: marshal(binary) {
@@ -50,9 +50,9 @@ define zen(): unit {
   pin cursor-ref = new-cell(0) in
   let mval = decode-binary(b, cursor-ref) in
   match mval {
-  | Left(_) =>
+  | Error(_) =>
     print("left")
-  | Right(v) =>
+  | OK(v) =>
     printf("value: {}\n", [_Text(v)])
   }
 }

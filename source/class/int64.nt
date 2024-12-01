@@ -35,7 +35,7 @@ define decode-int64(b: &binary, cursor-ref: &cell(int)): ?int64 {
     let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v1), 8)) in
     let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v0), 0)) in
     _proceed(cursor-ref, 8);
-    Right(tmp)
+    OK(tmp)
   }
 }
 
@@ -60,9 +60,9 @@ define zen(): unit {
   let mval on b = decode-int64(b, cursor-ref) in
   discard(b);
   match mval {
-  | Left(_) =>
+  | Error(_) =>
     print("left")
-  | Right(v) =>
+  | OK(v) =>
     printf("value: {}\n", [show-int(v)])
   }
 }

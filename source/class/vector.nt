@@ -23,10 +23,10 @@ inline encode-vector<a>(m: marshal(a)): (b: &builder, xs: &vector(a)) -> unit {
 inline decode-vector<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?vector(a) {
   function (b: &binary, cursor-ref: &cell(int)): ?vector(a) {
     try len = decode-int64(b, cursor-ref) in
-    core.vector.create-maybe(len, function (_) {
+    core.vector.create-E(len, function (_) {
       let Marshal of {decode} = m in
       try value = decode(b, cursor-ref) in
-      Right(value)
+      OK(value)
     })
   }
 }
@@ -59,9 +59,9 @@ define zen(): unit {
   pin cursor-ref = new-cell(0) in
   let mval = decode(b, cursor-ref) in
   match mval {
-  | Left(_) =>
+  | Error(_) =>
     print("left\n")
-  | Right(vs) =>
+  | OK(vs) =>
     print("int-vector\n");
     pin vs = vs in
     core.vector.for-N(vs, function (v, _) {

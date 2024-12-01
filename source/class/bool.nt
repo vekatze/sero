@@ -22,7 +22,7 @@ define decode-bool(b: &binary, cursor-ref: &cell(int)): ?bool {
   } else {
     let v = binary-access(b, add-int(cursor, 0)) in
     _proceed(cursor-ref, 1);
-    Right(eq-int8(v, 1))
+    OK(eq-int8(v, 1))
   }
 }
 
@@ -47,9 +47,9 @@ define zen(): unit {
   let mval on b = decode-bool(b, cursor-ref) in
   discard(b);
   match mval {
-  | Left(_) =>
+  | Error(_) =>
     print("left")
-  | Right(v) =>
+  | OK(v) =>
     if v {
       print("true\n")
     } else {
