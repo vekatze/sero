@@ -75,13 +75,13 @@ define zen(): unit {
   // Loads the value from `path`
   let v = load(marshal-list-int, path) in
   match v {
-  | Error(e) =>
+  | Left(e) =>
     printf("error: {}\n", [get-error-message(e)]);
-  | OK(v) =>
+  | Right(v) =>
     match v {
-    | Error(_) =>
+    | Left(_) =>
       Unit
-    | OK(xs) =>
+    | Right(xs) =>
       for(xs, function (x) {
         printf("{}\n", [show-int(x)])
       })

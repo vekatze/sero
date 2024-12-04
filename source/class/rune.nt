@@ -38,9 +38,9 @@ define zen(): unit {
   pin cursor-ref = new-cell(0) in
   let mval = decode-rune(b, cursor-ref) in
   match mval {
-  | Error(_) =>
+  | Left(_) =>
     print("left")
-  | OK(v) =>
+  | Right(v) =>
     printf("value: {}\n", [show-rune(v)])
   }
 }

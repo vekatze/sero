@@ -31,12 +31,12 @@ inline save<a>(m: marshal(a), value: &a, path: &text, buffer-size: int): system(
 inline _lift-nes<a>(nes: (a) -> meta a): (?a) -> meta ?a {
   function (x: ?a) {
     match x {
-    | Error(_) =>
+    | Left(_) =>
       box {none}
-    | OK(v) =>
+    | Right(v) =>
       let v' = nes(v) in
       box {
-        OK(
+        Right(
           letbox tmp = v' in
           tmp,
         )
@@ -57,7 +57,7 @@ define load<a>(m: marshal(a), path: &text): system(?a) {
   in
   discard(content);
   discard(cursor-ref);
-  OK(result)
+  Right(result)
 }
 
 define _quote-int(i: int): meta int {
@@ -76,14 +76,14 @@ define zen(): unit {
   let _ = save(marshal-list-int, value, path, 10) in
   let v = load(marshal-list-int, path) in
   match v {
-  | Error(e) =>
+  | Left(e) =>
     printf("left: {}\n", [get-error-message(e)])
-  | OK(v) =>
+  | Right(v) =>
     print("right\n");
     match v {
-    | Error(_) =>
+    | Left(_) =>
       print("right-left")
-    | OK(xs) =>
+    | Right(xs) =>
       for(xs, function (x) {
         printf("right-right: {}\n", [show-int(x)])
       })

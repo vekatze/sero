@@ -27,7 +27,7 @@ define decode-text(b: &binary, cursor-ref: &cell(int)): ?text {
   in
   let result = get(buf) in
   _proceed(cursor-ref, len);
-  OK(_Text(result))
+  Right(_Text(result))
 }
 
 inline as-marshal: marshal(text) {
@@ -50,9 +50,9 @@ define zen(): unit {
   pin cursor-ref = new-cell(0) in
   let mval = decode-text(b, cursor-ref) in
   match mval {
-  | Error(_) =>
+  | Left(_) =>
     print("left")
-  | OK(v) =>
+  | Right(v) =>
     printf("value: {}\n", [v])
   }
 }

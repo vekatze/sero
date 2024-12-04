@@ -37,12 +37,12 @@ inline decode-either<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, curso
         _proceed(cursor-ref, 1);
         let Marshal of {decode} = m1 in
         try l = decode(buf, cursor-ref) in
-        OK(Left(l))
+        Right(Left(l))
       } else-if eq-int8(v, 1) {
         _proceed(cursor-ref, 1);
         let Marshal of {decode} = m2 in
         try r = decode(buf, cursor-ref) in
-        OK(Right(r))
+        Right(Right(r))
       } else {
         none
       }
@@ -77,9 +77,9 @@ define zen(): unit {
   pin cursor-ref = new-cell(0) in
   let mval = decode(b, cursor-ref) in
   match mval {
-  | Error(_) =>
+  | Left(_) =>
     print("error\n")
-  | OK(x-or-y) =>
+  | Right(x-or-y) =>
     match x-or-y {
     | Left(x) =>
       printf("int: {}\n", [show-int(x)])

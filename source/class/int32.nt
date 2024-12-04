@@ -27,7 +27,7 @@ define decode-int32(b: &binary, cursor-ref: &cell(int)): ?int32 {
     let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v1), 8)) in
     let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v0), 0)) in
     _proceed(cursor-ref, 4);
-    OK(tmp)
+    Right(tmp)
   }
 }
 
@@ -52,9 +52,9 @@ define zen(): unit {
   let mval on b = decode-int32(b, cursor-ref) in
   discard(b);
   match mval {
-  | Error(_) =>
+  | Left(_) =>
     print("left")
-  | OK(v) =>
+  | Right(v) =>
     printf("value: {}\n", [show-int(sext-int32-int(v))])
   }
 }

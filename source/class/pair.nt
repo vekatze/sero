@@ -26,7 +26,7 @@ inline decode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, cursor-
     let Marshal of {decode = decode2} = m2 in
     try l = decode1(buf, cursor-ref) in
     try r = decode2(buf, cursor-ref) in
-    OK(Pair(l, r))
+    Right(Pair(l, r))
   }
 }
 
@@ -57,9 +57,9 @@ define zen(): unit {
   pin cursor-ref = new-cell(0) in
   let mval = decode(b, cursor-ref) in
   match mval {
-  | Error(_) =>
+  | Left(_) =>
     print("left\n")
-  | OK(xy) =>
+  | Right(xy) =>
     let Pair(x, y) = xy in
     printf("int: {}\n", [show-int(x)]);
     printf("bool: {}\n", [core.bool.show.show(y)])
