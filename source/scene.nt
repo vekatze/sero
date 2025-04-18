@@ -2,7 +2,6 @@ import {
   binary-builder.entity {create, get},
   core.binary.io,
   core.c-int {from-c-int},
-  core.cell {new-cell},
   core.control {discard},
   core.file {close, open},
   core.file.flag {for-r, for-rw},
