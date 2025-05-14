@@ -2,15 +2,18 @@ import {
   binary-builder.entity {builder, create, get},
   core.binary {binary},
   core.bool.show,
+  core.box {axiom-T},
   core.int.show {show-int},
-  core.magic,
-  this.class {Marshal, marshal},
-  this.class.bool,
-  this.class.int64,
+  this.move.class.bool,
+  this.move.class.int64,
+  this.rule.marshal {Marshal, marshal},
 }
 
-inline encode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &builder, xy: &pair(a, b)) -> unit {
-  function (buf: &builder, xy: &pair(a, b)): unit {
+inline encode-pair<a1, a2, b1, b2>(
+  m1: marshal(a1, a2),
+  m2: marshal(b1, b2),
+): (buf: &builder, xy: &pair(a1, b1)) -> unit {
+  function (buf: &builder, xy: &pair(a1, b1)): unit {
     tie Pair(x, y) = xy in
     let Marshal of {encode = encode1} = m1 in
     let Marshal of {encode = encode2} = m2 in
@@ -19,32 +22,32 @@ inline encode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &builder, xy: &p
   }
 }
 
-inline decode-pair<a, b>(m1: marshal(a), m2: marshal(b)): (buf: &binary, cursor-ref: &cell(int)) -> ?pair(a, b) {
-  function (buf: &binary, cursor-ref: &cell(int)): ?pair(a, b) {
+inline decode-pair<a1, a2, b1, b2>(
+  m1: marshal(a1, a2),
+  m2: marshal(b1, b2),
+): (buf: &binary, cursor-ref: &cell(int)) -> ?meta pair(a2, b2) {
+  function (buf: &binary, cursor-ref: &cell(int)): ?meta pair(a2, b2) {
     let Marshal of {decode = decode1} = m1 in
     let Marshal of {decode = decode2} = m2 in
     try l = decode1(buf, cursor-ref) in
     try r = decode2(buf, cursor-ref) in
-    Right(Pair(l, r))
+    Right(box {
+      letbox l' = l in
+      letbox r' = r in
+      Pair(l', r')
+    })
   }
 }
 
-inline necess-pair<a, b>(_: marshal(a), _: marshal(b)): (pair(a, b)) -> meta pair(a, b) {
-  function (x) {
-    core.magic.cast(pair(a, b), meta pair(a, b), x)
-  }
-}
-
-inline as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(pair(a, b)) {
+inline as-marshal<a1, a2, b1, b2>(!m1: marshal(a1, a2), !m2: marshal(b1, b2)): marshal(pair(a1, b1), pair(a2, b2)) {
   Marshal of {
     encode = encode-pair(!m1, !m2),
     decode = decode-pair(!m1, !m2),
-    necess = necess-pair(!m1, !m2),
   }
 }
 
-inline pair-int-bool: marshal(pair(int, bool)) {
-  as-marshal(this.class.int64.as-marshal, this.class.bool.as-marshal)
+inline pair-int-bool: marshal(pair(int, bool), pair(int, bool)) {
+  as-marshal(this.move.class.int64.as-marshal, this.move.class.bool.as-marshal)
 }
 
 define zen(): unit {
@@ -59,7 +62,7 @@ define zen(): unit {
   | Left(_) =>
     print("left\n")
   | Right(xy) =>
-    let Pair(x, y) = xy in
+    let Pair(x, y) = axiom-T(xy) in
     printf("int: {}\n", [show-int(x)]);
     printf("bool: {}\n", [core.bool.show.show(y)])
   }

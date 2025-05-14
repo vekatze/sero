@@ -1,0 +1,21 @@
+import {
+  binary-builder.entity {create, get},
+  core.binary.io,
+  core.file {close, open},
+  core.file.flag {for-rw},
+  core.file.mode {default-file-mode},
+  core.system {system},
+  this.rule.marshal {Marshal, marshal},
+}
+
+inline save<a, b>(m: marshal(a, b), value: &a, path: &text, buffer-size: int): system(unit) {
+  let buf = create(buffer-size) in
+  let _ on buf =
+    let Marshal of {encode} = m in
+    encode(buf, value)
+  in
+  pin bytes = get(buf) in
+  try target-file = open(path, for-rw, default-file-mode) in
+  let _ = core.binary.io.write(bytes, target-file) in
+  close(target-file)
+}

@@ -1,0 +1,30 @@
+import {
+  core.binary.io,
+  core.control {discard},
+  core.file {close, open},
+  core.file.flag {for-r},
+  core.system {system},
+  this.rule.marshal {Marshal, marshal},
+}
+
+define load<a, b>(m: marshal(a, b), path: &text): system(?b) {
+  let Marshal of {decode} = m in
+  try source-file = open(path, for-r, []) in
+  try content = core.binary.io.read(source-file, 1024) in
+  try _ = close(source-file) in
+  let cursor-ref = new-cell(0) in
+  letbox-T result: ?b on content, cursor-ref =
+    match decode(content, cursor-ref) {
+    | Left(_) =>
+      box {none}
+    | Right(v) =>
+      box {
+        letbox v' = v in
+        Right(v')
+      }
+    }
+  in
+  discard(content);
+  discard(cursor-ref);
+  Right(result)
+}

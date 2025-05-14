@@ -1,0 +1,42 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int8},
+  core.binary {binary},
+  core.box {axiom-T},
+  core.control {discard},
+  core.int.show {show-int},
+  this.move.common.cursor {proceed-int8},
+  this.rule.marshal {Marshal, marshal},
+}
+
+define encode-int8(b: &builder, x: &int8): unit {
+  append-int8(b, *x)
+}
+
+define decode-int8(b: &binary, cursor-ref: &cell(int)): ?meta int8 {
+  try v = proceed-int8(b, cursor-ref) in
+  Right(quote {v})
+}
+
+inline as-marshal: marshal(int8, int8) {
+  Marshal of {
+    encode = encode-int8,
+    decode = decode-int8,
+  }
+}
+
+define zen(): unit {
+  let buf = create(4) in
+  pin val = 127 in
+  let _ on buf = encode-int8(buf, val) in
+  let b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval on b = decode-int8(b, cursor-ref) in
+  discard(b);
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-int(sext-int8-int(axiom-T(v)))])
+  }
+}

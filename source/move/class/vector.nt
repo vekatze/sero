@@ -1,15 +1,15 @@
 import {
   binary-builder.entity {builder, create, get},
   core.binary {binary},
+  core.box {axiom-T},
   core.int.show {show-int},
-  core.magic,
   core.vector {vector},
-  this.class {Marshal, marshal},
-  this.class.int64 {decode-int64, encode-int64},
+  this.move.class.int64 {decode-int64, encode-int64},
+  this.rule.marshal {Marshal, marshal},
 }
 
-inline encode-vector<a>(m: marshal(a)): (b: &builder, xs: &vector(a)) -> unit {
-  function (b: &builder, xs: &vector(a)): unit {
+inline encode-vector<a1, a2>(m: marshal(a1, a2)): (b: &builder, xs: &vector(a1)) -> unit {
+  function (b: &builder, xs: &vector(a1)): unit {
     pin len = core.vector.length(xs) in
     encode-int64(b, len);
     core.vector.for-N(xs, function (x, _) {
@@ -19,34 +19,29 @@ inline encode-vector<a>(m: marshal(a)): (b: &builder, xs: &vector(a)) -> unit {
   }
 }
 
-inline decode-vector<a>(m: marshal(a)): (b: &binary, cursor-ref: &cell(int)) -> ?vector(a) {
-  function (b: &binary, cursor-ref: &cell(int)): ?vector(a) {
+inline decode-vector<a1, a2>(m: marshal(a1, a2)): (b: &binary, cursor-ref: &cell(int)) -> ?meta vector(a2) {
+  function (b: &binary, cursor-ref: &cell(int)): ?meta vector(a2) {
     try len = decode-int64(b, cursor-ref) in
-    core.vector.create-E(len, function (_) {
-      let Marshal of {decode} = m in
-      try value = decode(b, cursor-ref) in
-      Right(value)
-    })
+    try vs =
+      core.vector.create-E(axiom-T(len), function (_) {
+        let Marshal of {decode} = m in
+        try value = decode(b, cursor-ref) in
+        Right(axiom-T(value))
+      })
+    in
+    Right(magic cast(vector(a2), meta vector(a2), vs))
   }
 }
 
-inline necess-vector<a>(_: (a) -> meta a): (xs: vector(a)) -> meta vector(a) {
-  function (xs) {
-    core.magic.cast(vector(a), meta vector(a), xs)
-  }
-}
-
-inline as-marshal<a>(!m: marshal(a)): marshal(vector(a)) {
-  let Marshal of {necess} = !m in
+inline as-marshal<a1, a2>(!m: marshal(a1, a2)): marshal(vector(a1), vector(a2)) {
   Marshal of {
     encode = encode-vector(!m),
     decode = decode-vector(!m),
-    necess = necess-vector(necess),
   }
 }
 
-inline int-vector: marshal(vector(int)) {
-  as-marshal(this.class.int64.as-marshal)
+inline int-vector: marshal(vector(int), vector(int)) {
+  as-marshal(this.move.class.int64.as-marshal)
 }
 
 define zen(): unit {
@@ -62,7 +57,7 @@ define zen(): unit {
     print("left\n")
   | Right(vs) =>
     print("int-vector\n");
-    pin vs = vs in
+    pin vs = axiom-T(vs) in
     core.vector.for-N(vs, function (v, _) {
       printf("val: {}\n", [show-int(*v)])
     })

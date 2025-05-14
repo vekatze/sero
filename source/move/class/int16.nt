@@ -1,0 +1,42 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int16-big-endian},
+  core.binary {binary},
+  core.box {axiom-T},
+  core.control {discard},
+  core.int.show {show-int},
+  this.move.common.cursor {proceed-int16},
+  this.rule.marshal {Marshal, marshal},
+}
+
+define encode-int16(b: &builder, x: &int16): unit {
+  append-int16-big-endian(b, *x)
+}
+
+define decode-int16(b: &binary, cursor-ref: &cell(int)): ?meta int16 {
+  try v = proceed-int16(b, cursor-ref) in
+  Right(quote {v})
+}
+
+inline as-marshal: marshal(int16, int16) {
+  Marshal of {
+    encode = encode-int16,
+    decode = decode-int16,
+  }
+}
+
+define zen(): unit {
+  let buf = create(4) in
+  pin val = -12345 in
+  let _ on buf = encode-int16(buf, val) in
+  let b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval on b = decode-int16(b, cursor-ref) in
+  discard(b);
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-int(sext-int16-int(axiom-T(v)))])
+  }
+}

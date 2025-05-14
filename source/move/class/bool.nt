@@ -1,0 +1,47 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int8},
+  core.binary {binary},
+  core.box {axiom-T},
+  this.move.common.cursor {proceed-int8},
+  this.rule.marshal {Marshal, marshal},
+}
+
+define _encode(b: &builder, x: &bool): unit {
+  if *x {
+    append-int8(b, 1)
+  } else {
+    append-int8(b, 0)
+  }
+}
+
+define _decode(b: &binary, cursor-ref: &cell(int)): ?meta bool {
+  try v = proceed-int8(b, cursor-ref) in
+  Right(quote {eq-int8(v, 1)})
+}
+
+inline as-marshal: marshal(bool, bool) {
+  Marshal of {
+    encode = _encode,
+    decode = _decode,
+  }
+}
+
+define zen(): unit {
+  let buf = create(1) in
+  pin val = True in
+  let _ on buf = _encode(buf, val) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  match _decode(b, cursor-ref) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    let v = axiom-T(v) in
+    if v {
+      print("true\n")
+    } else {
+      print("false\n")
+    }
+  }
+}

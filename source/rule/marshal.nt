@@ -1,0 +1,11 @@
+import {
+  binary-builder.entity {builder},
+  core.binary {binary},
+}
+
+data marshal(a, b) {
+| Marshal(
+    encode: (buffer: &builder, value: &a) -> unit,
+    decode: (bytes: &binary, cursor: &cell(int)) -> ?meta b,
+  )
+}

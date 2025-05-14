@@ -1,0 +1,42 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int32-big-endian},
+  core.binary {binary},
+  core.box {axiom-T},
+  core.control {discard},
+  core.int.show {show-int},
+  this.move.common.cursor {proceed-int32},
+  this.rule.marshal {Marshal, marshal},
+}
+
+define encode-int32(b: &builder, x: &int32): unit {
+  append-int32-big-endian(b, *x)
+}
+
+define decode-int32(b: &binary, cursor-ref: &cell(int)): ?meta int32 {
+  try v = proceed-int32(b, cursor-ref) in
+  Right(quote {v})
+}
+
+inline as-marshal: marshal(int32, int32) {
+  Marshal of {
+    encode = encode-int32,
+    decode = decode-int32,
+  }
+}
+
+define zen(): unit {
+  let buf = create(4) in
+  pin val = 14909826 in
+  let _ on buf = encode-int32(buf, val) in
+  let b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval on b = decode-int32(b, cursor-ref) in
+  discard(b);
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-int(sext-int32-int(axiom-T(v)))])
+  }
+}

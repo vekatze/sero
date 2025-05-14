@@ -1,0 +1,90 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int8},
+  core.binary {binary},
+  core.box {axiom-T},
+  core.int.show {show-int},
+  this.move.class.bool,
+  this.move.class.int64,
+  this.move.common.cursor {proceed-int8},
+  this.rule.marshal {Marshal, marshal},
+}
+
+inline encode-either<a1, a2, b1, b2>(
+  m1: marshal(a1, a2),
+  m2: marshal(b1, b2),
+): (buf: &builder, x-or-y: &either(a1, b1)) -> unit {
+  function (buf: &builder, x-or-y: &either(a1, b1)): unit {
+    case x-or-y {
+    | Left(x) =>
+      let Marshal of {encode} = m1 in
+      append-int8(buf, 0);
+      encode(buf, x)
+    | Right(y) =>
+      let Marshal of {encode} = m2 in
+      append-int8(buf, 1);
+      encode(buf, y)
+    }
+  }
+}
+
+inline decode-either<a1, a2, b1, b2>(
+  m1: marshal(a1, a2),
+  m2: marshal(b1, b2),
+): (buf: &binary, cursor-ref: &cell(int)) -> ?meta either(a2, b2) {
+  function (buf: &binary, cursor-ref: &cell(int)): ?meta either(a2, b2) {
+    try tag = proceed-int8(buf, cursor-ref) in
+    if eq-int8(tag, 0) {
+      let Marshal of {decode} = m1 in
+      try l = decode(buf, cursor-ref) in
+      Right(box {
+        letbox l' = l in
+        Left(l')
+      })
+    } else-if eq-int8(tag, 1) {
+      let Marshal of {decode} = m2 in
+      try r = decode(buf, cursor-ref) in
+      Right(box {
+        letbox r' = r in
+        Right(r')
+      })
+    } else {
+      none
+    }
+  }
+}
+
+inline as-marshal<a1, a2, b1, b2>(
+  !m1: marshal(a1, a2),
+  !m2: marshal(b1, b2),
+): marshal(either(a1, b1), either(a2, b2)) {
+  Marshal of {
+    encode = encode-either(!m1, !m2),
+    decode = decode-either(!m1, !m2),
+  }
+}
+
+inline either-int-bool: marshal(either(int, bool), either(int, bool)) {
+  as-marshal(this.move.class.int64.as-marshal, this.move.class.bool.as-marshal)
+}
+
+define zen(): unit {
+  let Marshal of {encode, decode} = either-int-bool in
+  let buf = create(8) in
+  pin val = Left(-1234) in
+  let _ on buf = encode(buf, val) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval = decode(b, cursor-ref) in
+  match mval {
+  | Left(_) =>
+    print("error\n")
+  | Right(x-or-y) =>
+    match axiom-T(x-or-y) {
+    | Left(x) =>
+      printf("int: {}\n", [show-int(x)])
+    | Right(_) =>
+      print("bool\n")
+    }
+  }
+}

@@ -1,0 +1,75 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int8},
+  core.binary {binary},
+  core.box {axiom-T},
+  core.int.show {show-int},
+  core.list {for},
+  this.move.class.int64,
+  this.move.common.cursor {proceed-int8},
+  this.rule.marshal {Marshal, marshal},
+}
+
+inline encode-list<a1, a2>(!m: marshal(a1, a2)): (b: &builder, xs: &list(a1)) -> unit {
+  define self(b: &builder, xs: &list(a1)): unit {
+    case xs {
+    | Nil =>
+      append-int8(b, 0)
+    | Cons(y, ys) =>
+      let Marshal of {encode} = !m in
+      append-int8(b, 1);
+      encode(b, y);
+      self(b, ys)
+    }
+  }
+}
+
+inline decode-list<a1, a2>(!m: marshal(a1, a2)): (b: &binary, cursor-ref: &cell(int)) -> ?meta list(a2) {
+  define self(b: &binary, cursor-ref: &cell(int)): ?meta list(a2) {
+    try tag = proceed-int8(b, cursor-ref) in
+    if eq-int8(tag, 0) {
+      Right(box {Nil})
+    } else-if eq-int8(tag, 1) {
+      let Marshal of {decode} = !m in
+      try v = decode(b, cursor-ref) in
+      try vs = self(b, cursor-ref) in
+      Right(box {
+        letbox v' = v in
+        letbox vs' = vs in
+        Cons(v', vs')
+      })
+    } else {
+      none
+    }
+  }
+}
+
+inline as-marshal<a1, a2>(!m: marshal(a1, a2)): marshal(list(a1), list(a2)) {
+  Marshal of {
+    encode = encode-list(!m),
+    decode = decode-list(!m),
+  }
+}
+
+inline int-list: marshal(list(int), list(int)) {
+  as-marshal(this.move.class.int64.as-marshal)
+}
+
+define zen(): unit {
+  let Marshal of {encode, decode} = int-list in
+  let buf = create(8) in
+  pin val = [1, 2, -123, 1384910234] in
+  let _ on buf = encode(buf, val) in
+  pin b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval = decode(b, cursor-ref) in
+  match mval {
+  | Left(_) =>
+    print("left\n")
+  | Right(vs) =>
+    print("int-list\n");
+    for(axiom-T(vs), function (v) {
+      printf("val: {}\n", [show-int(v)])
+    })
+  }
+}

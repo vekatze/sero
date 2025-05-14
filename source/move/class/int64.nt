@@ -1,0 +1,43 @@
+import {
+  binary-builder.entity {builder, create, get},
+  binary-builder.scene {append-int64-big-endian},
+  core.binary {binary},
+  core.box {axiom-T},
+  core.control {discard},
+  core.int.show {show-int},
+  this.move.common.cursor {proceed-int64},
+  this.rule.marshal {Marshal, marshal},
+}
+
+define encode-int64(b: &builder, x: &int64): unit {
+  append-int64-big-endian(b, *x)
+}
+
+define decode-int64(b: &binary, cursor-ref: &cell(int)): ?meta int64 {
+  try v = proceed-int64(b, cursor-ref) in
+  Right(quote {v})
+}
+
+inline as-marshal: marshal(int64, int64) {
+  Marshal of {
+    encode = encode-int64,
+    decode = decode-int64,
+  }
+}
+
+define zen(): unit {
+  let buf = create(8) in
+  pin val = -9223372036854775807 in
+  // pin val = 12345 in
+  let _ on buf = encode-int64(buf, val) in
+  let b = get(buf) in
+  pin cursor-ref = new-cell(0) in
+  let mval on b = decode-int64(b, cursor-ref) in
+  discard(b);
+  match mval {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-int(axiom-T(v))])
+  }
+}

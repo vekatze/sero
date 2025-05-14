@@ -1,5 +1,42 @@
 import {
-  this.scene {zen},
+  core.c-int {from-c-int},
+  core.file.mode {default-file-mode},
+  core.foreign {O_CREAT},
+  core.int.show {show-int},
+  core.list {for},
+  core.system {get-error-message},
+  this.move.class.int64,
+  this.move.class.list,
+  this.move.load {load},
+  this.move.save {save},
+  this.rule.marshal {marshal},
+}
+
+inline marshal-list-int: marshal(list(int), list(int)) {
+  this.move.class.list.as-marshal(this.move.class.int64.as-marshal)
+}
+
+define zen(): unit {
+  printf("O_CREAT: {}\n", [show-int(from-c-int(O_CREAT))]);
+  printf("mode: {}\n", [show-int(from-c-int(core.file.mode.interpret(default-file-mode)))]);
+  pin value: list(int) = [1, 2, 3, 42342, 5, 6] in
+  let path = "test.bin" in
+  let _ = save(marshal-list-int, value, path, 10) in
+  let v = load(marshal-list-int, path) in
+  match v {
+  | Left(e) =>
+    printf("left: {}\n", [get-error-message(e)])
+  | Right(v) =>
+    print("right\n");
+    match v {
+    | Left(_) =>
+      print("right-left")
+    | Right(xs) =>
+      for(xs, function (x) {
+        printf("right-right: {}\n", [show-int(x)])
+      })
+    }
+  }
 }
 
 define main(): unit {

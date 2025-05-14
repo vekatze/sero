@@ -2,20 +2,23 @@ import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-binary, append-int8},
   core.binary {binary, binary-access, binary-length},
+  core.box {axiom-T},
   core.control {loop},
   core.text {_Text},
-  this.class {Marshal, _proceed, marshal},
-  this.class.int64 {decode-int64, encode-int64},
+  this.move.class.int64,
+  this.move.common.cursor {_proceed},
+  this.rule.marshal {Marshal, marshal},
 }
 
 define encode-binary(b: &builder, x: &binary): unit {
   pin len = binary-length(x) in
-  encode-int64(b, len);
+  this.move.class.int64.encode-int64(b, len);
   append-binary(b, x)
 }
 
-define decode-binary(b: &binary, cursor-ref: &cell(int)): ?binary {
-  try len = decode-int64(b, cursor-ref) in
+define decode-binary(b: &binary, cursor-ref: &cell(int)): ?meta binary {
+  try len = this.move.class.int64.decode-int64(b, cursor-ref) in
+  let len = axiom-T(len) in
   let buf = create(len) in
   let cursor = core.cell.clone(cursor-ref) in
   let _ on buf =
@@ -26,18 +29,13 @@ define decode-binary(b: &binary, cursor-ref: &cell(int)): ?binary {
   in
   let result = get(buf) in
   _proceed(cursor-ref, len);
-  Right(result)
+  Right(quote {result})
 }
 
-inline as-marshal: marshal(binary) {
+inline as-marshal: marshal(binary, binary) {
   Marshal of {
     encode = encode-binary,
     decode = decode-binary,
-    necess = {
-      function (x) {
-        quote {x}
-      }
-    },
   }
 }
 
@@ -52,6 +50,6 @@ define zen(): unit {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    printf("value: {}\n", [_Text(v)])
+    printf("value: {}\n", [_Text(axiom-T(v))])
   }
 }

@@ -1,31 +1,28 @@
 import {
   binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-int32-big-endian},
   core.binary {binary},
-  core.rune {from-int, to-int32},
+  core.box {axiom-T},
   core.rune.show {show-rune},
-  this.class {Marshal, marshal},
-  this.class.int32 {decode-int32},
+  this.move.class.int32 {decode-int32, encode-int32},
+  this.rule.marshal {Marshal, marshal},
 }
 
 define encode-rune(b: &builder, x: &rune): unit {
-  append-int32-big-endian(b, to-int32(*x))
+  encode-int32(b, magic cast(&rune, &int32, x))
 }
 
-define decode-rune(b: &binary, cursor-ref: &cell(int)): ?rune {
+define decode-rune(b: &binary, cursor-ref: &cell(int)): ?meta rune {
   try v = decode-int32(b, cursor-ref) in
-  from-int(zext-int32-int(v))
+  Right(box {
+    letbox v' = v in
+    magic cast(int32, rune, v')
+  })
 }
 
-inline as-marshal: marshal(rune) {
+inline as-marshal: marshal(rune, rune) {
   Marshal of {
     encode = encode-rune,
     decode = decode-rune,
-    necess = {
-      function (x) {
-        quote {x}
-      }
-    },
   }
 }
 
@@ -40,6 +37,6 @@ define zen(): unit {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    printf("value: {}\n", [show-rune(v)])
+    printf("value: {}\n", [show-rune(axiom-T(v))])
   }
 }

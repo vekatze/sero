@@ -1,0 +1,82 @@
+import {
+  core.binary {binary, binary-access, binary-length},
+  core.cell {mutate},
+}
+
+define _proceed(cursor: &cell(int), offset: int): unit {
+  mutate(cursor, function (x) {
+    add-int(x, offset)
+  })
+}
+
+define proceed-int8(b: &binary, cursor-ref: &cell(int)): ?int8 {
+  let cursor = core.cell.clone(cursor-ref) in
+  if lt-int(binary-length(b), add-int(cursor, 1)) {
+    none
+  } else {
+    let result = binary-access(b, add-int(cursor, 0)) in
+    _proceed(cursor-ref, 1);
+    Right(result)
+  }
+}
+
+define proceed-int16(b: &binary, cursor-ref: &cell(int)): ?int16 {
+  let cursor = core.cell.clone(cursor-ref) in
+  if lt-int(binary-length(b), add-int(cursor, 2)) {
+    none
+  } else {
+    let v1 = binary-access(b, add-int(cursor, 0)) in
+    let v0 = binary-access(b, add-int(cursor, 1)) in
+    let tmp = 0 in
+    let tmp = add-int16(tmp, shl-int16(zext-int8-int16(v1), 8)) in
+    let tmp = add-int16(tmp, shl-int16(zext-int8-int16(v0), 0)) in
+    _proceed(cursor-ref, 2);
+    Right(tmp)
+  }
+}
+
+define proceed-int32(b: &binary, cursor-ref: &cell(int)): ?int32 {
+  let cursor = core.cell.clone(cursor-ref) in
+  if lt-int(binary-length(b), add-int(cursor, 4)) {
+    none
+  } else {
+    let v3 = binary-access(b, add-int(cursor, 0)) in
+    let v2 = binary-access(b, add-int(cursor, 1)) in
+    let v1 = binary-access(b, add-int(cursor, 2)) in
+    let v0 = binary-access(b, add-int(cursor, 3)) in
+    let tmp = 0 in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v3), 24)) in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v2), 16)) in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v1), 8)) in
+    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v0), 0)) in
+    _proceed(cursor-ref, 4);
+    Right(tmp)
+  }
+}
+
+define proceed-int64(b: &binary, cursor-ref: &cell(int)): ?int64 {
+  let cursor = core.cell.clone(cursor-ref) in
+  if lt-int(binary-length(b), add-int(cursor, 8)) {
+    none
+  } else {
+    let v7 = binary-access(b, add-int(cursor, 0)) in
+    let v6 = binary-access(b, add-int(cursor, 1)) in
+    let v5 = binary-access(b, add-int(cursor, 2)) in
+    let v4 = binary-access(b, add-int(cursor, 3)) in
+    let v3 = binary-access(b, add-int(cursor, 4)) in
+    let v2 = binary-access(b, add-int(cursor, 5)) in
+    let v1 = binary-access(b, add-int(cursor, 6)) in
+    let v0 = binary-access(b, add-int(cursor, 7)) in
+    let tmp = 0 in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v7), 56)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v6), 48)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v5), 40)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v4), 32)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v3), 24)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v2), 16)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v1), 8)) in
+    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v0), 0)) in
+    _proceed(cursor-ref, 8);
+    Right(tmp)
+  }
+}
