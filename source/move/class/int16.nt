@@ -1,11 +1,11 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int16-big-endian},
-  core.binary {binary},
   core.box {axiom-T},
-  core.control {discard},
   core.int.show {show-int},
   this.move.common.cursor {proceed-int16},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -13,8 +13,8 @@ define encode-int16(b: &builder, x: &int16): unit {
   append-int16-big-endian(b, *x)
 }
 
-define decode-int16(b: &binary, cursor-ref: &cell(int)): ?meta int16 {
-  try v = proceed-int16(b, cursor-ref) in
+define decode-int16(h: &decode-handle): ?meta int16 {
+  try v = proceed-int16(h) in
   Right(quote {v})
 }
 
@@ -30,9 +30,8 @@ define zen(): unit {
   pin val = -12345 in
   let _ on buf = encode-int16(buf, val) in
   let b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval on b = decode-int16(b, cursor-ref) in
-  discard(b);
+  pin h = from-bytes(b) in
+  let mval = decode-int16(h) in
   match mval {
   | Left(_) =>
     print("left")

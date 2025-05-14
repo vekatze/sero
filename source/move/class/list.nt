@@ -1,12 +1,13 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
-  core.binary {binary},
   core.box {axiom-T},
   core.int.show {show-int},
   core.list {for},
   this.move.class.int64,
   this.move.common.cursor {proceed-int8},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -24,15 +25,15 @@ inline encode-list<a1, a2>(!m: marshal(a1, a2)): (b: &builder, xs: &list(a1)) ->
   }
 }
 
-inline decode-list<a1, a2>(!m: marshal(a1, a2)): (b: &binary, cursor-ref: &cell(int)) -> ?meta list(a2) {
-  define self(b: &binary, cursor-ref: &cell(int)): ?meta list(a2) {
-    try tag = proceed-int8(b, cursor-ref) in
+inline decode-list<a1, a2>(!m: marshal(a1, a2)): (h: &decode-handle) -> ?meta list(a2) {
+  define self(h: &decode-handle): ?meta list(a2) {
+    try tag = proceed-int8(h) in
     if eq-int8(tag, 0) {
       Right(box {Nil})
     } else-if eq-int8(tag, 1) {
       let Marshal of {decode} = !m in
-      try v = decode(b, cursor-ref) in
-      try vs = self(b, cursor-ref) in
+      try v = decode(h) in
+      try vs = self(h) in
       Right(box {
         letbox v' = v in
         letbox vs' = vs in
@@ -60,9 +61,9 @@ define zen(): unit {
   let buf = create(8) in
   pin val = [1, 2, -123, 1384910234] in
   let _ on buf = encode(buf, val) in
-  pin b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval = decode(b, cursor-ref) in
+  let b = get(buf) in
+  pin h = from-bytes(b) in
+  let mval = decode(h) in
   match mval {
   | Left(_) =>
     print("left\n")

@@ -1,0 +1,10 @@
+import {
+  core.binary {binary},
+}
+
+data decode-handle {
+| Decode-Handle(
+    bytes: binary,
+    cursor: cell(int),
+  )
+}

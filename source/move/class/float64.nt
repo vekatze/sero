@@ -1,11 +1,11 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-float64-big-endian},
-  core.binary {binary},
   core.box {axiom-T},
-  core.control {discard},
   core.float.show {show-float},
   this.move.common.cursor {proceed-int64},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -13,8 +13,8 @@ define encode-float64(b: &builder, x: &float64): unit {
   append-float64-big-endian(b, *x)
 }
 
-define decode-float64(b: &binary, cursor-ref: &cell(int)): ?meta float64 {
-  try v = proceed-int64(b, cursor-ref) in
+define decode-float64(h: &decode-handle): ?meta float64 {
+  try v = proceed-int64(h) in
   Right(quote {magic cast(int64, float64, v)})
 }
 
@@ -30,9 +30,8 @@ define zen(): unit {
   pin val = -3.8 in
   let _ on buf = encode-float64(buf, val) in
   let b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval on b = decode-float64(b, cursor-ref) in
-  discard(b);
+  pin h = from-bytes(b) in
+  let mval = decode-float64(h) in
   match mval {
   | Left(_) =>
     print("left")

@@ -1,6 +1,10 @@
 import {
+  binary-builder.entity {create, get},
+  binary-builder.scene {append-int8},
   core.binary {binary, binary-access, binary-length},
   core.cell {mutate},
+  core.control {loop},
+  this.rule.decode-handle {Decode-Handle, decode-handle},
 }
 
 define _proceed(cursor: &cell(int), offset: int): unit {
@@ -9,64 +13,68 @@ define _proceed(cursor: &cell(int), offset: int): unit {
   })
 }
 
-define proceed-int8(b: &binary, cursor-ref: &cell(int)): ?int8 {
-  let cursor = core.cell.clone(cursor-ref) in
-  if lt-int(binary-length(b), add-int(cursor, 1)) {
+define proceed-int8(h: &decode-handle): ?int8 {
+  tie Decode-Handle of {bytes, cursor} = h in
+  let index = core.cell.clone(cursor) in
+  if lt-int(binary-length(bytes), add-int(index, 1)) {
     none
   } else {
-    let result = binary-access(b, add-int(cursor, 0)) in
-    _proceed(cursor-ref, 1);
+    let result = binary-access(bytes, add-int(index, 0)) in
+    _proceed(cursor, 1);
     Right(result)
   }
 }
 
-define proceed-int16(b: &binary, cursor-ref: &cell(int)): ?int16 {
-  let cursor = core.cell.clone(cursor-ref) in
-  if lt-int(binary-length(b), add-int(cursor, 2)) {
+define proceed-int16(h: &decode-handle): ?int16 {
+  tie Decode-Handle of {bytes, cursor} = h in
+  let index = core.cell.clone(cursor) in
+  if lt-int(binary-length(bytes), add-int(index, 2)) {
     none
   } else {
-    let v1 = binary-access(b, add-int(cursor, 0)) in
-    let v0 = binary-access(b, add-int(cursor, 1)) in
+    let v1 = binary-access(bytes, add-int(index, 0)) in
+    let v0 = binary-access(bytes, add-int(index, 1)) in
     let tmp = 0 in
     let tmp = add-int16(tmp, shl-int16(zext-int8-int16(v1), 8)) in
     let tmp = add-int16(tmp, shl-int16(zext-int8-int16(v0), 0)) in
-    _proceed(cursor-ref, 2);
+    _proceed(cursor, 2);
     Right(tmp)
   }
 }
 
-define proceed-int32(b: &binary, cursor-ref: &cell(int)): ?int32 {
-  let cursor = core.cell.clone(cursor-ref) in
-  if lt-int(binary-length(b), add-int(cursor, 4)) {
+define proceed-int32(h: &decode-handle): ?int32 {
+  tie Decode-Handle of {bytes, cursor} = h in
+  let index = core.cell.clone(cursor) in
+  if lt-int(binary-length(bytes), add-int(index, 4)) {
     none
   } else {
-    let v3 = binary-access(b, add-int(cursor, 0)) in
-    let v2 = binary-access(b, add-int(cursor, 1)) in
-    let v1 = binary-access(b, add-int(cursor, 2)) in
-    let v0 = binary-access(b, add-int(cursor, 3)) in
+    let v3 = binary-access(bytes, add-int(index, 0)) in
+    let v2 = binary-access(bytes, add-int(index, 1)) in
+    let v1 = binary-access(bytes, add-int(index, 2)) in
+    let v0 = binary-access(bytes, add-int(index, 3)) in
     let tmp = 0 in
     let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v3), 24)) in
     let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v2), 16)) in
     let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v1), 8)) in
     let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v0), 0)) in
-    _proceed(cursor-ref, 4);
+    _proceed(cursor, 4);
     Right(tmp)
   }
 }
 
-define proceed-int64(b: &binary, cursor-ref: &cell(int)): ?int64 {
-  let cursor = core.cell.clone(cursor-ref) in
-  if lt-int(binary-length(b), add-int(cursor, 8)) {
+define proceed-int64(h: &decode-handle): ?int64 {
+  tie Decode-Handle of {bytes, cursor} = h in
+  let index = core.cell.clone(cursor) in
+  if lt-int(binary-length(bytes), add-int(index, 8)) {
     none
   } else {
-    let v7 = binary-access(b, add-int(cursor, 0)) in
-    let v6 = binary-access(b, add-int(cursor, 1)) in
-    let v5 = binary-access(b, add-int(cursor, 2)) in
-    let v4 = binary-access(b, add-int(cursor, 3)) in
-    let v3 = binary-access(b, add-int(cursor, 4)) in
-    let v2 = binary-access(b, add-int(cursor, 5)) in
-    let v1 = binary-access(b, add-int(cursor, 6)) in
-    let v0 = binary-access(b, add-int(cursor, 7)) in
+    let v7 = binary-access(bytes, add-int(index, 0)) in
+    let v6 = binary-access(bytes, add-int(index, 1)) in
+    let v5 = binary-access(bytes, add-int(index, 2)) in
+    let v4 = binary-access(bytes, add-int(index, 3)) in
+    let v3 = binary-access(bytes, add-int(index, 4)) in
+    let v2 = binary-access(bytes, add-int(index, 5)) in
+    let v1 = binary-access(bytes, add-int(index, 6)) in
+    let v0 = binary-access(bytes, add-int(index, 7)) in
     let tmp = 0 in
     let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v7), 56)) in
     let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v6), 48)) in
@@ -76,7 +84,23 @@ define proceed-int64(b: &binary, cursor-ref: &cell(int)): ?int64 {
     let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v2), 16)) in
     let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v1), 8)) in
     let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v0), 0)) in
-    _proceed(cursor-ref, 8);
+    _proceed(cursor, 8);
     Right(tmp)
   }
+}
+
+define proceed-binary(h: &decode-handle): ?binary {
+  tie Decode-Handle of {bytes, cursor} = h in
+  try len = proceed-int64(h) in
+  let buf = create(len) in
+  let index = core.cell.clone(cursor) in
+  let _ on buf =
+    loop(len, function (k) {
+      let v = binary-access(bytes, add-int(index, k)) in
+      append-int8(buf, v)
+    })
+  in
+  let result = get(buf) in
+  _proceed(cursor, len);
+  Right(result)
 }

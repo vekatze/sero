@@ -1,12 +1,12 @@
 import {
   binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-int8, append-text},
-  core.binary {binary, binary-access},
+  binary-builder.scene {append-text},
   core.box {axiom-T},
-  core.control {loop},
   core.text {_Text, text-byte-length},
   this.move.class.int64,
-  this.move.common.cursor {_proceed},
+  this.move.common.cursor {proceed-binary},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -16,20 +16,9 @@ define encode-text(b: &builder, x: &text): unit {
   append-text(b, x)
 }
 
-define decode-text(b: &binary, cursor-ref: &cell(int)): ?meta text {
-  try len = this.move.class.int64.decode-int64(b, cursor-ref) in
-  let len = axiom-T(len) in
-  let buf = create(len) in
-  let cursor = core.cell.clone(cursor-ref) in
-  let _ on buf =
-    loop(len, function (k) {
-      let v = binary-access(b, add-int(cursor, k)) in
-      append-int8(buf, v)
-    })
-  in
-  let result = get(buf) in
-  _proceed(cursor-ref, len);
-  Right(quote {_Text(result)})
+define decode-text(h: &decode-handle): ?meta text {
+  try b = proceed-binary(h) in
+  Right(quote {_Text(b)})
 }
 
 inline as-marshal: marshal(text, text) {
@@ -43,9 +32,9 @@ define zen(): unit {
   let buf = create(4) in
   tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
   let _ on buf = encode-text(buf, value) in
-  pin b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval = decode-text(b, cursor-ref) in
+  let b = get(buf) in
+  pin h = from-bytes(b) in
+  let mval = decode-text(h) in
   match mval {
   | Left(_) =>
     print("left")

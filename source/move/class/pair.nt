@@ -1,11 +1,12 @@
 import {
   binary-builder.entity {builder, create, get},
-  core.binary {binary},
   core.bool.show,
   core.box {axiom-T},
   core.int.show {show-int},
   this.move.class.bool,
   this.move.class.int64,
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -25,12 +26,12 @@ inline encode-pair<a1, a2, b1, b2>(
 inline decode-pair<a1, a2, b1, b2>(
   m1: marshal(a1, a2),
   m2: marshal(b1, b2),
-): (buf: &binary, cursor-ref: &cell(int)) -> ?meta pair(a2, b2) {
-  function (buf: &binary, cursor-ref: &cell(int)): ?meta pair(a2, b2) {
+): (h: &decode-handle) -> ?meta pair(a2, b2) {
+  function (h: &decode-handle): ?meta pair(a2, b2) {
     let Marshal of {decode = decode1} = m1 in
     let Marshal of {decode = decode2} = m2 in
-    try l = decode1(buf, cursor-ref) in
-    try r = decode2(buf, cursor-ref) in
+    try l = decode1(h) in
+    try r = decode2(h) in
     Right(box {
       letbox l' = l in
       letbox r' = r in
@@ -55,9 +56,9 @@ define zen(): unit {
   pin val = Pair(-1234, True) in
   let Marshal of {encode, decode} = pair-int-bool in
   let _ on buf = encode(buf, val) in
-  pin b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval = decode(b, cursor-ref) in
+  let b = get(buf) in
+  pin h = from-bytes(b) in
+  let mval = decode(h) in
   match mval {
   | Left(_) =>
     print("left\n")

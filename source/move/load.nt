@@ -1,20 +1,18 @@
 import {
-  core.binary.io,
-  core.control {discard},
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
+  this.move.create-decode-handle {create-decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
 define load<a, b>(m: marshal(a, b), path: &text): system(?b) {
+  try h = create-decode-handle(path) in
   let Marshal of {decode} = m in
   try source-file = open(path, for-r, []) in
-  try content = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in
-  let cursor-ref = new-cell(0) in
-  letbox-T result: ?b on content, cursor-ref =
-    match decode(content, cursor-ref) {
+  letbox-T result: ?b on h =
+    match decode(h) {
     | Left(_) =>
       box {none}
     | Right(v) =>
@@ -24,7 +22,6 @@ define load<a, b>(m: marshal(a, b), path: &text): system(?b) {
       }
     }
   in
-  discard(content);
-  discard(cursor-ref);
+  let _ = h in
   Right(result)
 }

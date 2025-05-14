@@ -1,0 +1,21 @@
+import {
+  core.binary {binary},
+  core.binary.io,
+  core.file {close, open},
+  core.file.flag {for-r},
+  core.system {system},
+  this.rule.decode-handle {Decode-Handle, decode-handle},
+}
+
+define create-decode-handle(path: &text): system(decode-handle) {
+  try source-file = open(path, for-r, []) in
+  try bytes = core.binary.io.read(source-file, 1024) in
+  try _ = close(source-file) in
+  let cursor = new-cell(0) in
+  Right(Decode-Handle of {bytes, cursor})
+}
+
+define from-bytes(bytes: binary): decode-handle {
+  let cursor = new-cell(0) in
+  Decode-Handle of {bytes, cursor}
+}

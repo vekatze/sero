@@ -1,9 +1,10 @@
 import {
   binary-builder.entity {builder, create, get},
   binary-builder.scene {append-int8},
-  core.binary {binary},
   core.box {axiom-T},
   this.move.common.cursor {proceed-int8},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -15,8 +16,8 @@ define _encode(b: &builder, x: &bool): unit {
   }
 }
 
-define _decode(b: &binary, cursor-ref: &cell(int)): ?meta bool {
-  try v = proceed-int8(b, cursor-ref) in
+define _decode(h: &decode-handle): ?meta bool {
+  try v = proceed-int8(h) in
   Right(quote {eq-int8(v, 1)})
 }
 
@@ -31,9 +32,9 @@ define zen(): unit {
   let buf = create(1) in
   pin val = True in
   let _ on buf = _encode(buf, val) in
-  pin b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  match _decode(b, cursor-ref) {
+  let b = get(buf) in
+  pin h = from-bytes(b) in
+  match _decode(h) {
   | Left(_) =>
     print("left")
   | Right(v) =>

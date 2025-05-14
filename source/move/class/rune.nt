@@ -1,9 +1,10 @@
 import {
   binary-builder.entity {builder, create, get},
-  core.binary {binary},
   core.box {axiom-T},
   core.rune.show {show-rune},
   this.move.class.int32 {decode-int32, encode-int32},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -11,8 +12,8 @@ define encode-rune(b: &builder, x: &rune): unit {
   encode-int32(b, magic cast(&rune, &int32, x))
 }
 
-define decode-rune(b: &binary, cursor-ref: &cell(int)): ?meta rune {
-  try v = decode-int32(b, cursor-ref) in
+define decode-rune(h: &decode-handle): ?meta rune {
+  try v = decode-int32(h) in
   Right(box {
     letbox v' = v in
     magic cast(int32, rune, v')
@@ -30,9 +31,9 @@ define zen(): unit {
   let buf = create(4) in
   pin val = `あ` in
   let _ on buf = encode-rune(buf, val) in
-  pin b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval = decode-rune(b, cursor-ref) in
+  let b = get(buf) in
+  pin h = from-bytes(b) in
+  let mval = decode-rune(h) in
   match mval {
   | Left(_) =>
     print("left")

@@ -1,10 +1,11 @@
 import {
   binary-builder.entity {builder, create, get},
-  core.binary {binary},
   core.box {axiom-T},
   core.int.show {show-int},
   core.vector {vector},
   this.move.class.int64 {decode-int64, encode-int64},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -19,13 +20,13 @@ inline encode-vector<a1, a2>(m: marshal(a1, a2)): (b: &builder, xs: &vector(a1))
   }
 }
 
-inline decode-vector<a1, a2>(m: marshal(a1, a2)): (b: &binary, cursor-ref: &cell(int)) -> ?meta vector(a2) {
-  function (b: &binary, cursor-ref: &cell(int)): ?meta vector(a2) {
-    try len = decode-int64(b, cursor-ref) in
+inline decode-vector<a1, a2>(m: marshal(a1, a2)): (h: &decode-handle) -> ?meta vector(a2) {
+  function (h: &decode-handle): ?meta vector(a2) {
+    try len = decode-int64(h) in
     try vs =
       core.vector.create-E(axiom-T(len), function (_) {
         let Marshal of {decode} = m in
-        try value = decode(b, cursor-ref) in
+        try value = decode(h) in
         Right(axiom-T(value))
       })
     in
@@ -49,9 +50,9 @@ define zen(): unit {
   let buf = create(8) in
   pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
   let _ on buf = encode(buf, val) in
-  pin b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval = decode(b, cursor-ref) in
+  let b = get(buf) in
+  pin h = from-bytes(b) in
+  let mval = decode(h) in
   match mval {
   | Left(_) =>
     print("left\n")

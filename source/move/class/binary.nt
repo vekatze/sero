@@ -1,12 +1,13 @@
 import {
   binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-binary, append-int8},
-  core.binary {binary, binary-access, binary-length},
+  binary-builder.scene {append-binary},
+  core.binary {binary, binary-length},
   core.box {axiom-T},
-  core.control {loop},
   core.text {_Text},
   this.move.class.int64,
-  this.move.common.cursor {_proceed},
+  this.move.common.cursor {proceed-binary},
+  this.move.create-decode-handle {from-bytes},
+  this.rule.decode-handle {decode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
@@ -16,20 +17,9 @@ define encode-binary(b: &builder, x: &binary): unit {
   append-binary(b, x)
 }
 
-define decode-binary(b: &binary, cursor-ref: &cell(int)): ?meta binary {
-  try len = this.move.class.int64.decode-int64(b, cursor-ref) in
-  let len = axiom-T(len) in
-  let buf = create(len) in
-  let cursor = core.cell.clone(cursor-ref) in
-  let _ on buf =
-    loop(len, function (k) {
-      let v = binary-access(b, add-int(cursor, k)) in
-      append-int8(buf, v)
-    })
-  in
-  let result = get(buf) in
-  _proceed(cursor-ref, len);
-  Right(quote {result})
+define decode-binary(h: &decode-handle): ?meta binary {
+  try b = proceed-binary(h) in
+  Right(quote {b})
 }
 
 inline as-marshal: marshal(binary, binary) {
@@ -43,9 +33,9 @@ define zen(): unit {
   let buf = create(4) in
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
   let _ on buf = encode-binary(buf, value) in
-  pin b = get(buf) in
-  pin cursor-ref = new-cell(0) in
-  let mval = decode-binary(b, cursor-ref) in
+  let b = get(buf) in
+  pin h = from-bytes(b) in
+  let mval = decode-binary(h) in
   match mval {
   | Left(_) =>
     print("left")
