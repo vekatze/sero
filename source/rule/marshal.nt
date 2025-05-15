@@ -1,5 +1,5 @@
 import {
-  this.rule.decode-handle {decode-handle},
+  this.rule.get-handle {decode-handle},
   this.rule.encode-handle {encode-handle},
 }
 

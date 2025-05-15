@@ -4,7 +4,7 @@ import {
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
-  this.rule.decode-handle {Decode-Handle, decode-handle},
+  this.rule.get-handle {Decode-Handle, decode-handle},
 }
 
 define create-decode-handle(path: &text): system(decode-handle) {

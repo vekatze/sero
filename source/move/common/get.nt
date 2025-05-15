@@ -4,7 +4,7 @@ import {
   core.binary {binary, binary-access, binary-length},
   core.cell {mutate},
   core.control {loop},
-  this.rule.decode-handle {Decode-Handle, decode-handle},
+  this.rule.get-handle {Decode-Handle, decode-handle},
 }
 
 define _proceed(cursor: &cell(int), offset: int): unit {
