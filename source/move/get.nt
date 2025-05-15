@@ -6,7 +6,7 @@ import {
   this.rule.marshal {Marshal, marshal},
 }
 
-define load<a, b>(m: marshal(a, b), path: &text): system(?b) {
+define get<a, b>(m: marshal(a, b), path: &text): system(?b) {
   try h = create-get-handle(path) in
   let Marshal of {decode} = m in
   try source-file = open(path, for-r, []) in

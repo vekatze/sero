@@ -7,8 +7,8 @@ import {
   core.system {get-error-message},
   this.move.class.int64,
   this.move.class.list,
-  this.move.load {load},
-  this.move.save {save},
+  this.move.get {get},
+  this.move.put {put},
   this.rule.marshal {marshal},
 }
 
@@ -21,8 +21,8 @@ define zen(): unit {
   printf("mode: {}\n", [show-int(from-c-int(core.file.mode.interpret(default-file-mode)))]);
   pin value: list(int) = [1, 2, 3, 42342, 5, 6] in
   let path = "test.bin" in
-  let _ = save(marshal-list-int, value, path, 10) in
-  let v = load(marshal-list-int, path) in
+  let _ = put(marshal-list-int, value, path, 10) in
+  let v = get(marshal-list-int, path) in
   match v {
   | Left(e) =>
     printf("left: {}\n", [get-error-message(e)])
