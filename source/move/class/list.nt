@@ -3,7 +3,7 @@ import {
   core.int.show {show-int},
   core.list {for},
   this.move.class.int64,
-  this.move.common.cursor {proceed-int8},
+  this.move.common.get {proceed-int8},
   this.move.common.save {get, save-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},

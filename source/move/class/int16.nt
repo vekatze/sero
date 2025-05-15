@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   core.int.show {show-int},
-  this.move.common.cursor {proceed-int16},
+  this.move.common.get {proceed-int16},
   this.move.common.save {get, save-int16},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},

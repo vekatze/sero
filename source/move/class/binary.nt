@@ -2,7 +2,7 @@ import {
   core.binary {binary},
   core.box {axiom-T},
   core.text {_Text},
-  this.move.common.cursor {proceed-binary},
+  this.move.common.get {proceed-binary},
   this.move.common.save {get, save-binary},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
