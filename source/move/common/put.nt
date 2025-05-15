@@ -11,7 +11,7 @@ import {
   },
   core.binary {binary, binary-length},
   core.text {text-byte-length},
-  this.rule.encode-handle {Encode-Handle, encode-handle},
+  this.rule.put-handle {Encode-Handle, encode-handle},
 }
 
 define put-int8(h: &encode-handle, x: int8): unit {

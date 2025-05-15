@@ -1,6 +1,6 @@
 import {
   this.rule.get-handle {decode-handle},
-  this.rule.encode-handle {encode-handle},
+  this.rule.put-handle {encode-handle},
 }
 
 data marshal(i, o) {

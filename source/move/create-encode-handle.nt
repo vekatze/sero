@@ -1,6 +1,6 @@
 import {
   binary-builder.entity {create},
-  this.rule.encode-handle {Encode-Handle, encode-handle},
+  this.rule.put-handle {Encode-Handle, encode-handle},
 }
 
 define create-encode-handle(buffer-size: int): encode-handle {
