@@ -3,18 +3,18 @@ import {
   core.int.show {show-int},
   this.move.common.get {get-int32},
   this.move.common.put {get, put-int32},
-  this.move.create-decode-handle {from-bytes},
-  this.move.create-encode-handle {create-encode-handle},
-  this.rule.get-handle {decode-handle},
-  this.rule.put-handle {encode-handle},
+  this.move.create-get-handle {from-bytes},
+  this.move.create-put-handle {create-put-handle},
+  this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
+  this.rule.put-handle {put-handle},
 }
 
-define encode-int32(h: &encode-handle, x: &int32): unit {
+define encode-int32(h: &put-handle, x: &int32): unit {
   put-int32(h, *x)
 }
 
-define decode-int32(h: &decode-handle): ?meta int32 {
+define decode-int32(h: &get-handle): ?meta int32 {
   try v = get-int32(h) in
   Right(quote {v})
 }
@@ -27,7 +27,7 @@ inline as-marshal: marshal(int32, int32) {
 }
 
 define zen(): unit {
-  let h-save = create-encode-handle(4) in
+  let h-save = create-put-handle(4) in
   pin val = 14909826 in
   let _ on h-save = encode-int32(h-save, val) in
   let b = get(h-save) in

@@ -1,11 +1,11 @@
 import {
-  this.rule.get-handle {decode-handle},
-  this.rule.put-handle {encode-handle},
+  this.rule.get-handle {get-handle},
+  this.rule.put-handle {put-handle},
 }
 
 data marshal(i, o) {
 | Marshal(
-    encode: (h: &encode-handle, value: &i) -> unit,
-    decode: (h: &decode-handle) -> ?meta o,
+    encode: (h: &put-handle, value: &i) -> unit,
+    decode: (h: &get-handle) -> ?meta o,
   )
 }

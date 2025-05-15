@@ -4,18 +4,18 @@ import {
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
-  this.rule.get-handle {Decode-Handle, decode-handle},
+  this.rule.get-handle {Get-Handle, get-handle},
 }
 
-define create-decode-handle(path: &text): system(decode-handle) {
+define create-get-handle(path: &text): system(get-handle) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in
   let cursor = new-cell(0) in
-  Right(Decode-Handle of {bytes, cursor})
+  Right(Get-Handle of {bytes, cursor})
 }
 
-define from-bytes(bytes: binary): decode-handle {
+define from-bytes(bytes: binary): get-handle {
   let cursor = new-cell(0) in
-  Decode-Handle of {bytes, cursor}
+  Get-Handle of {bytes, cursor}
 }

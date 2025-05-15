@@ -4,7 +4,7 @@ import {
   core.binary {binary, binary-access, binary-length},
   core.cell {mutate},
   core.control {loop},
-  this.rule.get-handle {Decode-Handle, decode-handle},
+  this.rule.get-handle {Get-Handle, get-handle},
 }
 
 define _proceed(cursor: &cell(int), offset: int): unit {
@@ -13,8 +13,8 @@ define _proceed(cursor: &cell(int), offset: int): unit {
   })
 }
 
-define get-int8(h: &decode-handle): ?int8 {
-  tie Decode-Handle of {bytes, cursor} = h in
+define get-int8(h: &get-handle): ?int8 {
+  tie Get-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 1)) {
     none
@@ -25,8 +25,8 @@ define get-int8(h: &decode-handle): ?int8 {
   }
 }
 
-define get-int16(h: &decode-handle): ?int16 {
-  tie Decode-Handle of {bytes, cursor} = h in
+define get-int16(h: &get-handle): ?int16 {
+  tie Get-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 2)) {
     none
@@ -41,8 +41,8 @@ define get-int16(h: &decode-handle): ?int16 {
   }
 }
 
-define get-int32(h: &decode-handle): ?int32 {
-  tie Decode-Handle of {bytes, cursor} = h in
+define get-int32(h: &get-handle): ?int32 {
+  tie Get-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 4)) {
     none
@@ -61,8 +61,8 @@ define get-int32(h: &decode-handle): ?int32 {
   }
 }
 
-define get-int64(h: &decode-handle): ?int64 {
-  tie Decode-Handle of {bytes, cursor} = h in
+define get-int64(h: &get-handle): ?int64 {
+  tie Get-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 8)) {
     none
@@ -89,8 +89,8 @@ define get-int64(h: &decode-handle): ?int64 {
   }
 }
 
-define get-binary(h: &decode-handle): ?binary {
-  tie Decode-Handle of {bytes, cursor} = h in
+define get-binary(h: &get-handle): ?binary {
+  tie Get-Handle of {bytes, cursor} = h in
   try len = get-int64(h) in
   let buf = create(len) in
   let index = core.cell.clone(cursor) in

@@ -1,9 +1,0 @@
-import {
-  binary-builder.entity {create},
-  this.rule.put-handle {Encode-Handle, encode-handle},
-}
-
-define create-encode-handle(buffer-size: int): encode-handle {
-  let buffer = create(buffer-size) in
-  Encode-Handle of {buffer}
-}

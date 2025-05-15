@@ -2,8 +2,8 @@ import {
   binary-builder.entity {builder},
 }
 
-data encode-handle {
-| Encode-Handle(
+data put-handle {
+| Put-Handle(
     buffer: builder,
   )
 }

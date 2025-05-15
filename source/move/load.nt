@@ -2,12 +2,12 @@ import {
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
-  this.move.create-decode-handle {create-decode-handle},
+  this.move.create-get-handle {create-get-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
 define load<a, b>(m: marshal(a, b), path: &text): system(?b) {
-  try h = create-decode-handle(path) in
+  try h = create-get-handle(path) in
   let Marshal of {decode} = m in
   try source-file = open(path, for-r, []) in
   try _ = close(source-file) in

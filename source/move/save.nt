@@ -5,12 +5,12 @@ import {
   core.file.mode {default-file-mode},
   core.system {system},
   this.move.common.put {get},
-  this.move.create-encode-handle {create-encode-handle},
+  this.move.create-put-handle {create-put-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
 inline save<a, b>(m: marshal(a, b), value: &a, path: &text, buffer-size: int): system(unit) {
-  let h = create-encode-handle(buffer-size) in
+  let h = create-put-handle(buffer-size) in
   let _ on h =
     let Marshal of {encode} = m in
     encode(h, value)

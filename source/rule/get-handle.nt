@@ -2,8 +2,8 @@ import {
   core.binary {binary},
 }
 
-data decode-handle {
-| Decode-Handle(
+data get-handle {
+| Get-Handle(
     bytes: binary,
     cursor: cell(int),
   )

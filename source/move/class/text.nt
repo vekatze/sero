@@ -3,18 +3,18 @@ import {
   core.text {_Text},
   this.move.common.get {get-binary},
   this.move.common.put {get, put-text},
-  this.move.create-decode-handle {from-bytes},
-  this.move.create-encode-handle {create-encode-handle},
-  this.rule.get-handle {decode-handle},
-  this.rule.put-handle {encode-handle},
+  this.move.create-get-handle {from-bytes},
+  this.move.create-put-handle {create-put-handle},
+  this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
+  this.rule.put-handle {put-handle},
 }
 
-define encode-text(h: &encode-handle, x: &text): unit {
+define encode-text(h: &put-handle, x: &text): unit {
   put-text(h, x)
 }
 
-define decode-text(h: &decode-handle): ?meta text {
+define decode-text(h: &get-handle): ?meta text {
   try b = get-binary(h) in
   Right(quote {_Text(b)})
 }
@@ -27,7 +27,7 @@ inline as-marshal: marshal(text, text) {
 }
 
 define zen(): unit {
-  let h-save = create-encode-handle(4) in
+  let h-save = create-put-handle(4) in
   tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
   let _ on h-save = encode-text(h-save, value) in
   let b = get(h-save) in

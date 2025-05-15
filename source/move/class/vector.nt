@@ -4,14 +4,14 @@ import {
   core.vector {vector},
   this.move.class.int64 {decode-int64},
   this.move.common.put {get, put-int64},
-  this.move.create-decode-handle {from-bytes},
-  this.move.create-encode-handle {create-encode-handle},
-  this.rule.get-handle {decode-handle},
-  this.rule.put-handle {encode-handle},
+  this.move.create-get-handle {from-bytes},
+  this.move.create-put-handle {create-put-handle},
+  this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
+  this.rule.put-handle {put-handle},
 }
 
-inline encode-vector<i, o>(m: marshal(i, o)): (h: &encode-handle, xs: &vector(i)) -> unit {
+inline encode-vector<i, o>(m: marshal(i, o)): (h: &put-handle, xs: &vector(i)) -> unit {
   function (h, xs) {
     let len = core.vector.length(xs) in
     put-int64(h, len);
@@ -22,7 +22,7 @@ inline encode-vector<i, o>(m: marshal(i, o)): (h: &encode-handle, xs: &vector(i)
   }
 }
 
-inline decode-vector<i, o>(m: marshal(i, o)): (h: &decode-handle) -> ?meta vector(o) {
+inline decode-vector<i, o>(m: marshal(i, o)): (h: &get-handle) -> ?meta vector(o) {
   function (h) {
     try len = decode-int64(h) in
     try vs =
@@ -49,7 +49,7 @@ inline int-vector: marshal(vector(int), vector(int)) {
 
 define zen(): unit {
   let Marshal of {encode, decode} = int-vector in
-  let h-save = create-encode-handle(8) in
+  let h-save = create-put-handle(8) in
   pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
   let _ on h-save = encode(h-save, val) in
   let b = get(h-save) in
