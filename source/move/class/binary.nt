@@ -6,8 +6,8 @@ import {
   this.move.decode {decode},
   this.move.encode {encode},
   this.rule.get-handle {get-handle},
-  this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
+  this.rule.sero {Sero, sero},
 }
 
 define _put(h: &put-handle, x: &binary): unit {
@@ -19,8 +19,8 @@ define _get(h: &get-handle): ?meta binary {
   Right(quote {b})
 }
 
-inline binary-marshal: marshal(binary, binary) {
-  Marshal of {
+inline binary-sero: sero(binary, binary) {
+  Sero of {
     put = _put,
     get = _get,
   }
@@ -28,7 +28,7 @@ inline binary-marshal: marshal(binary, binary) {
 
 define zen(): unit {
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
-  match decode(binary-marshal, encode(binary-marshal, value, 12345)) {
+  match decode(binary-sero, encode(binary-sero, value, 12345)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

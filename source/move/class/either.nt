@@ -1,28 +1,28 @@
 import {
   core.int.show {show-int},
-  this.move.class.bool {bool-marshal},
-  this.move.class.int64 {int64-marshal},
+  this.move.class.bool {bool-sero},
+  this.move.class.int64 {int64-sero},
   this.move.common.get {get-int8},
   this.move.common.put {put-int8},
   this.move.decode {decode},
   this.move.encode {encode},
   this.rule.get-handle {get-handle},
-  this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
+  this.rule.sero {Sero, sero},
 }
 
 inline _put<i1, o1, i2, o2>(
-  m1: marshal(i1, o1),
-  m2: marshal(i2, o2),
+  m1: sero(i1, o1),
+  m2: sero(i2, o2),
 ): (h: &put-handle, x-or-y: &either(i1, i2)) -> unit {
   function (h, x-or-y) {
     case x-or-y {
     | Left(x) =>
-      let Marshal of {put} = m1 in
+      let Sero of {put} = m1 in
       put-int8(h, 0);
       put(h, x)
     | Right(y) =>
-      let Marshal of {put} = m2 in
+      let Sero of {put} = m2 in
       put-int8(h, 1);
       put(h, y)
     }
@@ -30,20 +30,20 @@ inline _put<i1, o1, i2, o2>(
 }
 
 inline _get<i1, o1, i2, o2>(
-  m1: marshal(i1, o1),
-  m2: marshal(i2, o2),
+  m1: sero(i1, o1),
+  m2: sero(i2, o2),
 ): (h: &get-handle) -> ?meta either(o1, o2) {
   function (h) {
     try tag = get-int8(h) in
     if eq-int8(tag, 0) {
-      let Marshal of {get} = m1 in
+      let Sero of {get} = m1 in
       try l = get(h) in
       Right(box {
         letbox l' = l in
         Left(l')
       })
     } else-if eq-int8(tag, 1) {
-      let Marshal of {get} = m2 in
+      let Sero of {get} = m2 in
       try r = get(h) in
       Right(box {
         letbox r' = r in
@@ -55,18 +55,18 @@ inline _get<i1, o1, i2, o2>(
   }
 }
 
-inline either-marshal<i1, o1, i2, o2>(
-  !m1: marshal(i1, o1),
-  !m2: marshal(i2, o2),
-): marshal(either(i1, i2), either(o1, o2)) {
-  Marshal of {
+inline either-sero<i1, o1, i2, o2>(
+  !m1: sero(i1, o1),
+  !m2: sero(i2, o2),
+): sero(either(i1, i2), either(o1, o2)) {
+  Sero of {
     put = _put(!m1, !m2),
     get = _get(!m1, !m2),
   }
 }
 
-inline _either-int-bool: marshal(either(int, bool), either(int, bool)) {
-  either-marshal(int64-marshal, bool-marshal)
+inline _either-int-bool: sero(either(int, bool), either(int, bool)) {
+  either-sero(int64-sero, bool-sero)
 }
 
 define zen(): unit {

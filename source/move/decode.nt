@@ -5,11 +5,11 @@ import {
   core.file.flag {for-r},
   core.system {system},
   this.move.create-get-handle {create-get-handle},
-  this.rule.marshal {Marshal, marshal},
+  this.rule.sero {Sero, sero},
 }
 
-define decode<a, b>(m: marshal(a, b), bytes: binary): ?b {
-  let Marshal of {get} = m in
+define decode<a, b>(m: sero(a, b), bytes: binary): ?b {
+  let Sero of {get} = m in
   let h = create-get-handle(bytes) in
   letbox-T result on h =
     match get(h) {
@@ -26,7 +26,7 @@ define decode<a, b>(m: marshal(a, b), bytes: binary): ?b {
   result
 }
 
-define decode-file<a, b>(m: marshal(a, b), path: &text): system(?b) {
+define decode-file<a, b>(m: sero(a, b), path: &text): system(?b) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in

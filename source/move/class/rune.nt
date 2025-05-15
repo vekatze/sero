@@ -5,8 +5,8 @@ import {
   this.move.decode {decode},
   this.move.encode {encode},
   this.rule.get-handle {get-handle},
-  this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
+  this.rule.sero {Sero, sero},
 }
 
 define _put(h: &put-handle, x: &rune): unit {
@@ -18,8 +18,8 @@ define _get(h: &get-handle): ?meta rune {
   Right(quote {magic cast(int32, rune, v)})
 }
 
-inline rune-marshal: marshal(rune, rune) {
-  Marshal of {
+inline rune-sero: sero(rune, rune) {
+  Sero of {
     put = _put,
     get = _get,
   }
@@ -27,7 +27,7 @@ inline rune-marshal: marshal(rune, rune) {
 
 define zen(): unit {
   pin val = `あ` in
-  match decode(rune-marshal, encode(rune-marshal, val, 4)) {
+  match decode(rune-sero, encode(rune-sero, val, 4)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

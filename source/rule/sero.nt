@@ -3,8 +3,8 @@ import {
   this.rule.put-handle {put-handle},
 }
 
-data marshal(i, o) {
-| Marshal(
+data sero(i, o) {
+| Sero(
     put: (h: &put-handle, value: &i) -> unit,
     get: (h: &get-handle) -> ?meta o,
   )

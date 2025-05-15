@@ -7,19 +7,19 @@ import {
   core.system {system},
   this.move.common.put {extract-binary},
   this.move.create-put-handle {create-put-handle},
-  this.rule.marshal {Marshal, marshal},
+  this.rule.sero {Sero, sero},
 }
 
-inline encode<i, o>(m: marshal(i, o), value: &i, buffer-size: int): binary {
+inline encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary {
   let h = create-put-handle(buffer-size) in
   let _ on h =
-    let Marshal of {put} = m in
+    let Sero of {put} = m in
     put(h, value)
   in
   extract-binary(h)
 }
 
-inline encode-file<i, o>(m: marshal(i, o), value: &i, buffer-size: int, path: &text): system(unit) {
+inline encode-file<i, o>(m: sero(i, o), value: &i, buffer-size: int, path: &text): system(unit) {
   pin bytes = encode(m, value, buffer-size) in
   try target-file = open(path, for-rw, default-file-mode) in
   let _ = core.binary.io.write(bytes, target-file) in

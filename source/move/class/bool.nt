@@ -4,8 +4,8 @@ import {
   this.move.decode {decode},
   this.move.encode {encode},
   this.rule.get-handle {get-handle},
-  this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
+  this.rule.sero {Sero, sero},
 }
 
 define _put(h: &put-handle, x: &bool): unit {
@@ -21,8 +21,8 @@ define _get(h: &get-handle): ?meta bool {
   Right(quote {eq-int8(v, 1)})
 }
 
-inline bool-marshal: marshal(bool, bool) {
-  Marshal of {
+inline bool-sero: sero(bool, bool) {
+  Sero of {
     put = _put,
     get = _get,
   }
@@ -30,7 +30,7 @@ inline bool-marshal: marshal(bool, bool) {
 
 define zen(): unit {
   pin val = True in
-  match decode(bool-marshal, encode(bool-marshal, val, 1)) {
+  match decode(bool-sero, encode(bool-sero, val, 1)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

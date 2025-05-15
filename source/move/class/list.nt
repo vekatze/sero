@@ -1,23 +1,23 @@
 import {
   core.int.show {show-int},
   core.list {for},
-  this.move.class.int64 {int64-marshal},
+  this.move.class.int64 {int64-sero},
   this.move.common.get {get-int8},
   this.move.common.put {put-int8},
   this.move.decode {decode},
   this.move.encode {encode},
   this.rule.get-handle {get-handle},
-  this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
+  this.rule.sero {Sero, sero},
 }
 
-inline _put<i, o>(!m: marshal(i, o)): (h: &put-handle, xs: &list(i)) -> unit {
+inline _put<i, o>(!m: sero(i, o)): (h: &put-handle, xs: &list(i)) -> unit {
   define self(h, xs): unit {
     case xs {
     | Nil =>
       put-int8(h, 0)
     | Cons(y, ys) =>
-      let Marshal of {put} = !m in
+      let Sero of {put} = !m in
       put-int8(h, 1);
       put(h, y);
       self(h, ys)
@@ -25,13 +25,13 @@ inline _put<i, o>(!m: marshal(i, o)): (h: &put-handle, xs: &list(i)) -> unit {
   }
 }
 
-inline _get<i, o>(!m: marshal(i, o)): (h: &get-handle) -> ?meta list(o) {
+inline _get<i, o>(!m: sero(i, o)): (h: &get-handle) -> ?meta list(o) {
   define self(h) {
     try tag = get-int8(h) in
     if eq-int8(tag, 0) {
       Right(box {Nil})
     } else-if eq-int8(tag, 1) {
-      let Marshal of {get} = !m in
+      let Sero of {get} = !m in
       try v = get(h) in
       try vs = self(h) in
       Right(box {
@@ -45,20 +45,20 @@ inline _get<i, o>(!m: marshal(i, o)): (h: &get-handle) -> ?meta list(o) {
   }
 }
 
-inline list-marshal<i, o>(!m: marshal(i, o)): marshal(list(i), list(o)) {
-  Marshal of {
+inline list-sero<i, o>(!m: sero(i, o)): sero(list(i), list(o)) {
+  Sero of {
     put = _put(!m),
     get = _get(!m),
   }
 }
 
-inline _list-int-marshal: marshal(list(int), list(int)) {
-  list-marshal(int64-marshal)
+inline _list-int-sero: sero(list(int), list(int)) {
+  list-sero(int64-sero)
 }
 
 define zen(): unit {
   pin val = [1, 2, -123, 1384910234] in
-  match decode(_list-int-marshal, encode(_list-int-marshal, val, 8)) {
+  match decode(_list-int-sero, encode(_list-int-sero, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(vs) =>

@@ -5,8 +5,8 @@ import {
   this.move.decode {decode},
   this.move.encode {encode},
   this.rule.get-handle {get-handle},
-  this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
+  this.rule.sero {Sero, sero},
 }
 
 define _put(h: &put-handle, x: &int8): unit {
@@ -18,8 +18,8 @@ define _get(h: &get-handle): ?meta int8 {
   Right(quote {v})
 }
 
-inline int8-marshal: marshal(int8, int8) {
-  Marshal of {
+inline int8-sero: sero(int8, int8) {
+  Sero of {
     put = _put,
     get = _get,
   }
@@ -27,7 +27,7 @@ inline int8-marshal: marshal(int8, int8) {
 
 define zen(): unit {
   pin val = 127 in
-  match decode(int8-marshal, encode(int8-marshal, val, 4)) {
+  match decode(int8-sero, encode(int8-sero, val, 4)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
