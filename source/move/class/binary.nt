@@ -1,11 +1,10 @@
 import {
   core.binary {binary},
-  core.box {axiom-T},
   core.text {_Text},
   this.move.common.get {get-binary},
-  this.move.common.put {extract-binary, put-binary},
-  this.move.create-get-handle {create-get-handle},
-  this.move.create-put-handle {create-put-handle},
+  this.move.common.put {put-binary},
+  this.move.get {get},
+  this.move.put {put},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
@@ -28,17 +27,12 @@ inline as-marshal: marshal(binary, binary) {
 }
 
 define zen(): unit {
-  let Marshal of {get, put} = as-marshal in
-  let h-save = create-put-handle(4) in
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
-  let _ on h-save = put(h-save, value) in
-  let b = extract-binary(h-save) in
-  pin h = create-get-handle(b) in
-  let mval = get(h) in
-  match mval {
+  let b = put(as-marshal, value, 12345) in
+  match get(as-marshal, b) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    printf("value: {}\n", [_Text(axiom-T(v))])
+    printf("value: {}\n", [_Text(v)])
   }
 }
