@@ -1,7 +1,7 @@
 import {
   core.int.show {show-int},
   core.list {for},
-  this.move.class.int64,
+  this.move.class.int64 {int64-marshal},
   this.move.common.get {get-int8},
   this.move.common.put {put-int8},
   this.move.decode {decode},
@@ -45,20 +45,20 @@ inline _get<i, o>(!m: marshal(i, o)): (h: &get-handle) -> ?meta list(o) {
   }
 }
 
-inline as-marshal<i, o>(!m: marshal(i, o)): marshal(list(i), list(o)) {
+inline list-marshal<i, o>(!m: marshal(i, o)): marshal(list(i), list(o)) {
   Marshal of {
     put = _put(!m),
     get = _get(!m),
   }
 }
 
-inline _int-list: marshal(list(int), list(int)) {
-  as-marshal(this.move.class.int64.as-marshal)
+inline _list-int-marshal: marshal(list(int), list(int)) {
+  list-marshal(int64-marshal)
 }
 
 define zen(): unit {
   pin val = [1, 2, -123, 1384910234] in
-  match decode(_int-list, encode(_int-list, val, 8)) {
+  match decode(_list-int-marshal, encode(_list-int-marshal, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(vs) =>

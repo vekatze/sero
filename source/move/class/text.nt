@@ -17,7 +17,7 @@ define _get(h: &get-handle): ?meta text {
   Right(quote {t})
 }
 
-inline as-marshal: marshal(text, text) {
+inline text-marshal: marshal(text, text) {
   Marshal of {
     put = _put,
     get = _get,
@@ -26,7 +26,7 @@ inline as-marshal: marshal(text, text) {
 
 define zen(): unit {
   tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
-  match decode(as-marshal, encode(as-marshal, value, 4)) {
+  match decode(text-marshal, encode(text-marshal, value, 4)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

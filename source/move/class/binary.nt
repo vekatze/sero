@@ -19,7 +19,7 @@ define _get(h: &get-handle): ?meta binary {
   Right(quote {b})
 }
 
-inline as-marshal: marshal(binary, binary) {
+inline binary-marshal: marshal(binary, binary) {
   Marshal of {
     put = _put,
     get = _get,
@@ -28,7 +28,7 @@ inline as-marshal: marshal(binary, binary) {
 
 define zen(): unit {
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
-  match decode(as-marshal, encode(as-marshal, value, 12345)) {
+  match decode(binary-marshal, encode(binary-marshal, value, 12345)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

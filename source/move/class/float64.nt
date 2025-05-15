@@ -18,7 +18,7 @@ define _get(h: &get-handle): ?meta float64 {
   Right(quote {magic cast(int64, float64, v)})
 }
 
-inline as-marshal: marshal(float64, float64) {
+inline float64-marshal: marshal(float64, float64) {
   Marshal of {
     put = _put,
     get = _get,
@@ -27,7 +27,7 @@ inline as-marshal: marshal(float64, float64) {
 
 define zen(): unit {
   pin val = -3.8 in
-  match decode(as-marshal, encode(as-marshal, val, 8)) {
+  match decode(float64-marshal, encode(float64-marshal, val, 8)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

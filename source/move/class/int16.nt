@@ -18,7 +18,7 @@ define _get(h: &get-handle): ?meta int16 {
   Right(quote {v})
 }
 
-inline as-marshal: marshal(int16, int16) {
+inline int16-marshal: marshal(int16, int16) {
   Marshal of {
     put = _put,
     get = _get,
@@ -27,7 +27,7 @@ inline as-marshal: marshal(int16, int16) {
 
 define zen(): unit {
   pin val = -12345 in
-  match decode(as-marshal, encode(as-marshal, val, 8)) {
+  match decode(int16-marshal, encode(int16-marshal, val, 8)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

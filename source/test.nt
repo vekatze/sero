@@ -5,15 +5,15 @@ import {
   core.int.show {show-int},
   core.list {for},
   core.system {get-error-message},
-  this.move.class.int64,
-  this.move.class.list,
+  this.move.class.int64 {int64-marshal},
+  this.move.class.list {list-marshal},
   this.move.decode {decode-file},
   this.move.encode {encode-file},
   this.rule.marshal {marshal},
 }
 
-inline marshal-list-int: marshal(list(int), list(int)) {
-  this.move.class.list.as-marshal(this.move.class.int64.as-marshal)
+inline _list-int-marshal: marshal(list(int), list(int)) {
+  list-marshal(int64-marshal)
 }
 
 define zen(): unit {
@@ -21,8 +21,8 @@ define zen(): unit {
   printf("mode: {}\n", [show-int(from-c-int(core.file.mode.interpret(default-file-mode)))]);
   pin value: list(int) = [1, 2, 3, 42342, 5, 6] in
   let path = "test.bin" in
-  let _ = encode-file(marshal-list-int, value, 10, path) in
-  let v = decode-file(marshal-list-int, path) in
+  let _ = encode-file(_list-int-marshal, value, 10, path) in
+  let v = decode-file(_list-int-marshal, path) in
   match v {
   | Left(e) =>
     printf("left: {}\n", [get-error-message(e)])

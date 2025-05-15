@@ -21,7 +21,7 @@ define _get(h: &get-handle): ?meta bool {
   Right(quote {eq-int8(v, 1)})
 }
 
-inline as-marshal: marshal(bool, bool) {
+inline bool-marshal: marshal(bool, bool) {
   Marshal of {
     put = _put,
     get = _get,
@@ -30,7 +30,7 @@ inline as-marshal: marshal(bool, bool) {
 
 define zen(): unit {
   pin val = True in
-  match decode(as-marshal, encode(as-marshal, val, 1)) {
+  match decode(bool-marshal, encode(bool-marshal, val, 1)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

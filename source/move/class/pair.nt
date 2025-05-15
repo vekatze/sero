@@ -1,8 +1,8 @@
 import {
   core.bool.show,
   core.int.show {show-int},
-  this.move.class.bool,
-  this.move.class.int64,
+  this.move.class.bool {bool-marshal},
+  this.move.class.int64 {int64-marshal},
   this.move.decode {decode},
   this.move.encode {encode},
   this.rule.get-handle {get-handle},
@@ -40,7 +40,7 @@ inline _get<i1, o1, i2, o2>(
   }
 }
 
-inline as-marshal<i1, o1, i2, o2>(
+inline pair-marshal<i1, o1, i2, o2>(
   !m1: marshal(i1, o1),
   !m2: marshal(i2, o2),
 ): marshal(pair(i1, i2), pair(o1, o2)) {
@@ -51,7 +51,7 @@ inline as-marshal<i1, o1, i2, o2>(
 }
 
 inline _pair-int-bool: marshal(pair(int, bool), pair(int, bool)) {
-  as-marshal(this.move.class.int64.as-marshal, this.move.class.bool.as-marshal)
+  pair-marshal(int64-marshal, bool-marshal)
 }
 
 define zen(): unit {

@@ -18,7 +18,7 @@ define _get(h: &get-handle): ?meta rune {
   Right(quote {magic cast(int32, rune, v)})
 }
 
-inline as-marshal: marshal(rune, rune) {
+inline rune-marshal: marshal(rune, rune) {
   Marshal of {
     put = _put,
     get = _get,
@@ -27,7 +27,7 @@ inline as-marshal: marshal(rune, rune) {
 
 define zen(): unit {
   pin val = `あ` in
-  match decode(as-marshal, encode(as-marshal, val, 4)) {
+  match decode(rune-marshal, encode(rune-marshal, val, 4)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
