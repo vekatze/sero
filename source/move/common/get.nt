@@ -4,6 +4,7 @@ import {
   core.binary {binary, binary-access, binary-length},
   core.cell {mutate},
   core.control {loop},
+  core.text {_Text},
   this.rule.get-handle {Get-Handle, get-handle},
 }
 
@@ -103,4 +104,9 @@ define get-binary(h: &get-handle): ?binary {
   let result = get(buf) in
   _proceed(cursor, len);
   Right(result)
+}
+
+define get-text(h: &get-handle): ?text {
+  try b = get-binary(h) in
+  Right(_Text(b))
 }

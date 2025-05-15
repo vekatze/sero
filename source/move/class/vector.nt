@@ -44,12 +44,12 @@ inline as-marshal<i, o>(!m: marshal(i, o)): marshal(vector(i), vector(o)) {
   }
 }
 
-inline int-vector: marshal(vector(int), vector(int)) {
+inline _int-vector: marshal(vector(int), vector(int)) {
   as-marshal(this.move.class.int64.as-marshal)
 }
 
 define zen(): unit {
-  let Marshal of {put, get} = int-vector in
+  let Marshal of {put, get} = _int-vector in
   let h-save = create-put-handle(8) in
   pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
   let _ on h-save = put(h-save, val) in

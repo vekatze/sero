@@ -1,7 +1,6 @@
 import {
   core.box {axiom-T},
-  core.text {_Text},
-  this.move.common.get {get-binary},
+  this.move.common.get {get-text},
   this.move.common.put {extract-binary, put-text},
   this.move.create-get-handle {from-bytes},
   this.move.create-put-handle {create-put-handle},
@@ -15,8 +14,8 @@ define _put(h: &put-handle, x: &text): unit {
 }
 
 define _get(h: &get-handle): ?meta text {
-  try b = get-binary(h) in
-  Right(quote {_Text(b)})
+  try t = get-text(h) in
+  Right(quote {t})
 }
 
 inline as-marshal: marshal(text, text) {

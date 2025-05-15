@@ -52,14 +52,14 @@ inline as-marshal<i1, o1, i2, o2>(
   }
 }
 
-inline pair-int-bool: marshal(pair(int, bool), pair(int, bool)) {
+inline _pair-int-bool: marshal(pair(int, bool), pair(int, bool)) {
   as-marshal(this.move.class.int64.as-marshal, this.move.class.bool.as-marshal)
 }
 
 define zen(): unit {
   let h-save = create-put-handle(8) in
   pin val = Pair(-1234, True) in
-  let Marshal of {put, get} = pair-int-bool in
+  let Marshal of {put, get} = _pair-int-bool in
   let _ on h-save = put(h-save, val) in
   let b = extract-binary(h-save) in
   pin h = from-bytes(b) in

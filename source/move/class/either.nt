@@ -66,12 +66,12 @@ inline as-marshal<i1, o1, i2, o2>(
   }
 }
 
-inline either-int-bool: marshal(either(int, bool), either(int, bool)) {
+inline _either-int-bool: marshal(either(int, bool), either(int, bool)) {
   as-marshal(this.move.class.int64.as-marshal, this.move.class.bool.as-marshal)
 }
 
 define zen(): unit {
-  let Marshal of {put, get} = either-int-bool in
+  let Marshal of {put, get} = _either-int-bool in
   let h-save = create-put-handle(8) in
   pin val = Left(-1234) in
   let _ on h-save = put(h-save, val) in
