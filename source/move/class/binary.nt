@@ -1,20 +1,20 @@
 import {
-  binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-binary},
   core.binary {binary, binary-length},
   core.box {axiom-T},
   core.text {_Text},
-  this.move.class.int64,
   this.move.common.cursor {proceed-binary},
+  this.move.common.save {get, save-binary, save-int64},
   this.move.create-decode-handle {from-bytes},
+  this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
+  this.rule.encode-handle {encode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
-define encode-binary(b: &builder, x: &binary): unit {
-  pin len = binary-length(x) in
-  this.move.class.int64.encode-int64(b, len);
-  append-binary(b, x)
+define encode-binary(h: &encode-handle, x: &binary): unit {
+  let len = binary-length(x) in
+  save-int64(h, len);
+  save-binary(h, x)
 }
 
 define decode-binary(h: &decode-handle): ?meta binary {
@@ -30,10 +30,10 @@ inline as-marshal: marshal(binary, binary) {
 }
 
 define zen(): unit {
-  let buf = create(4) in
+  let h-save = create-encode-handle(4) in
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
-  let _ on buf = encode-binary(buf, value) in
-  let b = get(buf) in
+  let _ on h-save = encode-binary(h-save, value) in
+  let b = get(h-save) in
   pin h = from-bytes(b) in
   let mval = decode-binary(h) in
   match mval {

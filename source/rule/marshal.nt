@@ -1,11 +1,11 @@
 import {
-  binary-builder.entity {builder},
   this.rule.decode-handle {decode-handle},
+  this.rule.encode-handle {encode-handle},
 }
 
 data marshal(a, b) {
 | Marshal(
-    encode: (buffer: &builder, value: &a) -> unit,
+    encode: (h: &encode-handle, value: &a) -> unit,
     decode: (h: &decode-handle) -> ?meta b,
   )
 }

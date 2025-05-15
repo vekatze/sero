@@ -1,26 +1,27 @@
 import {
-  binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-int8},
   core.box {axiom-T},
   core.int.show {show-int},
   core.list {for},
   this.move.class.int64,
   this.move.common.cursor {proceed-int8},
+  this.move.common.save {get, save-int8},
   this.move.create-decode-handle {from-bytes},
+  this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
+  this.rule.encode-handle {encode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
-inline encode-list<a1, a2>(!m: marshal(a1, a2)): (b: &builder, xs: &list(a1)) -> unit {
-  define self(b: &builder, xs: &list(a1)): unit {
+inline encode-list<a1, a2>(!m: marshal(a1, a2)): (h: &encode-handle, xs: &list(a1)) -> unit {
+  define self(h: &encode-handle, xs: &list(a1)): unit {
     case xs {
     | Nil =>
-      append-int8(b, 0)
+      save-int8(h, 0)
     | Cons(y, ys) =>
       let Marshal of {encode} = !m in
-      append-int8(b, 1);
-      encode(b, y);
-      self(b, ys)
+      save-int8(h, 1);
+      encode(h, y);
+      self(h, ys)
     }
   }
 }
@@ -58,10 +59,10 @@ inline int-list: marshal(list(int), list(int)) {
 
 define zen(): unit {
   let Marshal of {encode, decode} = int-list in
-  let buf = create(8) in
+  let h-save = create-encode-handle(8) in
   pin val = [1, 2, -123, 1384910234] in
-  let _ on buf = encode(buf, val) in
-  let b = get(buf) in
+  let _ on h-save = encode(h-save, val) in
+  let b = get(h-save) in
   pin h = from-bytes(b) in
   let mval = decode(h) in
   match mval {

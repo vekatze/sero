@@ -1,0 +1,7 @@
+import {
+  binary-builder.entity {builder},
+}
+
+data encode-handle {
+| Encode-Handle(buffer: builder)
+}

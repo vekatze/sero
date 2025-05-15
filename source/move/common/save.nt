@@ -1,0 +1,54 @@
+import {
+  binary-builder.entity,
+  binary-builder.scene {
+    append-binary,
+    append-float64-big-endian,
+    append-int16-big-endian,
+    append-int32-big-endian,
+    append-int64-big-endian,
+    append-int8,
+    append-text,
+  },
+  core.binary {binary},
+  this.rule.encode-handle {Encode-Handle, encode-handle},
+}
+
+define save-int8(h: &encode-handle, x: int8): unit {
+  tie Encode-Handle of {buffer} = h in
+  append-int8(buffer, x)
+}
+
+define save-int16(h: &encode-handle, x: int16): unit {
+  tie Encode-Handle of {buffer} = h in
+  append-int16-big-endian(buffer, x)
+}
+
+define save-int32(h: &encode-handle, x: int32): unit {
+  tie Encode-Handle of {buffer} = h in
+  append-int32-big-endian(buffer, x)
+}
+
+define save-int64(h: &encode-handle, x: int64): unit {
+  tie Encode-Handle of {buffer} = h in
+  append-int64-big-endian(buffer, x)
+}
+
+define save-float64(h: &encode-handle, x: float64): unit {
+  tie Encode-Handle of {buffer} = h in
+  append-float64-big-endian(buffer, x)
+}
+
+define save-binary(h: &encode-handle, x: &binary): unit {
+  tie Encode-Handle of {buffer} = h in
+  append-binary(buffer, x)
+}
+
+define save-text(h: &encode-handle, x: &text): unit {
+  tie Encode-Handle of {buffer} = h in
+  append-text(buffer, x)
+}
+
+define get(h: encode-handle): binary {
+  let Encode-Handle of {buffer} = h in
+  binary-builder.entity.get(buffer)
+}

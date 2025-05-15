@@ -1,18 +1,19 @@
 import {
-  binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-int8},
   core.box {axiom-T},
   this.move.common.cursor {proceed-int8},
+  this.move.common.save {get, save-int8},
   this.move.create-decode-handle {from-bytes},
+  this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
+  this.rule.encode-handle {encode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
-define _encode(b: &builder, x: &bool): unit {
+define _encode(h: &encode-handle, x: &bool): unit {
   if *x {
-    append-int8(b, 1)
+    save-int8(h, 1)
   } else {
-    append-int8(b, 0)
+    save-int8(h, 0)
   }
 }
 
@@ -29,10 +30,10 @@ inline as-marshal: marshal(bool, bool) {
 }
 
 define zen(): unit {
-  let buf = create(1) in
+  let h-save = create-encode-handle(1) in
   pin val = True in
-  let _ on buf = _encode(buf, val) in
-  let b = get(buf) in
+  let _ on h-save = _encode(h-save, val) in
+  let b = get(h-save) in
   pin h = from-bytes(b) in
   match _decode(h) {
   | Left(_) =>

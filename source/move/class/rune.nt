@@ -1,15 +1,17 @@
 import {
-  binary-builder.entity {builder, create, get},
   core.box {axiom-T},
   core.rune.show {show-rune},
-  this.move.class.int32 {decode-int32, encode-int32},
+  this.move.class.int32 {decode-int32},
+  this.move.common.save {get, save-int32},
   this.move.create-decode-handle {from-bytes},
+  this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
+  this.rule.encode-handle {encode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
-define encode-rune(b: &builder, x: &rune): unit {
-  encode-int32(b, magic cast(&rune, &int32, x))
+define encode-rune(h: &encode-handle, x: &rune): unit {
+  save-int32(h, magic cast(&rune, int32, x))
 }
 
 define decode-rune(h: &decode-handle): ?meta rune {
@@ -28,10 +30,10 @@ inline as-marshal: marshal(rune, rune) {
 }
 
 define zen(): unit {
-  let buf = create(4) in
+  let h-save = create-encode-handle(4) in
   pin val = `あ` in
-  let _ on buf = encode-rune(buf, val) in
-  let b = get(buf) in
+  let _ on h-save = encode-rune(h-save, val) in
+  let b = get(h-save) in
   pin h = from-bytes(b) in
   let mval = decode-rune(h) in
   match mval {

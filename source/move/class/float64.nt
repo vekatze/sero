@@ -1,16 +1,17 @@
 import {
-  binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-float64-big-endian},
   core.box {axiom-T},
   core.float.show {show-float},
   this.move.common.cursor {proceed-int64},
+  this.move.common.save {get, save-float64},
   this.move.create-decode-handle {from-bytes},
+  this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
+  this.rule.encode-handle {encode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
-define encode-float64(b: &builder, x: &float64): unit {
-  append-float64-big-endian(b, *x)
+define encode-float64(h: &encode-handle, x: &float64): unit {
+  save-float64(h, *x)
 }
 
 define decode-float64(h: &decode-handle): ?meta float64 {
@@ -26,10 +27,10 @@ inline as-marshal: marshal(float64, float64) {
 }
 
 define zen(): unit {
-  let buf = create(8) in
+  let h-save = create-encode-handle(8) in
   pin val = -3.8 in
-  let _ on buf = encode-float64(buf, val) in
-  let b = get(buf) in
+  let _ on h-save = encode-float64(h-save, val) in
+  let b = get(h-save) in
   pin h = from-bytes(b) in
   let mval = decode-float64(h) in
   match mval {

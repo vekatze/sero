@@ -1,16 +1,17 @@
 import {
-  binary-builder.entity {builder, create, get},
-  binary-builder.scene {append-int16-big-endian},
   core.box {axiom-T},
   core.int.show {show-int},
   this.move.common.cursor {proceed-int16},
+  this.move.common.save {get, save-int16},
   this.move.create-decode-handle {from-bytes},
+  this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
+  this.rule.encode-handle {encode-handle},
   this.rule.marshal {Marshal, marshal},
 }
 
-define encode-int16(b: &builder, x: &int16): unit {
-  append-int16-big-endian(b, *x)
+define encode-int16(h: &encode-handle, x: &int16): unit {
+  save-int16(h, *x)
 }
 
 define decode-int16(h: &decode-handle): ?meta int16 {
@@ -26,10 +27,10 @@ inline as-marshal: marshal(int16, int16) {
 }
 
 define zen(): unit {
-  let buf = create(4) in
+  let h-save = create-encode-handle(4) in
   pin val = -12345 in
-  let _ on buf = encode-int16(buf, val) in
-  let b = get(buf) in
+  let _ on h-save = encode-int16(h-save, val) in
+  let b = get(h-save) in
   pin h = from-bytes(b) in
   let mval = decode-int16(h) in
   match mval {
