@@ -1,4 +1,6 @@
 import {
+  core.binary {binary},
+  core.binary.io,
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
@@ -6,12 +8,10 @@ import {
   this.rule.marshal {Marshal, marshal},
 }
 
-define get<a, b>(m: marshal(a, b), path: &text): system(?b) {
-  try h = create-get-handle(path) in
+define get<a, b>(m: marshal(a, b), bytes: binary): ?b {
   let Marshal of {get} = m in
-  try source-file = open(path, for-r, []) in
-  try _ = close(source-file) in
-  letbox-T result: ?b on h =
+  let h = create-get-handle(bytes) in
+  letbox-T result on h =
     match get(h) {
     | Left(_) =>
       box {none}
@@ -23,5 +23,12 @@ define get<a, b>(m: marshal(a, b), path: &text): system(?b) {
     }
   in
   let _ = h in
-  Right(result)
+  result
+}
+
+define get-file<a, b>(m: marshal(a, b), path: &text): system(?b) {
+  try source-file = open(path, for-r, []) in
+  try bytes = core.binary.io.read(source-file, 1024) in
+  try _ = close(source-file) in
+  Right(get(m, bytes))
 }

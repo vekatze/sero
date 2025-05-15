@@ -5,7 +5,7 @@ import {
   this.move.class.int64,
   this.move.common.get {get-int64},
   this.move.common.put {extract-binary, put-int64},
-  this.move.create-get-handle {from-bytes},
+  this.move.create-get-handle {create-get-handle},
   this.move.create-put-handle {create-put-handle},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
@@ -54,7 +54,7 @@ define zen(): unit {
   pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
   let _ on h-save = put(h-save, val) in
   let b = extract-binary(h-save) in
-  pin h = from-bytes(b) in
+  pin h = create-get-handle(b) in
   let mval = get(h) in
   match mval {
   | Left(_) =>

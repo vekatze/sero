@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   this.move.common.get {get-int8},
   this.move.common.put {extract-binary, put-int8},
-  this.move.create-get-handle {from-bytes},
+  this.move.create-get-handle {create-get-handle},
   this.move.create-put-handle {create-put-handle},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
@@ -35,7 +35,7 @@ define zen(): unit {
   pin val = True in
   let _ on h-save = put(h-save, val) in
   let b = extract-binary(h-save) in
-  pin h = from-bytes(b) in
+  pin h = create-get-handle(b) in
   match get(h) {
   | Left(_) =>
     print("left")

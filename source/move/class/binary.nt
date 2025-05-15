@@ -4,7 +4,7 @@ import {
   core.text {_Text},
   this.move.common.get {get-binary},
   this.move.common.put {extract-binary, put-binary},
-  this.move.create-get-handle {from-bytes},
+  this.move.create-get-handle {create-get-handle},
   this.move.create-put-handle {create-put-handle},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
@@ -33,7 +33,7 @@ define zen(): unit {
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
   let _ on h-save = put(h-save, value) in
   let b = extract-binary(h-save) in
-  pin h = from-bytes(b) in
+  pin h = create-get-handle(b) in
   let mval = get(h) in
   match mval {
   | Left(_) =>

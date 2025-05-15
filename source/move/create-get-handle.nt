@@ -7,15 +7,15 @@ import {
   this.rule.get-handle {Get-Handle, get-handle},
 }
 
-define create-get-handle(path: &text): system(get-handle) {
+define create-get-handle(bytes: binary): get-handle {
+  let cursor = new-cell(0) in
+  Get-Handle of {bytes, cursor}
+}
+
+define create-get-handle-from-file(path: &text): system(get-handle) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in
   let cursor = new-cell(0) in
   Right(Get-Handle of {bytes, cursor})
-}
-
-define from-bytes(bytes: binary): get-handle {
-  let cursor = new-cell(0) in
-  Get-Handle of {bytes, cursor}
 }
