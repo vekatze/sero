@@ -53,7 +53,7 @@ define put-text(h: &put-handle, x: &text): unit {
   append-text(buffer, x)
 }
 
-define get(h: put-handle): binary {
+define extract-binary(h: put-handle): binary {
   let Put-Handle of {buffer} = h in
   binary-builder.entity.get(buffer)
 }

@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   this.move.common.get {get-int8},
-  this.move.common.put {get, put-int8},
+  this.move.common.put {extract-binary, put-int8},
   this.move.create-get-handle {from-bytes},
   this.move.create-put-handle {create-put-handle},
   this.rule.get-handle {get-handle},
@@ -9,7 +9,7 @@ import {
   this.rule.put-handle {put-handle},
 }
 
-define _encode(h: &put-handle, x: &bool): unit {
+define _put(h: &put-handle, x: &bool): unit {
   if *x {
     put-int8(h, 1)
   } else {
@@ -17,25 +17,26 @@ define _encode(h: &put-handle, x: &bool): unit {
   }
 }
 
-define _decode(h: &get-handle): ?meta bool {
+define _get(h: &get-handle): ?meta bool {
   try v = get-int8(h) in
   Right(quote {eq-int8(v, 1)})
 }
 
 inline as-marshal: marshal(bool, bool) {
   Marshal of {
-    encode = _encode,
-    decode = _decode,
+    put = _put,
+    get = _get,
   }
 }
 
 define zen(): unit {
+  let Marshal of {get, put} = as-marshal in
   let h-save = create-put-handle(1) in
   pin val = True in
-  let _ on h-save = _encode(h-save, val) in
-  let b = get(h-save) in
+  let _ on h-save = put(h-save, val) in
+  let b = extract-binary(h-save) in
   pin h = from-bytes(b) in
-  match _decode(h) {
+  match get(h) {
   | Left(_) =>
     print("left")
   | Right(v) =>

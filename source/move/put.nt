@@ -4,7 +4,7 @@ import {
   core.file.flag {for-rw},
   core.file.mode {default-file-mode},
   core.system {system},
-  this.move.common.put {get},
+  this.move.common.put {extract-binary},
   this.move.create-put-handle {create-put-handle},
   this.rule.marshal {Marshal, marshal},
 }
@@ -12,10 +12,10 @@ import {
 inline put<a, b>(m: marshal(a, b), value: &a, path: &text, buffer-size: int): system(unit) {
   let h = create-put-handle(buffer-size) in
   let _ on h =
-    let Marshal of {encode} = m in
-    encode(h, value)
+    let Marshal of {put} = m in
+    put(h, value)
   in
-  pin bytes = get(h) in
+  pin bytes = extract-binary(h) in
   try target-file = open(path, for-rw, default-file-mode) in
   let _ = core.binary.io.write(bytes, target-file) in
   close(target-file)

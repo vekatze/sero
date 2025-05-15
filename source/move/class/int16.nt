@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   core.int.show {show-int},
   this.move.common.get {get-int16},
-  this.move.common.put {get, put-int16},
+  this.move.common.put {extract-binary, put-int16},
   this.move.create-get-handle {from-bytes},
   this.move.create-put-handle {create-put-handle},
   this.rule.get-handle {get-handle},
@@ -10,29 +10,30 @@ import {
   this.rule.put-handle {put-handle},
 }
 
-define encode-int16(h: &put-handle, x: &int16): unit {
+define _put(h: &put-handle, x: &int16): unit {
   put-int16(h, *x)
 }
 
-define decode-int16(h: &get-handle): ?meta int16 {
+define _get(h: &get-handle): ?meta int16 {
   try v = get-int16(h) in
   Right(quote {v})
 }
 
 inline as-marshal: marshal(int16, int16) {
   Marshal of {
-    encode = encode-int16,
-    decode = decode-int16,
+    put = _put,
+    get = _get,
   }
 }
 
 define zen(): unit {
+  let Marshal of {put, get} = as-marshal in
   let h-save = create-put-handle(4) in
   pin val = -12345 in
-  let _ on h-save = encode-int16(h-save, val) in
-  let b = get(h-save) in
+  let _ on h-save = put(h-save, val) in
+  let b = extract-binary(h-save) in
   pin h = from-bytes(b) in
-  let mval = decode-int16(h) in
+  let mval = get(h) in
   match mval {
   | Left(_) =>
     print("left")

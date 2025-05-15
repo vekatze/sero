@@ -5,7 +5,7 @@ import {
 
 data marshal(i, o) {
 | Marshal(
-    encode: (h: &put-handle, value: &i) -> unit,
-    decode: (h: &get-handle) -> ?meta o,
+    put: (h: &put-handle, value: &i) -> unit,
+    get: (h: &get-handle) -> ?meta o,
   )
 }

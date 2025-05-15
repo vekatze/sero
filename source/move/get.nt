@@ -8,11 +8,11 @@ import {
 
 define get<a, b>(m: marshal(a, b), path: &text): system(?b) {
   try h = create-get-handle(path) in
-  let Marshal of {decode} = m in
+  let Marshal of {get} = m in
   try source-file = open(path, for-r, []) in
   try _ = close(source-file) in
   letbox-T result: ?b on h =
-    match decode(h) {
+    match get(h) {
     | Left(_) =>
       box {none}
     | Right(v) =>

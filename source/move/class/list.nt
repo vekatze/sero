@@ -4,7 +4,7 @@ import {
   core.list {for},
   this.move.class.int64,
   this.move.common.get {get-int8},
-  this.move.common.put {get, put-int8},
+  this.move.common.put {extract-binary, put-int8},
   this.move.create-get-handle {from-bytes},
   this.move.create-put-handle {create-put-handle},
   this.rule.get-handle {get-handle},
@@ -12,28 +12,28 @@ import {
   this.rule.put-handle {put-handle},
 }
 
-inline encode-list<i, o>(!m: marshal(i, o)): (h: &put-handle, xs: &list(i)) -> unit {
+inline _put<i, o>(!m: marshal(i, o)): (h: &put-handle, xs: &list(i)) -> unit {
   define self(h, xs): unit {
     case xs {
     | Nil =>
       put-int8(h, 0)
     | Cons(y, ys) =>
-      let Marshal of {encode} = !m in
+      let Marshal of {put} = !m in
       put-int8(h, 1);
-      encode(h, y);
+      put(h, y);
       self(h, ys)
     }
   }
 }
 
-inline decode-list<i, o>(!m: marshal(i, o)): (h: &get-handle) -> ?meta list(o) {
+inline _get<i, o>(!m: marshal(i, o)): (h: &get-handle) -> ?meta list(o) {
   define self(h) {
     try tag = get-int8(h) in
     if eq-int8(tag, 0) {
       Right(box {Nil})
     } else-if eq-int8(tag, 1) {
-      let Marshal of {decode} = !m in
-      try v = decode(h) in
+      let Marshal of {get} = !m in
+      try v = get(h) in
       try vs = self(h) in
       Right(box {
         letbox v' = v in
@@ -48,8 +48,8 @@ inline decode-list<i, o>(!m: marshal(i, o)): (h: &get-handle) -> ?meta list(o) {
 
 inline as-marshal<i, o>(!m: marshal(i, o)): marshal(list(i), list(o)) {
   Marshal of {
-    encode = encode-list(!m),
-    decode = decode-list(!m),
+    put = _put(!m),
+    get = _get(!m),
   }
 }
 
@@ -58,13 +58,13 @@ inline int-list: marshal(list(int), list(int)) {
 }
 
 define zen(): unit {
-  let Marshal of {encode, decode} = int-list in
+  let Marshal of {put, get} = int-list in
   let h-save = create-put-handle(8) in
   pin val = [1, 2, -123, 1384910234] in
-  let _ on h-save = encode(h-save, val) in
-  let b = get(h-save) in
+  let _ on h-save = put(h-save, val) in
+  let b = extract-binary(h-save) in
   pin h = from-bytes(b) in
-  let mval = decode(h) in
+  let mval = get(h) in
   match mval {
   | Left(_) =>
     print("left\n")

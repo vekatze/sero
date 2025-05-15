@@ -2,8 +2,9 @@ import {
   core.box {axiom-T},
   core.int.show {show-int},
   core.vector {vector},
-  this.move.class.int64 {decode-int64},
-  this.move.common.put {get, put-int64},
+  this.move.class.int64,
+  this.move.common.get {get-int64},
+  this.move.common.put {extract-binary, put-int64},
   this.move.create-get-handle {from-bytes},
   this.move.create-put-handle {create-put-handle},
   this.rule.get-handle {get-handle},
@@ -11,24 +12,24 @@ import {
   this.rule.put-handle {put-handle},
 }
 
-inline encode-vector<i, o>(m: marshal(i, o)): (h: &put-handle, xs: &vector(i)) -> unit {
+inline _put<i, o>(m: marshal(i, o)): (h: &put-handle, xs: &vector(i)) -> unit {
   function (h, xs) {
     let len = core.vector.length(xs) in
     put-int64(h, len);
     core.vector.for-N(xs, function (x, _) {
-      let Marshal of {encode} = m in
-      encode(h, x)
+      let Marshal of {put} = m in
+      put(h, x)
     })
   }
 }
 
-inline decode-vector<i, o>(m: marshal(i, o)): (h: &get-handle) -> ?meta vector(o) {
+inline _get<i, o>(m: marshal(i, o)): (h: &get-handle) -> ?meta vector(o) {
   function (h) {
-    try len = decode-int64(h) in
+    try len = get-int64(h) in
     try vs =
-      core.vector.create-E(axiom-T(len), function (_) {
-        let Marshal of {decode} = m in
-        try value = decode(h) in
+      core.vector.create-E(len, function (_) {
+        let Marshal of {get} = m in
+        try value = get(h) in
         Right(axiom-T(value))
       })
     in
@@ -38,8 +39,8 @@ inline decode-vector<i, o>(m: marshal(i, o)): (h: &get-handle) -> ?meta vector(o
 
 inline as-marshal<i, o>(!m: marshal(i, o)): marshal(vector(i), vector(o)) {
   Marshal of {
-    encode = encode-vector(!m),
-    decode = decode-vector(!m),
+    put = _put(!m),
+    get = _get(!m),
   }
 }
 
@@ -48,13 +49,13 @@ inline int-vector: marshal(vector(int), vector(int)) {
 }
 
 define zen(): unit {
-  let Marshal of {encode, decode} = int-vector in
+  let Marshal of {put, get} = int-vector in
   let h-save = create-put-handle(8) in
   pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
-  let _ on h-save = encode(h-save, val) in
-  let b = get(h-save) in
+  let _ on h-save = put(h-save, val) in
+  let b = extract-binary(h-save) in
   pin h = from-bytes(b) in
-  let mval = decode(h) in
+  let mval = get(h) in
   match mval {
   | Left(_) =>
     print("left\n")
