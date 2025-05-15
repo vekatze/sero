@@ -1,6 +1,6 @@
 import {
   core.box {axiom-T},
-  this.move.common.get {proceed-int8},
+  this.move.common.get {get-int8},
   this.move.common.save {get, save-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -18,7 +18,7 @@ define _encode(h: &encode-handle, x: &bool): unit {
 }
 
 define _decode(h: &decode-handle): ?meta bool {
-  try v = proceed-int8(h) in
+  try v = get-int8(h) in
   Right(quote {eq-int8(v, 1)})
 }
 

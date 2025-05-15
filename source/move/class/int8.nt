@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   core.int.show {show-int},
-  this.move.common.get {proceed-int8},
+  this.move.common.get {get-int8},
   this.move.common.save {get, save-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -15,7 +15,7 @@ define encode-int8(h: &encode-handle, x: &int8): unit {
 }
 
 define decode-int8(h: &decode-handle): ?meta int8 {
-  try v = proceed-int8(h) in
+  try v = get-int8(h) in
   Right(quote {v})
 }
 

@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   core.float.show {show-float},
-  this.move.common.get {proceed-int64},
+  this.move.common.get {get-int64},
   this.move.common.save {get, save-float64},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -15,7 +15,7 @@ define encode-float64(h: &encode-handle, x: &float64): unit {
 }
 
 define decode-float64(h: &decode-handle): ?meta float64 {
-  try v = proceed-int64(h) in
+  try v = get-int64(h) in
   Right(quote {magic cast(int64, float64, v)})
 }
 

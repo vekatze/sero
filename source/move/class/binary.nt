@@ -2,7 +2,7 @@ import {
   core.binary {binary},
   core.box {axiom-T},
   core.text {_Text},
-  this.move.common.get {proceed-binary},
+  this.move.common.get {get-binary},
   this.move.common.save {get, save-binary},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -16,7 +16,7 @@ define encode-binary(h: &encode-handle, x: &binary): unit {
 }
 
 define decode-binary(h: &decode-handle): ?meta binary {
-  try b = proceed-binary(h) in
+  try b = get-binary(h) in
   Right(quote {b})
 }
 

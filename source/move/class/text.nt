@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   core.text {_Text},
-  this.move.common.get {proceed-binary},
+  this.move.common.get {get-binary},
   this.move.common.save {get, save-text},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -15,7 +15,7 @@ define encode-text(h: &encode-handle, x: &text): unit {
 }
 
 define decode-text(h: &decode-handle): ?meta text {
-  try b = proceed-binary(h) in
+  try b = get-binary(h) in
   Right(quote {_Text(b)})
 }
 

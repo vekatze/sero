@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   core.int.show {show-int},
-  this.move.common.get {proceed-int64},
+  this.move.common.get {get-int64},
   this.move.common.save {get, save-int64},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -15,7 +15,7 @@ define encode-int64(h: &encode-handle, x: &int64): unit {
 }
 
 define decode-int64(h: &decode-handle): ?meta int64 {
-  try v = proceed-int64(h) in
+  try v = get-int64(h) in
   Right(quote {v})
 }
 

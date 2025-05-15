@@ -3,7 +3,7 @@ import {
   core.int.show {show-int},
   core.list {for},
   this.move.class.int64,
-  this.move.common.get {proceed-int8},
+  this.move.common.get {get-int8},
   this.move.common.save {get, save-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -28,7 +28,7 @@ inline encode-list<i, o>(!m: marshal(i, o)): (h: &encode-handle, xs: &list(i)) -
 
 inline decode-list<i, o>(!m: marshal(i, o)): (h: &decode-handle) -> ?meta list(o) {
   define self(h) {
-    try tag = proceed-int8(h) in
+    try tag = get-int8(h) in
     if eq-int8(tag, 0) {
       Right(box {Nil})
     } else-if eq-int8(tag, 1) {

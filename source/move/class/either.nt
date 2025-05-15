@@ -3,7 +3,7 @@ import {
   core.int.show {show-int},
   this.move.class.bool,
   this.move.class.int64,
-  this.move.common.get {proceed-int8},
+  this.move.common.get {get-int8},
   this.move.common.save {get, save-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
@@ -35,7 +35,7 @@ inline decode-either<i1, o1, i2, o2>(
   m2: marshal(i2, o2),
 ): (h: &decode-handle) -> ?meta either(o1, o2) {
   function (h) {
-    try tag = proceed-int8(h) in
+    try tag = get-int8(h) in
     if eq-int8(tag, 0) {
       let Marshal of {decode} = m1 in
       try l = decode(h) in

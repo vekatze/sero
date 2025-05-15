@@ -13,7 +13,7 @@ define _proceed(cursor: &cell(int), offset: int): unit {
   })
 }
 
-define proceed-int8(h: &decode-handle): ?int8 {
+define get-int8(h: &decode-handle): ?int8 {
   tie Decode-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 1)) {
@@ -25,7 +25,7 @@ define proceed-int8(h: &decode-handle): ?int8 {
   }
 }
 
-define proceed-int16(h: &decode-handle): ?int16 {
+define get-int16(h: &decode-handle): ?int16 {
   tie Decode-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 2)) {
@@ -41,7 +41,7 @@ define proceed-int16(h: &decode-handle): ?int16 {
   }
 }
 
-define proceed-int32(h: &decode-handle): ?int32 {
+define get-int32(h: &decode-handle): ?int32 {
   tie Decode-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 4)) {
@@ -61,7 +61,7 @@ define proceed-int32(h: &decode-handle): ?int32 {
   }
 }
 
-define proceed-int64(h: &decode-handle): ?int64 {
+define get-int64(h: &decode-handle): ?int64 {
   tie Decode-Handle of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 8)) {
@@ -89,9 +89,9 @@ define proceed-int64(h: &decode-handle): ?int64 {
   }
 }
 
-define proceed-binary(h: &decode-handle): ?binary {
+define get-binary(h: &decode-handle): ?binary {
   tie Decode-Handle of {bytes, cursor} = h in
-  try len = proceed-int64(h) in
+  try len = get-int64(h) in
   let buf = create(len) in
   let index = core.cell.clone(cursor) in
   let _ on buf =
