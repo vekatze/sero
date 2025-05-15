@@ -12,11 +12,11 @@ import {
   this.rule.marshal {Marshal, marshal},
 }
 
-inline encode-pair<a1, a2, b1, b2>(
-  m1: marshal(a1, a2),
-  m2: marshal(b1, b2),
-): (h: &encode-handle, xy: &pair(a1, b1)) -> unit {
-  function (h: &encode-handle, xy: &pair(a1, b1)): unit {
+inline encode-pair<i1, o1, i2, o2>(
+  m1: marshal(i1, o1),
+  m2: marshal(i2, o2),
+): (h: &encode-handle, xy: &pair(i1, i2)) -> unit {
+  function (h, xy) {
     tie Pair(x, y) = xy in
     let Marshal of {encode = encode1} = m1 in
     let Marshal of {encode = encode2} = m2 in
@@ -25,11 +25,11 @@ inline encode-pair<a1, a2, b1, b2>(
   }
 }
 
-inline decode-pair<a1, a2, b1, b2>(
-  m1: marshal(a1, a2),
-  m2: marshal(b1, b2),
-): (h: &decode-handle) -> ?meta pair(a2, b2) {
-  function (h: &decode-handle): ?meta pair(a2, b2) {
+inline decode-pair<i1, o1, i2, o2>(
+  m1: marshal(i1, o1),
+  m2: marshal(i2, o2),
+): (h: &decode-handle) -> ?meta pair(o1, o2) {
+  function (h) {
     let Marshal of {decode = decode1} = m1 in
     let Marshal of {decode = decode2} = m2 in
     try l = decode1(h) in
@@ -42,7 +42,10 @@ inline decode-pair<a1, a2, b1, b2>(
   }
 }
 
-inline as-marshal<a1, a2, b1, b2>(!m1: marshal(a1, a2), !m2: marshal(b1, b2)): marshal(pair(a1, b1), pair(a2, b2)) {
+inline as-marshal<i1, o1, i2, o2>(
+  !m1: marshal(i1, o1),
+  !m2: marshal(i2, o2),
+): marshal(pair(i1, i2), pair(o1, o2)) {
   Marshal of {
     encode = encode-pair(!m1, !m2),
     decode = decode-pair(!m1, !m2),

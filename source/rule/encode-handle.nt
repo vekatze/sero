@@ -3,5 +3,7 @@ import {
 }
 
 data encode-handle {
-| Encode-Handle(buffer: builder)
+| Encode-Handle(
+    buffer: builder,
+  )
 }

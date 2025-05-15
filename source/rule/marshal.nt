@@ -3,9 +3,9 @@ import {
   this.rule.encode-handle {encode-handle},
 }
 
-data marshal(a, b) {
+data marshal(i, o) {
 | Marshal(
-    encode: (h: &encode-handle, value: &a) -> unit,
-    decode: (h: &decode-handle) -> ?meta b,
+    encode: (h: &encode-handle, value: &i) -> unit,
+    decode: (h: &decode-handle) -> ?meta o,
   )
 }

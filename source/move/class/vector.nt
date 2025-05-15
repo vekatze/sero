@@ -11,8 +11,8 @@ import {
   this.rule.marshal {Marshal, marshal},
 }
 
-inline encode-vector<a1, a2>(m: marshal(a1, a2)): (h: &encode-handle, xs: &vector(a1)) -> unit {
-  function (h: &encode-handle, xs: &vector(a1)): unit {
+inline encode-vector<i, o>(m: marshal(i, o)): (h: &encode-handle, xs: &vector(i)) -> unit {
+  function (h, xs) {
     let len = core.vector.length(xs) in
     save-int64(h, len);
     core.vector.for-N(xs, function (x, _) {
@@ -22,8 +22,8 @@ inline encode-vector<a1, a2>(m: marshal(a1, a2)): (h: &encode-handle, xs: &vecto
   }
 }
 
-inline decode-vector<a1, a2>(m: marshal(a1, a2)): (h: &decode-handle) -> ?meta vector(a2) {
-  function (h: &decode-handle): ?meta vector(a2) {
+inline decode-vector<i, o>(m: marshal(i, o)): (h: &decode-handle) -> ?meta vector(o) {
+  function (h) {
     try len = decode-int64(h) in
     try vs =
       core.vector.create-E(axiom-T(len), function (_) {
@@ -32,11 +32,11 @@ inline decode-vector<a1, a2>(m: marshal(a1, a2)): (h: &decode-handle) -> ?meta v
         Right(axiom-T(value))
       })
     in
-    Right(magic cast(vector(a2), meta vector(a2), vs))
+    Right(magic cast(vector(o), meta vector(o), vs))
   }
 }
 
-inline as-marshal<a1, a2>(!m: marshal(a1, a2)): marshal(vector(a1), vector(a2)) {
+inline as-marshal<i, o>(!m: marshal(i, o)): marshal(vector(i), vector(o)) {
   Marshal of {
     encode = encode-vector(!m),
     decode = decode-vector(!m),

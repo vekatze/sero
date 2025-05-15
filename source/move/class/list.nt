@@ -12,8 +12,8 @@ import {
   this.rule.marshal {Marshal, marshal},
 }
 
-inline encode-list<a1, a2>(!m: marshal(a1, a2)): (h: &encode-handle, xs: &list(a1)) -> unit {
-  define self(h: &encode-handle, xs: &list(a1)): unit {
+inline encode-list<i, o>(!m: marshal(i, o)): (h: &encode-handle, xs: &list(i)) -> unit {
+  define self(h, xs): unit {
     case xs {
     | Nil =>
       save-int8(h, 0)
@@ -26,8 +26,8 @@ inline encode-list<a1, a2>(!m: marshal(a1, a2)): (h: &encode-handle, xs: &list(a
   }
 }
 
-inline decode-list<a1, a2>(!m: marshal(a1, a2)): (h: &decode-handle) -> ?meta list(a2) {
-  define self(h: &decode-handle): ?meta list(a2) {
+inline decode-list<i, o>(!m: marshal(i, o)): (h: &decode-handle) -> ?meta list(o) {
+  define self(h) {
     try tag = proceed-int8(h) in
     if eq-int8(tag, 0) {
       Right(box {Nil})
@@ -46,7 +46,7 @@ inline decode-list<a1, a2>(!m: marshal(a1, a2)): (h: &decode-handle) -> ?meta li
   }
 }
 
-inline as-marshal<a1, a2>(!m: marshal(a1, a2)): marshal(list(a1), list(a2)) {
+inline as-marshal<i, o>(!m: marshal(i, o)): marshal(list(i), list(o)) {
   Marshal of {
     encode = encode-list(!m),
     decode = decode-list(!m),
