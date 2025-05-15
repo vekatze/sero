@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   core.int.show {show-int},
   this.move.common.get {get-int32},
-  this.move.common.put {get, save-int32},
+  this.move.common.put {get, put-int32},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -11,7 +11,7 @@ import {
 }
 
 define encode-int32(h: &encode-handle, x: &int32): unit {
-  save-int32(h, *x)
+  put-int32(h, *x)
 }
 
 define decode-int32(h: &decode-handle): ?meta int32 {

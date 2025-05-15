@@ -4,7 +4,7 @@ import {
   this.move.class.bool,
   this.move.class.int64,
   this.move.common.get {get-int8},
-  this.move.common.put {get, save-int8},
+  this.move.common.put {get, put-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -20,11 +20,11 @@ inline encode-either<i1, o1, i2, o2>(
     case x-or-y {
     | Left(x) =>
       let Marshal of {encode} = m1 in
-      save-int8(h, 0);
+      put-int8(h, 0);
       encode(h, x)
     | Right(y) =>
       let Marshal of {encode} = m2 in
-      save-int8(h, 1);
+      put-int8(h, 1);
       encode(h, y)
     }
   }

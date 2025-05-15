@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   this.move.common.get {get-int8},
-  this.move.common.put {get, save-int8},
+  this.move.common.put {get, put-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -11,9 +11,9 @@ import {
 
 define _encode(h: &encode-handle, x: &bool): unit {
   if *x {
-    save-int8(h, 1)
+    put-int8(h, 1)
   } else {
-    save-int8(h, 0)
+    put-int8(h, 0)
   }
 }
 

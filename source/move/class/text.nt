@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   core.text {_Text},
   this.move.common.get {get-binary},
-  this.move.common.put {get, save-text},
+  this.move.common.put {get, put-text},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -11,7 +11,7 @@ import {
 }
 
 define encode-text(h: &encode-handle, x: &text): unit {
-  save-text(h, x)
+  put-text(h, x)
 }
 
 define decode-text(h: &decode-handle): ?meta text {

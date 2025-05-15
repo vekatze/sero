@@ -3,7 +3,7 @@ import {
   core.int.show {show-int},
   core.vector {vector},
   this.move.class.int64 {decode-int64},
-  this.move.common.put {get, save-int64},
+  this.move.common.put {get, put-int64},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -14,7 +14,7 @@ import {
 inline encode-vector<i, o>(m: marshal(i, o)): (h: &encode-handle, xs: &vector(i)) -> unit {
   function (h, xs) {
     let len = core.vector.length(xs) in
-    save-int64(h, len);
+    put-int64(h, len);
     core.vector.for-N(xs, function (x, _) {
       let Marshal of {encode} = m in
       encode(h, x)

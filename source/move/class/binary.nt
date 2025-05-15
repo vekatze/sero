@@ -3,7 +3,7 @@ import {
   core.box {axiom-T},
   core.text {_Text},
   this.move.common.get {get-binary},
-  this.move.common.put {get, save-binary},
+  this.move.common.put {get, put-binary},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -12,7 +12,7 @@ import {
 }
 
 define encode-binary(h: &encode-handle, x: &binary): unit {
-  save-binary(h, x)
+  put-binary(h, x)
 }
 
 define decode-binary(h: &decode-handle): ?meta binary {

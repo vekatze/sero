@@ -4,7 +4,7 @@ import {
   core.list {for},
   this.move.class.int64,
   this.move.common.get {get-int8},
-  this.move.common.put {get, save-int8},
+  this.move.common.put {get, put-int8},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -16,10 +16,10 @@ inline encode-list<i, o>(!m: marshal(i, o)): (h: &encode-handle, xs: &list(i)) -
   define self(h, xs): unit {
     case xs {
     | Nil =>
-      save-int8(h, 0)
+      put-int8(h, 0)
     | Cons(y, ys) =>
       let Marshal of {encode} = !m in
-      save-int8(h, 1);
+      put-int8(h, 1);
       encode(h, y);
       self(h, ys)
     }

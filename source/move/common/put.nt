@@ -14,42 +14,42 @@ import {
   this.rule.encode-handle {Encode-Handle, encode-handle},
 }
 
-define save-int8(h: &encode-handle, x: int8): unit {
+define put-int8(h: &encode-handle, x: int8): unit {
   tie Encode-Handle of {buffer} = h in
   append-int8(buffer, x)
 }
 
-define save-int16(h: &encode-handle, x: int16): unit {
+define put-int16(h: &encode-handle, x: int16): unit {
   tie Encode-Handle of {buffer} = h in
   append-int16-big-endian(buffer, x)
 }
 
-define save-int32(h: &encode-handle, x: int32): unit {
+define put-int32(h: &encode-handle, x: int32): unit {
   tie Encode-Handle of {buffer} = h in
   append-int32-big-endian(buffer, x)
 }
 
-define save-int64(h: &encode-handle, x: int64): unit {
+define put-int64(h: &encode-handle, x: int64): unit {
   tie Encode-Handle of {buffer} = h in
   append-int64-big-endian(buffer, x)
 }
 
-define save-float64(h: &encode-handle, x: float64): unit {
+define put-float64(h: &encode-handle, x: float64): unit {
   tie Encode-Handle of {buffer} = h in
   append-float64-big-endian(buffer, x)
 }
 
-define save-binary(h: &encode-handle, x: &binary): unit {
+define put-binary(h: &encode-handle, x: &binary): unit {
   tie Encode-Handle of {buffer} = h in
   let len = binary-length(x) in
-  save-int64(h, len);
+  put-int64(h, len);
   append-binary(buffer, x)
 }
 
-define save-text(h: &encode-handle, x: &text): unit {
+define put-text(h: &encode-handle, x: &text): unit {
   tie Encode-Handle of {buffer} = h in
   let len = text-byte-length(x) in
-  save-int64(h, len);
+  put-int64(h, len);
   append-text(buffer, x)
 }
 

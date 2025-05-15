@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   core.int.show {show-int},
   this.move.common.get {get-int16},
-  this.move.common.put {get, save-int16},
+  this.move.common.put {get, put-int16},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -11,7 +11,7 @@ import {
 }
 
 define encode-int16(h: &encode-handle, x: &int16): unit {
-  save-int16(h, *x)
+  put-int16(h, *x)
 }
 
 define decode-int16(h: &decode-handle): ?meta int16 {

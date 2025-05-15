@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   core.rune.show {show-rune},
   this.move.class.int32 {decode-int32},
-  this.move.common.put {get, save-int32},
+  this.move.common.put {get, put-int32},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -11,7 +11,7 @@ import {
 }
 
 define encode-rune(h: &encode-handle, x: &rune): unit {
-  save-int32(h, magic cast(&rune, int32, x))
+  put-int32(h, magic cast(&rune, int32, x))
 }
 
 define decode-rune(h: &decode-handle): ?meta rune {
