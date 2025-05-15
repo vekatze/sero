@@ -1,9 +1,9 @@
 import {
-  core.binary {binary, binary-length},
+  core.binary {binary},
   core.box {axiom-T},
   core.text {_Text},
   this.move.common.cursor {proceed-binary},
-  this.move.common.save {get, save-binary, save-int64},
+  this.move.common.save {get, save-binary},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -12,8 +12,6 @@ import {
 }
 
 define encode-binary(h: &encode-handle, x: &binary): unit {
-  let len = binary-length(x) in
-  save-int64(h, len);
   save-binary(h, x)
 }
 

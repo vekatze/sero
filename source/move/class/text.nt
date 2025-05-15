@@ -1,8 +1,8 @@
 import {
   core.box {axiom-T},
-  core.text {_Text, text-byte-length},
+  core.text {_Text},
   this.move.common.cursor {proceed-binary},
-  this.move.common.save {get, save-int64, save-text},
+  this.move.common.save {get, save-text},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
@@ -11,8 +11,6 @@ import {
 }
 
 define encode-text(h: &encode-handle, x: &text): unit {
-  let len = text-byte-length(x) in
-  save-int64(h, len);
   save-text(h, x)
 }
 
