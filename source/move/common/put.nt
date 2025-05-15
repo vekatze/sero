@@ -2,6 +2,8 @@ import {
   binary-builder.entity,
   binary-builder.scene {
     append-binary,
+    append-float16-big-endian,
+    append-float32-big-endian,
     append-float64-big-endian,
     append-int16-big-endian,
     append-int32-big-endian,
@@ -32,6 +34,16 @@ define put-int32(h: &put-handle, x: int32): unit {
 define put-int64(h: &put-handle, x: int64): unit {
   tie Put-Handle of {buffer} = h in
   append-int64-big-endian(buffer, x)
+}
+
+define put-float16(h: &put-handle, x: float16): unit {
+  tie Put-Handle of {buffer} = h in
+  append-float16-big-endian(buffer, x)
+}
+
+define put-float32(h: &put-handle, x: float32): unit {
+  tie Put-Handle of {buffer} = h in
+  append-float32-big-endian(buffer, x)
 }
 
 define put-float64(h: &put-handle, x: float64): unit {

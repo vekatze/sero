@@ -1,0 +1,36 @@
+import {
+  core.float.show {show-float},
+  this.move.common.get {get-int32},
+  this.move.common.put {put-float32},
+  this.move.decode {decode},
+  this.move.encode {encode},
+  this.rule.get-handle {get-handle},
+  this.rule.marshal {Marshal, marshal},
+  this.rule.put-handle {put-handle},
+}
+
+define _put(h: &put-handle, x: &float32): unit {
+  put-float32(h, *x)
+}
+
+define _get(h: &get-handle): ?meta float32 {
+  try v = get-int32(h) in
+  Right(quote {magic cast(int32, float32, v)})
+}
+
+inline float32-marshal: marshal(float32, float32) {
+  Marshal of {
+    put = _put,
+    get = _get,
+  }
+}
+
+define zen(): unit {
+  pin val = -3.8 in
+  match decode(float32-marshal, encode(float32-marshal, val, 8)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    printf("value: {}\n", [show-float(fpext-float32-float(v))])
+  }
+}

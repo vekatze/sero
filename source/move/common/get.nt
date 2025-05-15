@@ -90,6 +90,21 @@ define get-int64(h: &get-handle): ?int64 {
   }
 }
 
+define get-float16(h: &get-handle): ?float16 {
+  try v = get-int16(h) in
+  Right(magic cast(int16, float16, v))
+}
+
+define get-float32(h: &get-handle): ?float32 {
+  try v = get-int32(h) in
+  Right(magic cast(int32, float32, v))
+}
+
+define get-float64(h: &get-handle): ?float64 {
+  try v = get-int64(h) in
+  Right(magic cast(int64, float64, v))
+}
+
 define get-binary(h: &get-handle): ?binary {
   tie Get-Handle of {bytes, cursor} = h in
   try len = get-int64(h) in
