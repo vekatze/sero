@@ -4,7 +4,7 @@ import {
   core.file.flag {for-rw},
   core.file.mode {default-file-mode},
   core.system {system},
-  this.move.common.save {get},
+  this.move.common.put {get},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.marshal {Marshal, marshal},
 }

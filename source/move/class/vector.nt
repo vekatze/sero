@@ -3,7 +3,7 @@ import {
   core.int.show {show-int},
   core.vector {vector},
   this.move.class.int64 {decode-int64},
-  this.move.common.save {get, save-int64},
+  this.move.common.put {get, save-int64},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},

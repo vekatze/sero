@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   core.float.show {show-float},
   this.move.common.get {get-int64},
-  this.move.common.save {get, save-float64},
+  this.move.common.put {get, save-float64},
   this.move.create-decode-handle {from-bytes},
   this.move.create-encode-handle {create-encode-handle},
   this.rule.decode-handle {decode-handle},
