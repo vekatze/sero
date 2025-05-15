@@ -10,7 +10,7 @@ import {
   this.rule.marshal {Marshal, marshal},
 }
 
-inline put<i, o>(m: marshal(i, o), value: &i, buffer-size: int): binary {
+inline encode<i, o>(m: marshal(i, o), value: &i, buffer-size: int): binary {
   let h = create-put-handle(buffer-size) in
   let _ on h =
     let Marshal of {put} = m in
@@ -19,8 +19,8 @@ inline put<i, o>(m: marshal(i, o), value: &i, buffer-size: int): binary {
   extract-binary(h)
 }
 
-inline put-file<i, o>(m: marshal(i, o), value: &i, buffer-size: int, path: &text): system(unit) {
-  pin bytes = put(m, value, buffer-size) in
+inline encode-file<i, o>(m: marshal(i, o), value: &i, buffer-size: int, path: &text): system(unit) {
+  pin bytes = encode(m, value, buffer-size) in
   try target-file = open(path, for-rw, default-file-mode) in
   let _ = core.binary.io.write(bytes, target-file) in
   close(target-file)

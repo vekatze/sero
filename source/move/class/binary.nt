@@ -3,8 +3,8 @@ import {
   core.text {_Text},
   this.move.common.get {get-binary},
   this.move.common.put {put-binary},
-  this.move.get {get},
-  this.move.put {put},
+  this.move.decode {decode},
+  this.move.encode {encode},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
@@ -28,8 +28,7 @@ inline as-marshal: marshal(binary, binary) {
 
 define zen(): unit {
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
-  let b = put(as-marshal, value, 12345) in
-  match get(as-marshal, b) {
+  match decode(as-marshal, encode(as-marshal, value, 12345)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

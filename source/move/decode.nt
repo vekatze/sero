@@ -8,7 +8,7 @@ import {
   this.rule.marshal {Marshal, marshal},
 }
 
-define get<a, b>(m: marshal(a, b), bytes: binary): ?b {
+define decode<a, b>(m: marshal(a, b), bytes: binary): ?b {
   let Marshal of {get} = m in
   let h = create-get-handle(bytes) in
   letbox-T result on h =
@@ -26,9 +26,9 @@ define get<a, b>(m: marshal(a, b), bytes: binary): ?b {
   result
 }
 
-define get-file<a, b>(m: marshal(a, b), path: &text): system(?b) {
+define decode-file<a, b>(m: marshal(a, b), path: &text): system(?b) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in
-  Right(get(m, bytes))
+  Right(decode(m, bytes))
 }
