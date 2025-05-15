@@ -4,9 +4,9 @@ import {
   core.vector {vector},
   this.move.class.int64,
   this.move.common.get {get-int64},
-  this.move.common.put {extract-binary, put-int64},
-  this.move.create-get-handle {create-get-handle},
-  this.move.create-put-handle {create-put-handle},
+  this.move.common.put {put-int64},
+  this.move.decode {decode},
+  this.move.encode {encode},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
@@ -49,19 +49,13 @@ inline _int-vector: marshal(vector(int), vector(int)) {
 }
 
 define zen(): unit {
-  let Marshal of {put, get} = _int-vector in
-  let h-save = create-put-handle(8) in
   pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
-  let _ on h-save = put(h-save, val) in
-  let b = extract-binary(h-save) in
-  pin h = create-get-handle(b) in
-  let mval = get(h) in
-  match mval {
+  match decode(_int-vector, encode(_int-vector, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(vs) =>
     print("int-vector\n");
-    pin vs = axiom-T(vs) in
+    pin vs = vs in
     core.vector.for-N(vs, function (v, _) {
       printf("val: {}\n", [show-int(*v)])
     })

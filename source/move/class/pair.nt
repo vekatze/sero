@@ -1,12 +1,10 @@
 import {
   core.bool.show,
-  core.box {axiom-T},
   core.int.show {show-int},
   this.move.class.bool,
   this.move.class.int64,
-  this.move.common.put {extract-binary},
-  this.move.create-get-handle {create-get-handle},
-  this.move.create-put-handle {create-put-handle},
+  this.move.decode {decode},
+  this.move.encode {encode},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
@@ -57,18 +55,12 @@ inline _pair-int-bool: marshal(pair(int, bool), pair(int, bool)) {
 }
 
 define zen(): unit {
-  let h-save = create-put-handle(8) in
   pin val = Pair(-1234, True) in
-  let Marshal of {put, get} = _pair-int-bool in
-  let _ on h-save = put(h-save, val) in
-  let b = extract-binary(h-save) in
-  pin h = create-get-handle(b) in
-  let mval = get(h) in
-  match mval {
+  match decode(_pair-int-bool, encode(_pair-int-bool, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(xy) =>
-    let Pair(x, y) = axiom-T(xy) in
+    let Pair(x, y) = xy in
     printf("int: {}\n", [show-int(x)]);
     printf("bool: {}\n", [core.bool.show.show(y)])
   }

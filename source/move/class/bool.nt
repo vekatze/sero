@@ -1,9 +1,8 @@
 import {
-  core.box {axiom-T},
   this.move.common.get {get-int8},
-  this.move.common.put {extract-binary, put-int8},
-  this.move.create-get-handle {create-get-handle},
-  this.move.create-put-handle {create-put-handle},
+  this.move.common.put {put-int8},
+  this.move.decode {decode},
+  this.move.encode {encode},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
@@ -30,17 +29,12 @@ inline as-marshal: marshal(bool, bool) {
 }
 
 define zen(): unit {
-  let Marshal of {get, put} = as-marshal in
-  let h-save = create-put-handle(1) in
   pin val = True in
-  let _ on h-save = put(h-save, val) in
-  let b = extract-binary(h-save) in
-  pin h = create-get-handle(b) in
-  match get(h) {
+  match decode(as-marshal, encode(as-marshal, val, 1)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    let v = axiom-T(v) in
+    let v = v in
     if v {
       print("true\n")
     } else {

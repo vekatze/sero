@@ -1,9 +1,8 @@
 import {
-  core.box {axiom-T},
   this.move.common.get {get-text},
-  this.move.common.put {extract-binary, put-text},
-  this.move.create-get-handle {create-get-handle},
-  this.move.create-put-handle {create-put-handle},
+  this.move.common.put {put-text},
+  this.move.decode {decode},
+  this.move.encode {encode},
   this.rule.get-handle {get-handle},
   this.rule.marshal {Marshal, marshal},
   this.rule.put-handle {put-handle},
@@ -26,17 +25,11 @@ inline as-marshal: marshal(text, text) {
 }
 
 define zen(): unit {
-  let Marshal of {put, get} = as-marshal in
-  let h-save = create-put-handle(4) in
   tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
-  let _ on h-save = put(h-save, value) in
-  let b = extract-binary(h-save) in
-  pin h = create-get-handle(b) in
-  let mval = get(h) in
-  match mval {
+  match decode(as-marshal, encode(as-marshal, value, 4)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    printf("value: {}\n", [axiom-T(v)])
+    printf("value: {}\n", [v])
   }
 }
