@@ -17,7 +17,7 @@ define _get(k: &get-kit): ?meta text {
   Right(quote {t})
 }
 
-inline text-sero: sero(text, text) {
+inline text-sero: sero(text) {
   Sero of {
     put = _put,
     get = _get,

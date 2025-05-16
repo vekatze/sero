@@ -3,9 +3,9 @@ import {
   this.rule.put-kit {put-kit},
 }
 
-data sero(i, o) {
+data sero(a) {
 | Sero(
-    put: (k: &put-kit, value: &i) -> unit,
-    get: (k: &get-kit) -> ?meta o,
+    put: (k: &put-kit, value: &a) -> unit,
+    get: (k: &get-kit) -> ?meta a,
   )
 }

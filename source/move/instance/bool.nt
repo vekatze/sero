@@ -21,7 +21,7 @@ define _get(k: &get-kit): ?meta bool {
   Right(quote {eq-int8(v, 1)})
 }
 
-inline bool-sero: sero(bool, bool) {
+inline bool-sero: sero(bool) {
   Sero of {
     put = _put,
     get = _get,

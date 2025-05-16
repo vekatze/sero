@@ -18,7 +18,7 @@ define _get(k: &get-kit): ?meta int16 {
   Right(quote {v})
 }
 
-inline int16-sero: sero(int16, int16) {
+inline int16-sero: sero(int16) {
   Sero of {
     put = _put,
     get = _get,

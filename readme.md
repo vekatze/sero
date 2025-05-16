@@ -14,68 +14,68 @@ neut get sero https://github.com/vekatze/sero/raw/main/archive/0-1-23.tar.zst
 
 ```neut
 // Specifies how to encode/decode values
-data sero(i, o) {
+data sero(a) {
 | Sero(
-    put: (k: &put-kit, value: &i) -> unit,
-    get: (k: &get-kit) -> ?meta o,
+    put: (k: &put-kit, value: &a) -> unit,
+    get: (k: &get-kit) -> ?meta a,
   )
 }
 
 // Encodes a value into a binary value.
-define encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary
+define encode<a>(m: sero(a), value: &a, buffer-size: int): binary
 
 // Decodes a value from a binary value.
-define decode<i, o>(m: sero(i, o), bytes: binary): ?o
+define decode<a>(m: sero(a), bytes: binary): ?a
 ```
 
 ### Utility Functions
 
 ```neut
 // Encodes a value into a binary and saves it to a file at `path`.
-define encode-file<i, o>(m: sero(i, o), value: &i, buffer-size: int, path: &text): system(unit)
+define encode-file<a>(m: sero(a), value: &a, buffer-size: int, path: &text): system(unit)
 
 // Decodes a value from the file at `path`.
-define decode-file<i, o>(m: sero(i, o), path: &text): system(?o)
+define decode-file<a>(m: sero(a), path: &text): system(?a)
 ```
 
 ### Instances
 
 ```neut
-inline binary-sero: sero(binary, binary)
+inline binary-sero: sero(binary)
 
-inline bool-sero: sero(bool, bool)
+inline bool-sero: sero(bool)
 
-inline float16-sero: sero(float16, float16)
+inline float16-sero: sero(float16)
 
-inline float32-sero: sero(float32, float32)
+inline float32-sero: sero(float32)
 
-inline float64-sero: sero(float64, float64)
+inline float64-sero: sero(float64)
 
-inline int8-sero: sero(int8, int8)
+inline int8-sero: sero(int8)
 
-inline int16-sero: sero(int16, int16)
+inline int16-sero: sero(int16)
 
-inline int32-sero: sero(int32, int32)
+inline int32-sero: sero(int32)
 
-inline int64-sero: sero(int64, int64)
+inline int64-sero: sero(int64)
 
-inline rune-sero: sero(rune, rune)
+inline rune-sero: sero(rune)
 
-inline text-sero: sero(text, text)
+inline text-sero: sero(text)
 
-inline either-sero<i1, o1, i2, o2>(!m1: sero(i1, o1), !m2: sero(i2, o2)): sero(either(i1, i2), either(o1, o2))
+inline either-sero<a, b>(!m1: sero(a), !m2: sero(b)): sero(either(a, b))
 
-inline list-sero<i, o>(!m: sero(i, o)): sero(list(i), list(o))
+inline pair-sero<a, b>(!m1: sero(a), !m2: sero(b)): sero(pair(a, b))
 
-inline pair-sero<i1, o1, i2, o2>(!m1: sero(i1, o1), !m2: sero(i2, o2)): sero(pair(i1, i2), pair(o1, o2))
+inline list-sero<a>(!m: sero(a)): sero(list(a))
 
-inline vector-sero<i, o>(!m: sero(i, o)): sero(vector(i), vector(o))
+inline vector-sero<a>(!m: sero(a)): sero(vector(a))
 ```
 
 ## Example
 
 ```neut
-inline _list-int-sero: sero(list(int), list(int)) {
+inline _list-int-sero: sero(list(int)) {
   list-sero(int64-sero)
 }
 

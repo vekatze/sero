@@ -18,7 +18,7 @@ define _get(k: &get-kit): ?meta float16 {
   Right(quote {magic cast(int16, float16, v)})
 }
 
-inline float16-sero: sero(float16, float16) {
+inline float16-sero: sero(float16) {
   Sero of {
     put = _put,
     get = _get,

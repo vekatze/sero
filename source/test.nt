@@ -12,7 +12,7 @@ import {
   this.rule.sero {sero},
 }
 
-inline _list-int-sero: sero(list(int), list(int)) {
+inline _list-int-sero: sero(list(int)) {
   list-sero(int64-sero)
 }
 

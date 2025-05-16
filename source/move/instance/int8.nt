@@ -18,7 +18,7 @@ define _get(k: &get-kit): ?meta int8 {
   Right(quote {v})
 }
 
-inline int8-sero: sero(int8, int8) {
+inline int8-sero: sero(int8) {
   Sero of {
     put = _put,
     get = _get,

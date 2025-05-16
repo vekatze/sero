@@ -19,7 +19,7 @@ define _get(k: &get-kit): ?meta binary {
   Right(quote {b})
 }
 
-inline binary-sero: sero(binary, binary) {
+inline binary-sero: sero(binary) {
   Sero of {
     put = _put,
     get = _get,

@@ -10,10 +10,7 @@ import {
   this.rule.sero {Sero, sero},
 }
 
-inline _put<i1, o1, i2, o2>(
-  m1: sero(i1, o1),
-  m2: sero(i2, o2),
-): (k: &put-kit, xy: &pair(i1, i2)) -> unit {
+inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, xy: &pair(a, b)) -> unit {
   function (k, xy) {
     tie Pair(x, y) = xy in
     let Sero of {put = put1} = m1 in
@@ -23,10 +20,7 @@ inline _put<i1, o1, i2, o2>(
   }
 }
 
-inline _get<i1, o1, i2, o2>(
-  m1: sero(i1, o1),
-  m2: sero(i2, o2),
-): (k: &get-kit) -> ?meta pair(o1, o2) {
+inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?meta pair(a, b) {
   function (k) {
     let Sero of {get = get1} = m1 in
     let Sero of {get = get2} = m2 in
@@ -40,17 +34,14 @@ inline _get<i1, o1, i2, o2>(
   }
 }
 
-inline pair-sero<i1, o1, i2, o2>(
-  !m1: sero(i1, o1),
-  !m2: sero(i2, o2),
-): sero(pair(i1, i2), pair(o1, o2)) {
+inline pair-sero<a, b>(!m1: sero(a), !m2: sero(b)): sero(pair(a, b)) {
   Sero of {
     put = _put(!m1, !m2),
     get = _get(!m1, !m2),
   }
 }
 
-inline _pair-int-bool: sero(pair(int, bool), pair(int, bool)) {
+inline _pair-int-bool: sero(pair(int, bool)) {
   pair-sero(int64-sero, bool-sero)
 }
 
