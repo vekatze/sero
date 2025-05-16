@@ -1,11 +1,11 @@
-# marshal
+# sero
 
-`marshal` is a [Neut](https://vekatze.github.io/neut/) module that saves values to files and loads them from there.
+`sero` is a [Neut](https://vekatze.github.io/neut/) module that saves values to files and loads them from there.
 
 ## Installation
 
 ```sh
-neut get marshal https://github.com/vekatze/marshal/raw/main/archive/0-1-22.tar.zst
+neut get sero https://github.com/vekatze/sero/raw/main/archive/0-1-22.tar.zst
 ```
 
 ## Types
@@ -13,77 +13,92 @@ neut get marshal https://github.com/vekatze/marshal/raw/main/archive/0-1-22.tar.
 ### Main Definitions
 
 ```neut
-// A "class" that specifies how to encode/decode values of type `a`
-data marshal(a) {
-| Marshal(
-    encode: (buffer: &builder, value: &a) -> unit,
-    decode: (bytes: &binary, cursor: &cell(int)) -> ?a,
-    necess: (a) -> meta a, // ← used to load values in a memory-safe way
+// Specifies how to encode/decode values
+data sero(i, o) {
+| Sero(
+    put: (k: &put-kit, value: &i) -> unit,
+    get: (k: &get-kit) -> ?meta o,
   )
 }
 
-// Encodes a value into a binary and saves it to a file at `path`.
-define save<a>(m: marshal(a), value: &a, path: &text, buffer-size: int): system(unit)
+// Encodes a value into a binary value.
+define encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary
 
-// Decodes a value from a file at `path`.
-define load<a>(m: marshal(a), path: &text): system(?a)
+// Decodes a value from a binary value.
+define decode<i, o>(m: sero(i, o), bytes: binary): ?o
+```
+
+### Utility Functions
+
+```neut
+// Encodes a value into a binary and saves it to a file at `path`.
+define encode-file<i, o>(m: sero(i, o), value: &i, buffer-size: int, path: &text): system(unit)
+
+// Decodes a value from the file at `path`.
+define decode-file<i, o>(m: sero(i, o), path: &text): system(?o)
 ```
 
 ### Instance Constructors
 
-You can quickly construct values of type `marshal(a)` by using some of the following terms:
+You can quickly construct values of type `sero(in, out)` by using some of the following terms:
 
 ```neut
-inline this.class.binary.as-marshal: marshal(binary)
+inline binary-sero: sero(binary, binary)
 
-inline this.class.bool.as-marshal: marshal(bool)
+inline bool-sero: sero(bool, bool)
 
-inline this.class.float64.as-marshal: marshal(float64)
+inline float16-sero: sero(float16, float16)
 
-inline this.class.int32.as-marshal: marshal(int32)
+inline float32-sero: sero(float32, float32)
 
-inline this.class.int64.as-marshal: marshal(int64)
+inline float64-sero: sero(float64, float64)
 
-inline this.class.rune.as-marshal: marshal(rune)
+inline int8-sero: sero(int8, int8)
 
-inline this.class.text.as-marshal: marshal(text)
+inline int16-sero: sero(int16, int16)
 
-inline this.class.either.as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(either(a, b))
+inline int32-sero: sero(int32, int32)
 
-inline this.class.list.as-marshal<a>(!m: marshal(a)): marshal(list(a))
+inline int64-sero: sero(int64, int64)
 
-inline this.class.matrix.as-marshal<a>(!m: marshal(a)): marshal(matrix(a))
+inline rune-sero: sero(rune, rune)
 
-inline this.class.pair.as-marshal<a, b>(!m1: marshal(a), !m2: marshal(b)): marshal(pair(a, b))
+inline text-sero: sero(text, text)
 
-inline this.class.vector.as-marshal<a>(!m: marshal(a)): marshal(vector(a))
+inline either-sero<i1, o1, i2, o2>(!m1: sero(i1, o1), !m2: sero(i2, o2)): sero(either(i1, i2), either(o1, o2))
+
+inline list-sero<i, o>(!m: sero(i, o)): sero(list(i), list(o))
+
+inline pair-sero<i1, o1, i2, o2>(!m1: sero(i1, o1), !m2: sero(i2, o2)): sero(pair(i1, i2), pair(o1, o2))
+
+inline vector-sero<i, o>(!m: sero(i, o)): sero(vector(i), vector(o))
 ```
 
 ## Example
 
 ```neut
-// Creates a class to save/load values of type list(int)
-inline marshal-list-int: marshal(list(int)) {
-  marshal.class.list.as-marshal(marshal.class.int64.as-marshal)
+inline _list-int-sero: sero(list(int), list(int)) {
+  list-sero(int64-sero)
 }
 
 define zen(): unit {
+  printf("O_CREAT: {}\n", [show-int(from-c-int(O_CREAT))]);
+  printf("mode: {}\n", [show-int(from-c-int(core.file.mode.interpret(default-file-mode)))]);
   pin value: list(int) = [1, 2, 3, 4, 5, 6] in
   let path = "test.bin" in
-  // Saves the value into `path`
-  let _ = save(marshal-list-int, value, path, 10) in
-  // Loads the value from `path`
-  let v = load(marshal-list-int, path) in
+  let _ = encode-file(_list-int-sero, value, 10, path) in
+  let v = decode-file(_list-int-sero, path) in
   match v {
   | Left(e) =>
-    printf("error: {}\n", [get-error-message(e)]);
+    printf("left: {}\n", [get-error-message(e)])
   | Right(v) =>
+    print("right\n");
     match v {
     | Left(_) =>
-      Unit
+      print("right-left")
     | Right(xs) =>
       for(xs, function (x) {
-        printf("{}\n", [show-int(x)])
+        printf("right-right: {}\n", [show-int(x)])
       })
     }
   }
