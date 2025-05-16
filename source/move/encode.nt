@@ -10,7 +10,7 @@ import {
   this.rule.sero {Sero, sero},
 }
 
-inline encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary {
+define encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary {
   let h = make-put-kit(buffer-size) in
   let _ on h =
     let Sero of {put} = m in
@@ -19,7 +19,7 @@ inline encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary {
   extract-binary(h)
 }
 
-inline encode-file<i, o>(m: sero(i, o), value: &i, buffer-size: int, path: &text): system(unit) {
+define encode-file<i, o>(m: sero(i, o), value: &i, buffer-size: int, path: &text): system(unit) {
   pin bytes = encode(m, value, buffer-size) in
   try target-file = open(path, for-rw, default-file-mode) in
   let _ = core.binary.io.write(bytes, target-file) in

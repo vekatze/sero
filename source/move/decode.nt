@@ -8,7 +8,7 @@ import {
   this.rule.sero {Sero, sero},
 }
 
-define decode<a, b>(m: sero(a, b), bytes: binary): ?b {
+define decode<i, o>(m: sero(i, o), bytes: binary): ?o {
   let Sero of {get} = m in
   let h = make-get-kit(bytes) in
   letbox-T result on h =
@@ -26,7 +26,7 @@ define decode<a, b>(m: sero(a, b), bytes: binary): ?b {
   result
 }
 
-define decode-file<a, b>(m: sero(a, b), path: &text): system(?b) {
+define decode-file<i, o>(m: sero(i, o), path: &text): system(?o) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in
