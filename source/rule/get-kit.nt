@@ -2,8 +2,8 @@ import {
   core.binary {binary},
 }
 
-data get-handle {
-| Get-Handle(
+data get-kit {
+| Get-Kit(
     bytes: binary,
     cursor: cell(int),
   )

@@ -5,15 +5,15 @@ import {
   this.move.class.int64 {int64-sero},
   this.move.decode {decode},
   this.move.encode {encode},
-  this.rule.get-handle {get-handle},
-  this.rule.put-handle {put-handle},
+  this.rule.get-kit {get-kit},
+  this.rule.put-kit {put-kit},
   this.rule.sero {Sero, sero},
 }
 
 inline _put<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &put-handle, xy: &pair(i1, i2)) -> unit {
+): (h: &put-kit, xy: &pair(i1, i2)) -> unit {
   function (h, xy) {
     tie Pair(x, y) = xy in
     let Sero of {put = put1} = m1 in
@@ -26,7 +26,7 @@ inline _put<i1, o1, i2, o2>(
 inline _get<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &get-handle) -> ?meta pair(o1, o2) {
+): (h: &get-kit) -> ?meta pair(o1, o2) {
   function (h) {
     let Sero of {get = get1} = m1 in
     let Sero of {get = get2} = m2 in

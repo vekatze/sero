@@ -2,8 +2,8 @@ import {
   binary-builder.entity {builder},
 }
 
-data put-handle {
-| Put-Handle(
+data put-kit {
+| Put-Kit(
     buffer: builder,
   )
 }

@@ -4,16 +4,16 @@ import {
   this.move.common.put {put-float16},
   this.move.decode {decode},
   this.move.encode {encode},
-  this.rule.get-handle {get-handle},
-  this.rule.put-handle {put-handle},
+  this.rule.get-kit {get-kit},
+  this.rule.put-kit {put-kit},
   this.rule.sero {Sero, sero},
 }
 
-define _put(h: &put-handle, x: &float16): unit {
+define _put(h: &put-kit, x: &float16): unit {
   put-float16(h, *x)
 }
 
-define _get(h: &get-handle): ?meta float16 {
+define _get(h: &get-kit): ?meta float16 {
   try v = get-int16(h) in
   Right(quote {magic cast(int16, float16, v)})
 }

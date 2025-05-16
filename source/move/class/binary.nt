@@ -5,16 +5,16 @@ import {
   this.move.common.put {put-binary},
   this.move.decode {decode},
   this.move.encode {encode},
-  this.rule.get-handle {get-handle},
-  this.rule.put-handle {put-handle},
+  this.rule.get-kit {get-kit},
+  this.rule.put-kit {put-kit},
   this.rule.sero {Sero, sero},
 }
 
-define _put(h: &put-handle, x: &binary): unit {
+define _put(h: &put-kit, x: &binary): unit {
   put-binary(h, x)
 }
 
-define _get(h: &get-handle): ?meta binary {
+define _get(h: &get-kit): ?meta binary {
   try b = get-binary(h) in
   Right(quote {b})
 }

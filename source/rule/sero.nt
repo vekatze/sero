@@ -1,11 +1,11 @@
 import {
-  this.rule.get-handle {get-handle},
-  this.rule.put-handle {put-handle},
+  this.rule.get-kit {get-kit},
+  this.rule.put-kit {put-kit},
 }
 
 data sero(i, o) {
 | Sero(
-    put: (h: &put-handle, value: &i) -> unit,
-    get: (h: &get-handle) -> ?meta o,
+    put: (h: &put-kit, value: &i) -> unit,
+    get: (h: &get-kit) -> ?meta o,
   )
 }

@@ -4,18 +4,18 @@ import {
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
-  this.rule.get-handle {Get-Handle, get-handle},
+  this.rule.get-kit {Get-Kit, get-kit},
 }
 
-define create-get-handle(bytes: binary): get-handle {
+define create-get-kit(bytes: binary): get-kit {
   let cursor = new-cell(0) in
-  Get-Handle of {bytes, cursor}
+  Get-Kit of {bytes, cursor}
 }
 
-define create-get-handle-from-file(path: &text): system(get-handle) {
+define create-get-kit-from-file(path: &text): system(get-kit) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in
   let cursor = new-cell(0) in
-  Right(Get-Handle of {bytes, cursor})
+  Right(Get-Kit of {bytes, cursor})
 }

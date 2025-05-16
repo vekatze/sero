@@ -5,7 +5,7 @@ import {
   core.cell {mutate},
   core.control {loop},
   core.text {_Text},
-  this.rule.get-handle {Get-Handle, get-handle},
+  this.rule.get-kit {Get-Kit, get-kit},
 }
 
 define _proceed(cursor: &cell(int), offset: int): unit {
@@ -14,8 +14,8 @@ define _proceed(cursor: &cell(int), offset: int): unit {
   })
 }
 
-define get-int8(h: &get-handle): ?int8 {
-  tie Get-Handle of {bytes, cursor} = h in
+define get-int8(h: &get-kit): ?int8 {
+  tie Get-Kit of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 1)) {
     none
@@ -26,8 +26,8 @@ define get-int8(h: &get-handle): ?int8 {
   }
 }
 
-define get-int16(h: &get-handle): ?int16 {
-  tie Get-Handle of {bytes, cursor} = h in
+define get-int16(h: &get-kit): ?int16 {
+  tie Get-Kit of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 2)) {
     none
@@ -42,8 +42,8 @@ define get-int16(h: &get-handle): ?int16 {
   }
 }
 
-define get-int32(h: &get-handle): ?int32 {
-  tie Get-Handle of {bytes, cursor} = h in
+define get-int32(h: &get-kit): ?int32 {
+  tie Get-Kit of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 4)) {
     none
@@ -62,8 +62,8 @@ define get-int32(h: &get-handle): ?int32 {
   }
 }
 
-define get-int64(h: &get-handle): ?int64 {
-  tie Get-Handle of {bytes, cursor} = h in
+define get-int64(h: &get-kit): ?int64 {
+  tie Get-Kit of {bytes, cursor} = h in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 8)) {
     none
@@ -90,23 +90,23 @@ define get-int64(h: &get-handle): ?int64 {
   }
 }
 
-define get-float16(h: &get-handle): ?float16 {
+define get-float16(h: &get-kit): ?float16 {
   try v = get-int16(h) in
   Right(magic cast(int16, float16, v))
 }
 
-define get-float32(h: &get-handle): ?float32 {
+define get-float32(h: &get-kit): ?float32 {
   try v = get-int32(h) in
   Right(magic cast(int32, float32, v))
 }
 
-define get-float64(h: &get-handle): ?float64 {
+define get-float64(h: &get-kit): ?float64 {
   try v = get-int64(h) in
   Right(magic cast(int64, float64, v))
 }
 
-define get-binary(h: &get-handle): ?binary {
-  tie Get-Handle of {bytes, cursor} = h in
+define get-binary(h: &get-kit): ?binary {
+  tie Get-Kit of {bytes, cursor} = h in
   try len = get-int64(h) in
   let buf = create(len) in
   let index = core.cell.clone(cursor) in
@@ -121,7 +121,7 @@ define get-binary(h: &get-handle): ?binary {
   Right(result)
 }
 
-define get-text(h: &get-handle): ?text {
+define get-text(h: &get-kit): ?text {
   try b = get-binary(h) in
   Right(_Text(b))
 }

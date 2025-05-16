@@ -4,16 +4,16 @@ import {
   this.move.common.put {put-int32},
   this.move.decode {decode},
   this.move.encode {encode},
-  this.rule.get-handle {get-handle},
-  this.rule.put-handle {put-handle},
+  this.rule.get-kit {get-kit},
+  this.rule.put-kit {put-kit},
   this.rule.sero {Sero, sero},
 }
 
-define _put(h: &put-handle, x: &rune): unit {
+define _put(h: &put-kit, x: &rune): unit {
   put-int32(h, magic cast(&rune, int32, x))
 }
 
-define _get(h: &get-handle): ?meta rune {
+define _get(h: &get-kit): ?meta rune {
   try v = get-int32(h) in
   Right(quote {magic cast(int32, rune, v)})
 }

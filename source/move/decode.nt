@@ -4,13 +4,13 @@ import {
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
-  this.move.create-get-handle {create-get-handle},
+  this.move.create-get-kit {create-get-kit},
   this.rule.sero {Sero, sero},
 }
 
 define decode<a, b>(m: sero(a, b), bytes: binary): ?b {
   let Sero of {get} = m in
-  let h = create-get-handle(bytes) in
+  let h = create-get-kit(bytes) in
   letbox-T result on h =
     match get(h) {
     | Left(_) =>

@@ -6,15 +6,15 @@ import {
   this.move.common.put {put-int8},
   this.move.decode {decode},
   this.move.encode {encode},
-  this.rule.get-handle {get-handle},
-  this.rule.put-handle {put-handle},
+  this.rule.get-kit {get-kit},
+  this.rule.put-kit {put-kit},
   this.rule.sero {Sero, sero},
 }
 
 inline _put<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &put-handle, x-or-y: &either(i1, i2)) -> unit {
+): (h: &put-kit, x-or-y: &either(i1, i2)) -> unit {
   function (h, x-or-y) {
     case x-or-y {
     | Left(x) =>
@@ -32,7 +32,7 @@ inline _put<i1, o1, i2, o2>(
 inline _get<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &get-handle) -> ?meta either(o1, o2) {
+): (h: &get-kit) -> ?meta either(o1, o2) {
   function (h) {
     try tag = get-int8(h) in
     if eq-int8(tag, 0) {

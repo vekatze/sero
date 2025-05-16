@@ -13,59 +13,59 @@ import {
   },
   core.binary {binary, binary-length},
   core.text {text-byte-length},
-  this.rule.put-handle {Put-Handle, put-handle},
+  this.rule.put-kit {Put-Kit, put-kit},
 }
 
-define put-int8(h: &put-handle, x: int8): unit {
-  tie Put-Handle of {buffer} = h in
+define put-int8(h: &put-kit, x: int8): unit {
+  tie Put-Kit of {buffer} = h in
   append-int8(buffer, x)
 }
 
-define put-int16(h: &put-handle, x: int16): unit {
-  tie Put-Handle of {buffer} = h in
+define put-int16(h: &put-kit, x: int16): unit {
+  tie Put-Kit of {buffer} = h in
   append-int16-big-endian(buffer, x)
 }
 
-define put-int32(h: &put-handle, x: int32): unit {
-  tie Put-Handle of {buffer} = h in
+define put-int32(h: &put-kit, x: int32): unit {
+  tie Put-Kit of {buffer} = h in
   append-int32-big-endian(buffer, x)
 }
 
-define put-int64(h: &put-handle, x: int64): unit {
-  tie Put-Handle of {buffer} = h in
+define put-int64(h: &put-kit, x: int64): unit {
+  tie Put-Kit of {buffer} = h in
   append-int64-big-endian(buffer, x)
 }
 
-define put-float16(h: &put-handle, x: float16): unit {
-  tie Put-Handle of {buffer} = h in
+define put-float16(h: &put-kit, x: float16): unit {
+  tie Put-Kit of {buffer} = h in
   append-float16-big-endian(buffer, x)
 }
 
-define put-float32(h: &put-handle, x: float32): unit {
-  tie Put-Handle of {buffer} = h in
+define put-float32(h: &put-kit, x: float32): unit {
+  tie Put-Kit of {buffer} = h in
   append-float32-big-endian(buffer, x)
 }
 
-define put-float64(h: &put-handle, x: float64): unit {
-  tie Put-Handle of {buffer} = h in
+define put-float64(h: &put-kit, x: float64): unit {
+  tie Put-Kit of {buffer} = h in
   append-float64-big-endian(buffer, x)
 }
 
-define put-binary(h: &put-handle, x: &binary): unit {
-  tie Put-Handle of {buffer} = h in
+define put-binary(h: &put-kit, x: &binary): unit {
+  tie Put-Kit of {buffer} = h in
   let len = binary-length(x) in
   put-int64(h, len);
   append-binary(buffer, x)
 }
 
-define put-text(h: &put-handle, x: &text): unit {
-  tie Put-Handle of {buffer} = h in
+define put-text(h: &put-kit, x: &text): unit {
+  tie Put-Kit of {buffer} = h in
   let len = text-byte-length(x) in
   put-int64(h, len);
   append-text(buffer, x)
 }
 
-define extract-binary(h: put-handle): binary {
-  let Put-Handle of {buffer} = h in
+define extract-binary(h: put-kit): binary {
+  let Put-Kit of {buffer} = h in
   binary-builder.entity.get(buffer)
 }
