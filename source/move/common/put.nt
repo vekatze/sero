@@ -64,8 +64,3 @@ define put-text(k: &put-kit, x: &text): unit {
   put-int64(k, len);
   append-text(buffer, x)
 }
-
-define extract-binary(k: put-kit): binary {
-  let Put-Kit of {buffer} = k in
-  extract(buffer)
-}

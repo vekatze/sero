@@ -1,13 +1,19 @@
 import {
+  binary-builder.move.extract {extract},
   core.binary {binary},
   core.binary.io,
   core.file {close, open},
   core.file.flag {for-rw},
   core.file.mode {default-file-mode},
   core.system {system},
-  this.move.common.put {extract-binary},
   this.move.make-put-kit {make-put-kit},
+  this.rule.put-kit {Put-Kit, put-kit},
   this.rule.sero {Sero, sero},
+}
+
+define _extract-binary(k: put-kit): binary {
+  let Put-Kit of {buffer} = k in
+  extract(buffer)
 }
 
 define encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary {
@@ -16,7 +22,7 @@ define encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary {
     let Sero of {put} = m in
     put(h, value)
   in
-  extract-binary(h)
+  _extract-binary(h)
 }
 
 define encode-file<i, o>(m: sero(i, o), value: &i, buffer-size: int, path: &text): system(unit) {
