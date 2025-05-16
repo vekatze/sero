@@ -10,7 +10,6 @@ import {
     append-int8,
     append-text,
   },
-  binary-builder.move.extract {extract},
   core.binary {binary, binary-length},
   core.text {text-byte-length},
   this.rule.put-kit {Put-Kit, put-kit},
