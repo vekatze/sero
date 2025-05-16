@@ -38,9 +38,7 @@ define encode-file<i, o>(m: sero(i, o), value: &i, buffer-size: int, path: &text
 define decode-file<i, o>(m: sero(i, o), path: &text): system(?o)
 ```
 
-### Instance Constructors
-
-You can quickly construct values of type `sero(in, out)` by using some of the following terms:
+### Instances
 
 ```neut
 inline binary-sero: sero(binary, binary)
