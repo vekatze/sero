@@ -13,25 +13,25 @@ import {
 inline _put<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &put-kit, xy: &pair(i1, i2)) -> unit {
-  function (h, xy) {
+): (k: &put-kit, xy: &pair(i1, i2)) -> unit {
+  function (k, xy) {
     tie Pair(x, y) = xy in
     let Sero of {put = put1} = m1 in
     let Sero of {put = put2} = m2 in
-    put1(h, x);
-    put2(h, y)
+    put1(k, x);
+    put2(k, y)
   }
 }
 
 inline _get<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &get-kit) -> ?meta pair(o1, o2) {
-  function (h) {
+): (k: &get-kit) -> ?meta pair(o1, o2) {
+  function (k) {
     let Sero of {get = get1} = m1 in
     let Sero of {get = get2} = m2 in
-    try l = get1(h) in
-    try r = get2(h) in
+    try l = get1(k) in
+    try r = get2(k) in
     Right(box {
       letbox l' = l in
       letbox r' = r in

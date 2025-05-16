@@ -14,17 +14,17 @@ import {
 inline _put<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &put-kit, x-or-y: &either(i1, i2)) -> unit {
-  function (h, x-or-y) {
+): (k: &put-kit, x-or-y: &either(i1, i2)) -> unit {
+  function (k, x-or-y) {
     case x-or-y {
     | Left(x) =>
       let Sero of {put} = m1 in
-      put-int8(h, 0);
-      put(h, x)
+      put-int8(k, 0);
+      put(k, x)
     | Right(y) =>
       let Sero of {put} = m2 in
-      put-int8(h, 1);
-      put(h, y)
+      put-int8(k, 1);
+      put(k, y)
     }
   }
 }
@@ -32,19 +32,19 @@ inline _put<i1, o1, i2, o2>(
 inline _get<i1, o1, i2, o2>(
   m1: sero(i1, o1),
   m2: sero(i2, o2),
-): (h: &get-kit) -> ?meta either(o1, o2) {
-  function (h) {
-    try tag = get-int8(h) in
+): (k: &get-kit) -> ?meta either(o1, o2) {
+  function (k) {
+    try tag = get-int8(k) in
     if eq-int8(tag, 0) {
       let Sero of {get} = m1 in
-      try l = get(h) in
+      try l = get(k) in
       Right(box {
         letbox l' = l in
         Left(l')
       })
     } else-if eq-int8(tag, 1) {
       let Sero of {get} = m2 in
-      try r = get(h) in
+      try r = get(k) in
       Right(box {
         letbox r' = r in
         Right(r')

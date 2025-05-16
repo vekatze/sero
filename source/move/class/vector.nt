@@ -12,24 +12,24 @@ import {
   this.rule.sero {Sero, sero},
 }
 
-inline _put<i, o>(m: sero(i, o)): (h: &put-kit, xs: &vector(i)) -> unit {
-  function (h, xs) {
+inline _put<i, o>(m: sero(i, o)): (k: &put-kit, xs: &vector(i)) -> unit {
+  function (k, xs) {
     let len = core.vector.length(xs) in
-    put-int64(h, len);
+    put-int64(k, len);
     core.vector.for-N(xs, function (x, _) {
       let Sero of {put} = m in
-      put(h, x)
+      put(k, x)
     })
   }
 }
 
-inline _get<i, o>(m: sero(i, o)): (h: &get-kit) -> ?meta vector(o) {
-  function (h) {
-    try len = get-int64(h) in
+inline _get<i, o>(m: sero(i, o)): (k: &get-kit) -> ?meta vector(o) {
+  function (k) {
+    try len = get-int64(k) in
     try vs =
       core.vector.create-E(len, function (_) {
         let Sero of {get} = m in
-        try value = get(h) in
+        try value = get(k) in
         Right(axiom-T(value))
       })
     in

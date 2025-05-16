@@ -11,29 +11,29 @@ import {
   this.rule.sero {Sero, sero},
 }
 
-inline _put<i, o>(!m: sero(i, o)): (h: &put-kit, xs: &list(i)) -> unit {
-  define self(h, xs): unit {
+inline _put<i, o>(!m: sero(i, o)): (k: &put-kit, xs: &list(i)) -> unit {
+  define self(k, xs): unit {
     case xs {
     | Nil =>
-      put-int8(h, 0)
+      put-int8(k, 0)
     | Cons(y, ys) =>
       let Sero of {put} = !m in
-      put-int8(h, 1);
-      put(h, y);
-      self(h, ys)
+      put-int8(k, 1);
+      put(k, y);
+      self(k, ys)
     }
   }
 }
 
-inline _get<i, o>(!m: sero(i, o)): (h: &get-kit) -> ?meta list(o) {
-  define self(h) {
-    try tag = get-int8(h) in
+inline _get<i, o>(!m: sero(i, o)): (k: &get-kit) -> ?meta list(o) {
+  define self(k) {
+    try tag = get-int8(k) in
     if eq-int8(tag, 0) {
       Right(box {Nil})
     } else-if eq-int8(tag, 1) {
       let Sero of {get} = !m in
-      try v = get(h) in
-      try vs = self(h) in
+      try v = get(k) in
+      try vs = self(k) in
       Right(box {
         letbox v' = v in
         letbox vs' = vs in

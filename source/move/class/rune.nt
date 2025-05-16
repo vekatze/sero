@@ -9,12 +9,12 @@ import {
   this.rule.sero {Sero, sero},
 }
 
-define _put(h: &put-kit, x: &rune): unit {
-  put-int32(h, magic cast(&rune, int32, x))
+define _put(k: &put-kit, x: &rune): unit {
+  put-int32(k, magic cast(&rune, int32, x))
 }
 
-define _get(h: &get-kit): ?meta rune {
-  try v = get-int32(h) in
+define _get(k: &get-kit): ?meta rune {
+  try v = get-int32(k) in
   Right(quote {magic cast(int32, rune, v)})
 }
 

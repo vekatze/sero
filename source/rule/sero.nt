@@ -5,7 +5,7 @@ import {
 
 data sero(i, o) {
 | Sero(
-    put: (h: &put-kit, value: &i) -> unit,
-    get: (h: &get-kit) -> ?meta o,
+    put: (k: &put-kit, value: &i) -> unit,
+    get: (k: &get-kit) -> ?meta o,
   )
 }

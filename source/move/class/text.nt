@@ -8,12 +8,12 @@ import {
   this.rule.sero {Sero, sero},
 }
 
-define _put(h: &put-kit, x: &text): unit {
-  put-text(h, x)
+define _put(k: &put-kit, x: &text): unit {
+  put-text(k, x)
 }
 
-define _get(h: &get-kit): ?meta text {
-  try t = get-text(h) in
+define _get(k: &get-kit): ?meta text {
+  try t = get-text(k) in
   Right(quote {t})
 }
 

@@ -14,8 +14,8 @@ define _proceed(cursor: &cell(int), offset: int): unit {
   })
 }
 
-define get-int8(h: &get-kit): ?int8 {
-  tie Get-Kit of {bytes, cursor} = h in
+define get-int8(k: &get-kit): ?int8 {
+  tie Get-Kit of {bytes, cursor} = k in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 1)) {
     none
@@ -26,8 +26,8 @@ define get-int8(h: &get-kit): ?int8 {
   }
 }
 
-define get-int16(h: &get-kit): ?int16 {
-  tie Get-Kit of {bytes, cursor} = h in
+define get-int16(k: &get-kit): ?int16 {
+  tie Get-Kit of {bytes, cursor} = k in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 2)) {
     none
@@ -42,8 +42,8 @@ define get-int16(h: &get-kit): ?int16 {
   }
 }
 
-define get-int32(h: &get-kit): ?int32 {
-  tie Get-Kit of {bytes, cursor} = h in
+define get-int32(k: &get-kit): ?int32 {
+  tie Get-Kit of {bytes, cursor} = k in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 4)) {
     none
@@ -62,8 +62,8 @@ define get-int32(h: &get-kit): ?int32 {
   }
 }
 
-define get-int64(h: &get-kit): ?int64 {
-  tie Get-Kit of {bytes, cursor} = h in
+define get-int64(k: &get-kit): ?int64 {
+  tie Get-Kit of {bytes, cursor} = k in
   let index = core.cell.clone(cursor) in
   if lt-int(binary-length(bytes), add-int(index, 8)) {
     none
@@ -90,24 +90,24 @@ define get-int64(h: &get-kit): ?int64 {
   }
 }
 
-define get-float16(h: &get-kit): ?float16 {
-  try v = get-int16(h) in
+define get-float16(k: &get-kit): ?float16 {
+  try v = get-int16(k) in
   Right(magic cast(int16, float16, v))
 }
 
-define get-float32(h: &get-kit): ?float32 {
-  try v = get-int32(h) in
+define get-float32(k: &get-kit): ?float32 {
+  try v = get-int32(k) in
   Right(magic cast(int32, float32, v))
 }
 
-define get-float64(h: &get-kit): ?float64 {
-  try v = get-int64(h) in
+define get-float64(k: &get-kit): ?float64 {
+  try v = get-int64(k) in
   Right(magic cast(int64, float64, v))
 }
 
-define get-binary(h: &get-kit): ?binary {
-  tie Get-Kit of {bytes, cursor} = h in
-  try len = get-int64(h) in
+define get-binary(k: &get-kit): ?binary {
+  tie Get-Kit of {bytes, cursor} = k in
+  try len = get-int64(k) in
   let buf = create(len) in
   let index = core.cell.clone(cursor) in
   let _ on buf =
@@ -121,7 +121,7 @@ define get-binary(h: &get-kit): ?binary {
   Right(result)
 }
 
-define get-text(h: &get-kit): ?text {
-  try b = get-binary(h) in
+define get-text(k: &get-kit): ?text {
+  try b = get-binary(k) in
   Right(_Text(b))
 }
