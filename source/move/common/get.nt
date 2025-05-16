@@ -1,11 +1,9 @@
 import {
-  binary-builder.move.append {append-int8},
-  binary-builder.move.extract {extract},
-  binary-builder.move.make-builder {make-builder},
-  core.binary {binary, binary-access, binary-length},
+  core.binary {binary, binary-length},
+  core.c-size {C-Size},
   core.cell {mutate},
-  core.control {loop},
-  core.memory {load-float, load-int, load-int16, load-int32, load-int8},
+  core.external {malloc},
+  core.memory {load-float, load-int, load-int16, load-int32, load-int8, store-int},
   core.pointer {shift},
   core.text {_Text},
   this.rule.get-kit {Get-Kit, get-kit},
@@ -17,19 +15,19 @@ define _proceed(cursor: &cell(int), offset: int): unit {
   })
 }
 
-define _get-ptr(bytes: &binary, index: int, elem-size: int): ?pointer {
-  if lt-int(binary-length(bytes), add-int(index, elem-size)) {
+define _get-ptr(bytes: &binary, cursor: int, elem-size: int): ?pointer {
+  if lt-int(binary-length(bytes), add-int(cursor, elem-size)) {
     none
   } else {
-    Right(core.binary._get-content-pointer(bytes))
+    Right(shift(core.binary._get-content-pointer(bytes), cursor))
   }
 }
 
-define _get<a>(k: &get-kit, size: int, loader: (pointer) -> a): ?a {
+inline _get<a>(k: &get-kit, size: int, loader: (pointer) -> a): ?a {
   tie Get-Kit of {bytes, cursor} = k in
-  let index = core.cell.clone(cursor) in
-  try ptr = _get-ptr(bytes, index, size) in
-  let result = loader(shift(ptr, index)) in
+  let c = core.cell.clone(cursor) in
+  try ptr = _get-ptr(bytes, c, size) in
+  let result = loader(ptr) in
   _proceed(cursor, size);
   Right(result)
 }
@@ -68,17 +66,15 @@ define get-float64(k: &get-kit): ?float64 {
 
 define get-binary(k: &get-kit): ?binary {
   tie Get-Kit of {bytes, cursor} = k in
-  try len = get-int64(k) in
-  let buf = make-builder(len) in
-  let index = core.cell.clone(cursor) in
-  let _ on buf =
-    loop(len, function (k) {
-      let v = binary-access(bytes, add-int(index, k)) in
-      append-int8(buf, v)
-    })
-  in
-  let result = extract(buf) in
-  _proceed(cursor, len);
+  let c = core.cell.clone(cursor) in
+  try p = _get-ptr(bytes, c, 8) in
+  let len = load-int(p) in
+  let result-pointer = malloc(C-Size(add-int(len, 16))) in
+  store-int(0, result-pointer);
+  store-int(len, shift(result-pointer, 8));
+  core.binary._copy-binary(shift(p, 8), shift(result-pointer, 16), len);
+  _proceed(cursor, add-int(len, 8));
+  let result = magic cast(pointer, binary, result-pointer) in
   Right(result)
 }
 
