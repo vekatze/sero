@@ -1,9 +1,12 @@
 import {
-  binary-builder.entity {create, get},
-  binary-builder.scene {append-int8},
+  binary-builder.move.append {append-int8},
+  binary-builder.move.extract {extract},
+  binary-builder.move.make-builder {make-builder},
   core.binary {binary, binary-access, binary-length},
   core.cell {mutate},
   core.control {loop},
+  core.memory {load-float, load-int, load-int16, load-int32, load-int8},
+  core.pointer {shift},
   core.text {_Text},
   this.rule.get-kit {Get-Kit, get-kit},
 }
@@ -14,101 +17,59 @@ define _proceed(cursor: &cell(int), offset: int): unit {
   })
 }
 
-define get-int8(k: &get-kit): ?int8 {
-  tie Get-Kit of {bytes, cursor} = k in
-  let index = core.cell.clone(cursor) in
-  if lt-int(binary-length(bytes), add-int(index, 1)) {
+define _get-ptr(bytes: &binary, index: int, elem-size: int): ?pointer {
+  if lt-int(binary-length(bytes), add-int(index, elem-size)) {
     none
   } else {
-    let result = binary-access(bytes, add-int(index, 0)) in
-    _proceed(cursor, 1);
-    Right(result)
+    Right(core.binary._get-content-pointer(bytes))
   }
+}
+
+define _get<a>(k: &get-kit, size: int, loader: (pointer) -> a): ?a {
+  tie Get-Kit of {bytes, cursor} = k in
+  let index = core.cell.clone(cursor) in
+  try ptr = _get-ptr(bytes, index, size) in
+  let result = loader(shift(ptr, index)) in
+  _proceed(cursor, size);
+  Right(result)
+}
+
+define get-int8(k: &get-kit): ?int8 {
+  _get(k, 1, load-int8)
 }
 
 define get-int16(k: &get-kit): ?int16 {
-  tie Get-Kit of {bytes, cursor} = k in
-  let index = core.cell.clone(cursor) in
-  if lt-int(binary-length(bytes), add-int(index, 2)) {
-    none
-  } else {
-    let v1 = binary-access(bytes, add-int(index, 0)) in
-    let v0 = binary-access(bytes, add-int(index, 1)) in
-    let tmp = 0 in
-    let tmp = add-int16(tmp, shl-int16(zext-int8-int16(v1), 8)) in
-    let tmp = add-int16(tmp, shl-int16(zext-int8-int16(v0), 0)) in
-    _proceed(cursor, 2);
-    Right(tmp)
-  }
+  _get(k, 2, load-int16)
 }
 
 define get-int32(k: &get-kit): ?int32 {
-  tie Get-Kit of {bytes, cursor} = k in
-  let index = core.cell.clone(cursor) in
-  if lt-int(binary-length(bytes), add-int(index, 4)) {
-    none
-  } else {
-    let v3 = binary-access(bytes, add-int(index, 0)) in
-    let v2 = binary-access(bytes, add-int(index, 1)) in
-    let v1 = binary-access(bytes, add-int(index, 2)) in
-    let v0 = binary-access(bytes, add-int(index, 3)) in
-    let tmp = 0 in
-    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v3), 24)) in
-    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v2), 16)) in
-    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v1), 8)) in
-    let tmp = add-int32(tmp, shl-int32(zext-int8-int32(v0), 0)) in
-    _proceed(cursor, 4);
-    Right(tmp)
-  }
+  _get(k, 4, load-int32)
 }
 
 define get-int64(k: &get-kit): ?int64 {
-  tie Get-Kit of {bytes, cursor} = k in
-  let index = core.cell.clone(cursor) in
-  if lt-int(binary-length(bytes), add-int(index, 8)) {
-    none
-  } else {
-    let v7 = binary-access(bytes, add-int(index, 0)) in
-    let v6 = binary-access(bytes, add-int(index, 1)) in
-    let v5 = binary-access(bytes, add-int(index, 2)) in
-    let v4 = binary-access(bytes, add-int(index, 3)) in
-    let v3 = binary-access(bytes, add-int(index, 4)) in
-    let v2 = binary-access(bytes, add-int(index, 5)) in
-    let v1 = binary-access(bytes, add-int(index, 6)) in
-    let v0 = binary-access(bytes, add-int(index, 7)) in
-    let tmp = 0 in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v7), 56)) in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v6), 48)) in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v5), 40)) in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v4), 32)) in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v3), 24)) in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v2), 16)) in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v1), 8)) in
-    let tmp = add-int64(tmp, shl-int64(zext-int8-int64(v0), 0)) in
-    _proceed(cursor, 8);
-    Right(tmp)
-  }
+  _get(k, 8, load-int)
 }
 
 define get-float16(k: &get-kit): ?float16 {
-  try v = get-int16(k) in
-  Right(magic cast(int16, float16, v))
+  _get(k, 2, function (p) {
+    magic load(float16, p)
+  })
 }
 
 define get-float32(k: &get-kit): ?float32 {
-  try v = get-int32(k) in
-  Right(magic cast(int32, float32, v))
+  _get(k, 4, function (p) {
+    magic load(float32, p)
+  })
 }
 
 define get-float64(k: &get-kit): ?float64 {
-  try v = get-int64(k) in
-  Right(magic cast(int64, float64, v))
+  _get(k, 8, load-float)
 }
 
 define get-binary(k: &get-kit): ?binary {
   tie Get-Kit of {bytes, cursor} = k in
   try len = get-int64(k) in
-  let buf = create(len) in
+  let buf = make-builder(len) in
   let index = core.cell.clone(cursor) in
   let _ on buf =
     loop(len, function (k) {
@@ -116,7 +77,7 @@ define get-binary(k: &get-kit): ?binary {
       append-int8(buf, v)
     })
   in
-  let result = get(buf) in
+  let result = extract(buf) in
   _proceed(cursor, len);
   Right(result)
 }

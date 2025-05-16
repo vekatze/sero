@@ -1,9 +1,9 @@
 import {
-  binary-builder.entity {create},
+  binary-builder.move.make-builder {make-builder},
   this.rule.put-kit {Put-Kit, put-kit},
 }
 
 define make-put-kit(buffer-size: int): put-kit {
-  let buffer = create(buffer-size) in
+  let buffer = make-builder(buffer-size) in
   Put-Kit of {buffer}
 }
