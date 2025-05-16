@@ -7,12 +7,12 @@ import {
   this.rule.get-kit {Get-Kit, get-kit},
 }
 
-define create-get-kit(bytes: binary): get-kit {
+define make-get-kit(bytes: binary): get-kit {
   let cursor = new-cell(0) in
   Get-Kit of {bytes, cursor}
 }
 
-define create-get-kit-from-file(path: &text): system(get-kit) {
+define make-get-kit-from-file(path: &text): system(get-kit) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in

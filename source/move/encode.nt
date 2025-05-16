@@ -6,12 +6,12 @@ import {
   core.file.mode {default-file-mode},
   core.system {system},
   this.move.common.put {extract-binary},
-  this.move.create-put-kit {create-put-kit},
+  this.move.make-put-kit {make-put-kit},
   this.rule.sero {Sero, sero},
 }
 
 inline encode<i, o>(m: sero(i, o), value: &i, buffer-size: int): binary {
-  let h = create-put-kit(buffer-size) in
+  let h = make-put-kit(buffer-size) in
   let _ on h =
     let Sero of {put} = m in
     put(h, value)
