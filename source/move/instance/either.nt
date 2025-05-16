@@ -1,11 +1,11 @@
 import {
   core.int.show {show-int},
-  this.move.class.bool {bool-sero},
-  this.move.class.int64 {int64-sero},
   this.move.common.get {get-int8},
   this.move.common.put {put-int8},
   this.move.decode {decode},
   this.move.encode {encode},
+  this.move.instance.bool {bool-sero},
+  this.move.instance.int64 {int64-sero},
   this.rule.get-kit {get-kit},
   this.rule.put-kit {put-kit},
   this.rule.sero {Sero, sero},

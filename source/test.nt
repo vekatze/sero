@@ -5,10 +5,10 @@ import {
   core.int.show {show-int},
   core.list {for},
   core.system {get-error-message},
-  this.move.class.int64 {int64-sero},
-  this.move.class.list {list-sero},
   this.move.decode {decode-file},
   this.move.encode {encode-file},
+  this.move.instance.int64 {int64-sero},
+  this.move.instance.list {list-sero},
   this.rule.sero {sero},
 }
 
