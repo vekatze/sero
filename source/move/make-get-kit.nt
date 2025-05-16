@@ -16,6 +16,5 @@ define make-get-kit-from-file(path: &text): system(get-kit) {
   try source-file = open(path, for-r, []) in
   try bytes = core.binary.io.read(source-file, 1024) in
   try _ = close(source-file) in
-  let cursor = new-cell(0) in
-  Right(Get-Kit of {bytes, cursor})
+  Right(make-get-kit(bytes))
 }
