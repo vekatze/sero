@@ -1,7 +1,8 @@
 import {
   core.box {axiom-T},
+  core.control {grow-E},
   core.int.show {show-int},
-  core.vector {vector},
+  core.vector {push-back, vector},
   this.move.common.get {get-int64},
   this.move.common.put {put-int64},
   this.move.decode {decode},
@@ -26,14 +27,15 @@ inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
 inline _get<a>(m: sero(a)): (k: &get-kit) -> ?meta vector(a) {
   function (k) {
     try len = get-int64(k) in
-    try vs =
-      core.vector.create-E(len, function (_) {
-        let Sero of {get} = m in
+    let Sero of {get} = m in
+    let base: vector(a) = core.vector.make(len) in
+    try item =
+      grow-E(base, len, function (acc, _) {
         try value = get(k) in
-        Right(axiom-T(value))
+        Right(push-back(acc, axiom-T(value)))
       })
     in
-    Right(magic cast(vector(a), meta vector(a), vs))
+    Right(magic cast(vector(a), meta vector(a), item))
   }
 }
 
