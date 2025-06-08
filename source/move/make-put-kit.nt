@@ -4,6 +4,6 @@ import {
 }
 
 define make-put-kit(buffer-size: int): put-kit {
-  let buffer = make-builder(buffer-size) in
+  let buffer = make-builder(buffer-size);
   Put-Kit of {buffer}
 }

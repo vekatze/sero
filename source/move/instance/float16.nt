@@ -1,5 +1,5 @@
 import {
-  core.float.show {show-float},
+  core.float.io {print-float-line},
   this.move.common.get {get-int16},
   this.move.common.put {put-float16},
   this.move.decode {decode},
@@ -14,23 +14,24 @@ define _put(k: &put-kit, x: &float16): unit {
 }
 
 define _get(k: &get-kit): ?meta float16 {
-  try v = get-int16(k) in
+  try v = get-int16(k);
   Right(quote {magic cast(int16, float16, v)})
 }
 
 inline float16-sero: sero(float16) {
   Sero of {
-    put = _put,
-    get = _get,
+    put := _put,
+    get := _get,
   }
 }
 
 define zen(): unit {
-  pin val = -3.8 in
+  pin val = -3.8;
   match decode(float16-sero, encode(float16-sero, val, 8)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    printf("value: {}\n", [show-float(fpext-float16-float(v))])
+    print("value: ");
+    print-float-line(fpext-float16-float(v), 6);
   }
 }

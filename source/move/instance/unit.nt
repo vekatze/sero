@@ -16,13 +16,13 @@ define _get(_: &get-kit): ?meta unit {
 
 inline unit-sero: sero(unit) {
   Sero of {
-    put = _put,
-    get = _get,
+    put := _put,
+    get := _get,
   }
 }
 
 define zen(): unit {
-  pin val = Unit in
+  pin val = Unit;
   match decode(unit-sero, encode(unit-sero, val, 8)) {
   | Left(_) =>
     print("left")

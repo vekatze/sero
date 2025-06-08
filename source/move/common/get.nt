@@ -24,10 +24,10 @@ define _get-ptr(bytes: &binary, cursor: int, elem-size: int): ?pointer {
 }
 
 inline _get<a>(k: &get-kit, size: int, loader: (pointer) -> a): ?a {
-  tie Get-Kit of {bytes, cursor} = k in
-  let c = core.cell.clone(cursor) in
-  try ptr = _get-ptr(bytes, c, size) in
-  let result = loader(ptr) in
+  tie Get-Kit of {bytes, cursor} = k;
+  let c = core.cell.clone(cursor);
+  try ptr = _get-ptr(bytes, c, size);
+  let result = loader(ptr);
   _proceed(cursor, size);
   Right(result)
 }
@@ -65,20 +65,20 @@ define get-float64(k: &get-kit): ?float64 {
 }
 
 define get-binary(k: &get-kit): ?binary {
-  tie Get-Kit of {bytes, cursor} = k in
-  let c = core.cell.clone(cursor) in
-  try p = _get-ptr(bytes, c, 8) in
-  let len = load-int(p) in
-  let result-pointer = malloc(C-Size(add-int(len, 16))) in
+  tie Get-Kit of {bytes, cursor} = k;
+  let c = core.cell.clone(cursor);
+  try p = _get-ptr(bytes, c, 8);
+  let len = load-int(p);
+  let result-pointer = malloc(C-Size(add-int(len, 16)));
   store-int(0, result-pointer);
   store-int(len, shift(result-pointer, 8));
   core.binary._copy-binary(shift(p, 8), shift(result-pointer, 16), len);
   _proceed(cursor, add-int(len, 8));
-  let result = magic cast(pointer, binary, result-pointer) in
+  let result = magic cast(pointer, binary, result-pointer);
   Right(result)
 }
 
 define get-text(k: &get-kit): ?text {
-  try b = get-binary(k) in
+  try b = get-binary(k);
   Right(_Text(b))
 }

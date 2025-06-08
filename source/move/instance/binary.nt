@@ -1,6 +1,7 @@
 import {
   core.binary {binary},
   core.text {_Text},
+  core.text.io {print-line},
   this.move.common.get {get-binary},
   this.move.common.put {put-binary},
   this.move.decode {decode},
@@ -15,23 +16,25 @@ define _put(k: &put-kit, x: &binary): unit {
 }
 
 define _get(k: &get-kit): ?meta binary {
-  try b = get-binary(k) in
+  try b = get-binary(k);
   Right(quote {b})
 }
 
 inline binary-sero: sero(binary) {
   Sero of {
-    put = _put,
-    get = _get,
+    put := _put,
+    get := _get,
   }
 }
 
 define zen(): unit {
-  tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
+  tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
   match decode(binary-sero, encode(binary-sero, value, 12345)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    printf("value: {}\n", [_Text(v)])
+    pin v = _Text(v);
+    print("value: ");
+    print-line(v);
   }
 }

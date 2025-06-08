@@ -1,6 +1,7 @@
 import {
   core.bool.show,
-  core.int.show {show-int},
+  core.int.io {print-int-line},
+  core.text.io {print-line},
   this.move.decode {decode},
   this.move.encode {encode},
   this.move.instance.bool {bool-sero},
@@ -12,9 +13,9 @@ import {
 
 inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, xy: &pair(a, b)) -> unit {
   function (k, xy) {
-    tie Pair(x, y) = xy in
-    let Sero of {put = put1} = m1 in
-    let Sero of {put = put2} = m2 in
+    tie Pair(x, y) = xy;
+    let Sero of {put := put1} = m1;
+    let Sero of {put := put2} = m2;
     put1(k, x);
     put2(k, y)
   }
@@ -22,13 +23,13 @@ inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, xy: &pair(a, b)) -> u
 
 inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?meta pair(a, b) {
   function (k) {
-    let Sero of {get = get1} = m1 in
-    let Sero of {get = get2} = m2 in
-    try l = get1(k) in
-    try r = get2(k) in
+    let Sero of {get := get1} = m1;
+    let Sero of {get := get2} = m2;
+    try l = get1(k);
+    try r = get2(k);
     Right(box {
-      letbox l' = l in
-      letbox r' = r in
+      letbox l' = l;
+      letbox r' = r;
       Pair(l', r')
     })
   }
@@ -36,8 +37,8 @@ inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?meta pair(a, b) {
 
 inline pair-sero<a, b>(!m1: sero(a), !m2: sero(b)): sero(pair(a, b)) {
   Sero of {
-    put = _put(!m1, !m2),
-    get = _get(!m1, !m2),
+    put := _put(!m1, !m2),
+    get := _get(!m1, !m2),
   }
 }
 
@@ -46,13 +47,16 @@ inline _pair-int-bool: sero(pair(int, bool)) {
 }
 
 define zen(): unit {
-  pin val = Pair(-1234, True) in
+  pin val = Pair(-1234, True);
   match decode(_pair-int-bool, encode(_pair-int-bool, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(xy) =>
-    let Pair(x, y) = xy in
-    printf("int: {}\n", [show-int(x)]);
-    printf("bool: {}\n", [core.bool.show.show(y)])
+    let Pair(x, y) = xy;
+    print("int: ");
+    print-int-line(x);
+    print("bool: ");
+    pin y = core.bool.show.show(y);
+    print-line(y);
   }
 }

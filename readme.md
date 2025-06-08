@@ -80,24 +80,27 @@ inline _list-int-sero: sero(list(int)) {
 }
 
 define zen(): unit {
-  printf("O_CREAT: {}\n", [show-int(from-c-int(O_CREAT))]);
-  printf("mode: {}\n", [show-int(from-c-int(core.file.mode.interpret(default-file-mode)))]);
-  pin value: list(int) = [1, 2, 3, 4, 5, 6] in
-  let path = "test.bin" in
-  let _ = encode-file(_list-int-sero, value, 10, path) in
-  let v = decode-file(_list-int-sero, path) in
-  match v {
+  pin value: list(int) = [1, 2, 3, 42342, 5, 6];
+  let path = "test.bin";
+  let encode-result = encode-file(_list-int-sero, value, 10, path);
+  match encode-result {
   | Left(e) =>
-    printf("left: {}\n", [get-error-message(e)])
-  | Right(v) =>
-    print("right\n");
+    // (failed to encode)
+  | Right(_) =>
+    let v = decode-file(_list-int-sero, path);
     match v {
-    | Left(_) =>
-      print("right-left")
-    | Right(xs) =>
-      for(xs, function (x) {
-        printf("right-right: {}\n", [show-int(x)])
-      })
+    | Left(e) =>
+      // (failed to read the file)
+    | Right(v) =>
+      match v {
+      | Left(_) =>
+        // (failed to decode)
+      | Right(xs) =>
+        for(xs, function (x) {
+          print("right-right: ");
+          print-int-line(x)
+        })
+      }
     }
   }
 }

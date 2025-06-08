@@ -1,5 +1,5 @@
 import {
-  core.int.show {show-int},
+  core.int.io {print-int-line},
   core.list {for},
   this.move.common.get {get-int8},
   this.move.common.put {put-int8},
@@ -17,7 +17,7 @@ inline _put<a>(!m: sero(a)): (k: &put-kit, xs: &list(a)) -> unit {
     | Nil =>
       put-int8(k, 0)
     | Cons(y, ys) =>
-      let Sero of {put} = !m in
+      let Sero of {put} = !m;
       put-int8(k, 1);
       put(k, y);
       self(k, ys)
@@ -27,16 +27,16 @@ inline _put<a>(!m: sero(a)): (k: &put-kit, xs: &list(a)) -> unit {
 
 inline _get<a>(!m: sero(a)): (k: &get-kit) -> ?meta list(a) {
   define self(k) {
-    try tag = get-int8(k) in
+    try tag = get-int8(k);
     if eq-int8(tag, 0) {
       Right(box {Nil})
     } else-if eq-int8(tag, 1) {
-      let Sero of {get} = !m in
-      try v = get(k) in
-      try vs = self(k) in
+      let Sero of {get} = !m;
+      try v = get(k);
+      try vs = self(k);
       Right(box {
-        letbox v' = v in
-        letbox vs' = vs in
+        letbox v' = v;
+        letbox vs' = vs;
         Cons(v', vs')
       })
     } else {
@@ -47,8 +47,8 @@ inline _get<a>(!m: sero(a)): (k: &get-kit) -> ?meta list(a) {
 
 inline list-sero<a>(!m: sero(a)): sero(list(a)) {
   Sero of {
-    put = _put(!m),
-    get = _get(!m),
+    put := _put(!m),
+    get := _get(!m),
   }
 }
 
@@ -57,14 +57,15 @@ inline _list-int-sero: sero(list(int)) {
 }
 
 define zen(): unit {
-  pin val = [1, 2, -123, 1384910234] in
+  pin val = [1, 2, -123, 1384910234];
   match decode(_list-int-sero, encode(_list-int-sero, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(vs) =>
     print("int-list\n");
     for(vs, function (v) {
-      printf("val: {}\n", [show-int(v)])
+      print("val: ");
+      print-int-line(v);
     })
   }
 }

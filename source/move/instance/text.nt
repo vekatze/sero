@@ -1,4 +1,5 @@
 import {
+  core.text.io {print-line},
   this.move.common.get {get-text},
   this.move.common.put {put-text},
   this.move.decode {decode},
@@ -13,23 +14,25 @@ define _put(k: &put-kit, x: &text): unit {
 }
 
 define _get(k: &get-kit): ?meta text {
-  try t = get-text(k) in
+  try t = get-text(k);
   Right(quote {t})
 }
 
 inline text-sero: sero(text) {
   Sero of {
-    put = _put,
-    get = _get,
+    put := _put,
+    get := _get,
   }
 }
 
 define zen(): unit {
-  tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで" in
+  tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
   match decode(text-sero, encode(text-sero, value, 4)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    printf("value: {}\n", [v])
+    pin v = v;
+    print("value: ");
+    print-line(v);
   }
 }

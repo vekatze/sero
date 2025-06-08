@@ -1,10 +1,8 @@
 import {
-  core.c-int {from-c-int},
-  core.file.mode {default-file-mode},
-  core.foreign {O_CREAT},
-  core.int.show {show-int},
+  core.int.io {print-int-line},
   core.list {for},
   core.system {get-error-message},
+  core.text.io {print-line},
   this.move.decode {decode-file},
   this.move.encode {encode-file},
   this.move.instance.int64 {int64-sero},
@@ -17,19 +15,21 @@ inline _list-int-sero: sero(list(int)) {
 }
 
 define zen(): unit {
-  printf("O_CREAT: {}\n", [show-int(from-c-int(O_CREAT))]);
-  printf("mode: {}\n", [show-int(from-c-int(core.file.mode.interpret(default-file-mode)))]);
-  pin value: list(int) = [1, 2, 3, 42342, 5, 6] in
-  let path = "test.bin" in
-  let encode-result = encode-file(_list-int-sero, value, 10, path) in
+  pin value: list(int) = [1, 2, 3, 42342, 5, 6];
+  let path = "test.bin";
+  let encode-result = encode-file(_list-int-sero, value, 10, path);
   match encode-result {
   | Left(e) =>
-    printf("left-encode: {}\n", [get-error-message(e)])
+    pin e = get-error-message(e);
+    print("left-encode: ");
+    print-line(e)
   | Right(_) =>
-    let v = decode-file(_list-int-sero, path) in
+    let v = decode-file(_list-int-sero, path);
     match v {
     | Left(e) =>
-      printf("left-decode: {}\n", [get-error-message(e)])
+      pin e = get-error-message(e);
+      print("left-decode: ");
+      print-line(e)
     | Right(v) =>
       print("right\n");
       match v {
@@ -37,7 +37,8 @@ define zen(): unit {
         print("right-left")
       | Right(xs) =>
         for(xs, function (x) {
-          printf("right-right: {}\n", [show-int(x)])
+          print("right-right: ");
+          print-int-line(x)
         })
       }
     }

@@ -9,26 +9,25 @@ import {
 }
 
 define decode<a>(m: sero(a), bytes: binary): ?a {
-  let Sero of {get} = m in
-  let h = make-get-kit(bytes) in
+  let Sero of {get} = m;
+  let h = make-get-kit(bytes);
   letbox-T result on h =
     match get(h) {
     | Left(_) =>
       box {none}
     | Right(v) =>
       box {
-        letbox v' = v in
+        letbox v' = v;
         Right(v')
       }
-    }
-  in
-  let _ = h in
+    };
+  let _ = h;
   result
 }
 
 define decode-file<a>(m: sero(a), path: &text): system(?a) {
-  try source-file = open(path, for-r, []) in
-  try bytes = core.binary.io.read(source-file, 1024) in
-  try _ = close(source-file) in
+  try source-file = open(path, for-r, []);
+  try bytes = core.binary.io.read(source-file, 1024);
+  try _ = close(source-file);
   Right(decode(m, bytes))
 }

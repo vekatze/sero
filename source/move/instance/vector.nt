@@ -1,7 +1,7 @@
 import {
   core.box {axiom-T},
   core.control {grow-E},
-  core.int.show {show-int},
+  core.int.io {print-int-line},
   core.vector {push-back, vector},
   this.move.common.get {get-int64},
   this.move.common.put {put-int64},
@@ -15,10 +15,10 @@ import {
 
 inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
   function (k, xs) {
-    let len = core.vector.length(xs) in
+    let len = core.vector.length(xs);
     put-int64(k, len);
     core.vector.for-N(xs, function (x, _) {
-      let Sero of {put} = m in
+      let Sero of {put} = m;
       put(k, x)
     })
   }
@@ -26,23 +26,22 @@ inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
 
 inline _get<a>(m: sero(a)): (k: &get-kit) -> ?meta vector(a) {
   function (k) {
-    try len = get-int64(k) in
-    let Sero of {get} = m in
-    let base: vector(a) = core.vector.make(len) in
+    try len = get-int64(k);
+    let Sero of {get} = m;
+    let base: vector(a) = core.vector.make(len);
     try item =
       grow-E(base, len, function (acc, _) {
-        try value = get(k) in
+        try value = get(k);
         Right(push-back(acc, axiom-T(value)))
-      })
-    in
+      });
     Right(magic cast(vector(a), meta vector(a), item))
   }
 }
 
 inline vector-sero<a>(!m: sero(a)): sero(vector(a)) {
   Sero of {
-    put = _put(!m),
-    get = _get(!m),
+    put := _put(!m),
+    get := _get(!m),
   }
 }
 
@@ -51,15 +50,16 @@ inline _int-vector: sero(vector(int)) {
 }
 
 define zen(): unit {
-  pin val = core.vector.from-list([1, 2, -123, 1384910234]) in
+  pin val = core.vector.from-list([1, 2, -123, 1384910234]);
   match decode(_int-vector, encode(_int-vector, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(vs) =>
     print("int-vector\n");
-    pin vs = vs in
+    pin vs = vs;
     core.vector.for-N(vs, function (v, _) {
-      printf("val: {}\n", [show-int(*v)])
+      print("val: ");
+      print-int-line(*v);
     })
   }
 }

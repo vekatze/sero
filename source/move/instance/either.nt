@@ -1,5 +1,5 @@
 import {
-  core.int.show {show-int},
+  core.int.io {print-int-line},
   this.move.common.get {get-int8},
   this.move.common.put {put-int8},
   this.move.decode {decode},
@@ -15,11 +15,11 @@ inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, x-or-y: &either(a, b)
   function (k, x-or-y) {
     case x-or-y {
     | Left(x) =>
-      let Sero of {put} = m1 in
+      let Sero of {put} = m1;
       put-int8(k, 0);
       put(k, x)
     | Right(y) =>
-      let Sero of {put} = m2 in
+      let Sero of {put} = m2;
       put-int8(k, 1);
       put(k, y)
     }
@@ -28,19 +28,19 @@ inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, x-or-y: &either(a, b)
 
 inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?meta either(a, b) {
   function (k) {
-    try tag = get-int8(k) in
+    try tag = get-int8(k);
     if eq-int8(tag, 0) {
-      let Sero of {get} = m1 in
-      try l = get(k) in
+      let Sero of {get} = m1;
+      try l = get(k);
       Right(box {
-        letbox l' = l in
+        letbox l' = l;
         Left(l')
       })
     } else-if eq-int8(tag, 1) {
-      let Sero of {get} = m2 in
-      try r = get(k) in
+      let Sero of {get} = m2;
+      try r = get(k);
       Right(box {
-        letbox r' = r in
+        letbox r' = r;
         Right(r')
       })
     } else {
@@ -51,8 +51,8 @@ inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?meta either(a, b)
 
 inline either-sero<a, b>(!m1: sero(a), !m2: sero(b)): sero(either(a, b)) {
   Sero of {
-    put = _put(!m1, !m2),
-    get = _get(!m1, !m2),
+    put := _put(!m1, !m2),
+    get := _get(!m1, !m2),
   }
 }
 
@@ -61,14 +61,15 @@ inline _either-int-bool: sero(either(int, bool)) {
 }
 
 define zen(): unit {
-  pin val = Left(-1234) in
+  pin val = Left(-1234);
   match decode(_either-int-bool, encode(_either-int-bool, val, 8)) {
   | Left(_) =>
     print("error\n")
   | Right(x-or-y) =>
     match x-or-y {
     | Left(x) =>
-      printf("int: {}\n", [show-int(x)])
+      print("int: ");
+      print-int-line(x);
     | Right(_) =>
       print("bool\n")
     }

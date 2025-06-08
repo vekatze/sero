@@ -17,24 +17,24 @@ define _put(k: &put-kit, x: &bool): unit {
 }
 
 define _get(k: &get-kit): ?meta bool {
-  try v = get-int8(k) in
+  try v = get-int8(k);
   Right(quote {eq-int8(v, 1)})
 }
 
 inline bool-sero: sero(bool) {
   Sero of {
-    put = _put,
-    get = _get,
+    put := _put,
+    get := _get,
   }
 }
 
 define zen(): unit {
-  pin val = True in
+  pin val = True;
   match decode(bool-sero, encode(bool-sero, val, 1)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    let v = v in
+    let v = v;
     if v {
       print("true\n")
     } else {

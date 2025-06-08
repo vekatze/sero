@@ -16,50 +16,50 @@ import {
 }
 
 define put-int8(k: &put-kit, x: int8): unit {
-  tie Put-Kit of {buffer} = k in
+  tie Put-Kit of {buffer} = k;
   append-int8(buffer, x)
 }
 
 define put-int16(k: &put-kit, x: int16): unit {
-  tie Put-Kit of {buffer} = k in
+  tie Put-Kit of {buffer} = k;
   append-int16(buffer, x)
 }
 
 define put-int32(k: &put-kit, x: int32): unit {
-  tie Put-Kit of {buffer} = k in
+  tie Put-Kit of {buffer} = k;
   append-int32(buffer, x)
 }
 
 define put-int64(k: &put-kit, x: int64): unit {
-  tie Put-Kit of {buffer} = k in
+  tie Put-Kit of {buffer} = k;
   append-int64(buffer, x)
 }
 
 define put-float16(k: &put-kit, x: float16): unit {
-  tie Put-Kit of {buffer} = k in
+  tie Put-Kit of {buffer} = k;
   append-float16(buffer, x)
 }
 
 define put-float32(k: &put-kit, x: float32): unit {
-  tie Put-Kit of {buffer} = k in
+  tie Put-Kit of {buffer} = k;
   append-float32(buffer, x)
 }
 
 define put-float64(k: &put-kit, x: float64): unit {
-  tie Put-Kit of {buffer} = k in
+  tie Put-Kit of {buffer} = k;
   append-float64(buffer, x)
 }
 
 define put-binary(k: &put-kit, x: &binary): unit {
-  tie Put-Kit of {buffer} = k in
-  let len = binary-length(x) in
+  tie Put-Kit of {buffer} = k;
+  let len = binary-length(x);
   put-int64(k, len);
   append-binary(buffer, x)
 }
 
 define put-text(k: &put-kit, x: &text): unit {
-  tie Put-Kit of {buffer} = k in
-  let len = text-byte-length(x) in
+  tie Put-Kit of {buffer} = k;
+  let len = text-byte-length(x);
   put-int64(k, len);
   append-text(buffer, x)
 }

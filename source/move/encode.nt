@@ -12,22 +12,22 @@ import {
 }
 
 define _extract-binary(k: put-kit): binary {
-  let Put-Kit of {buffer} = k in
+  let Put-Kit of {buffer} = k;
   extract(buffer)
 }
 
 define encode<a>(m: sero(a), value: &a, buffer-size: int): binary {
-  let h = make-put-kit(buffer-size) in
-  let _ on h =
-    let Sero of {put} = m in
+  let h = make-put-kit(buffer-size);
+  let _ on h = {
+    let Sero of {put} = m;
     put(h, value)
-  in
+  };
   _extract-binary(h)
 }
 
 define encode-file<a>(m: sero(a), value: &a, buffer-size: int, path: &text): system(unit) {
-  pin bytes = encode(m, value, buffer-size) in
-  try target-file = open(path, for-rw, default-file-mode) in
-  try _ = core.binary.io.write(target-file, bytes) in
+  pin bytes = encode(m, value, buffer-size);
+  try target-file = open(path, for-rw, default-file-mode);
+  try _ = core.binary.io.write(target-file, bytes);
   close(target-file)
 }
