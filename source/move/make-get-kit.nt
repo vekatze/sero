@@ -13,7 +13,7 @@ define make-get-kit(bytes: binary): get-kit {
 }
 
 define make-get-kit-from-file(path: &text): system(get-kit) {
-  try source-file = open(path, for-r, []);
+  try source-file = open(path, for-r, Nil);
   try bytes = core.binary.io.read(source-file, 1024);
   try _ = close(source-file);
   Right(make-get-kit(bytes))

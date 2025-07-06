@@ -15,7 +15,7 @@ inline _list-int-sero: sero(list(int)) {
 }
 
 define zen(): unit {
-  pin value: list(int) = [1, 2, 3, 42342, 5, 6];
+  pin value: list(int) = List[1, 2, 3, 42342, 5, 6];
   let path = "test.bin";
   let encode-result = encode-file(_list-int-sero, value, 10, path);
   match encode-result {

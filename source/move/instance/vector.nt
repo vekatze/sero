@@ -2,7 +2,7 @@ import {
   core.box {axiom-T},
   core.control {grow-E},
   core.int.io {print-int-line},
-  core.vector {push-back, vector},
+  core.vector {push-back},
   this.move.common.get {get-int64},
   this.move.common.put {put-int64},
   this.move.decode {decode},
@@ -50,7 +50,7 @@ inline _int-vector: sero(vector(int)) {
 }
 
 define zen(): unit {
-  pin val = core.vector.from-list([1, 2, -123, 1384910234]);
+  pin val = core.vector.from-list(List[1, 2, -123, 1384910234]);
   match decode(_int-vector, encode(_int-vector, val, 8)) {
   | Left(_) =>
     print("left\n")

@@ -57,7 +57,7 @@ inline _list-int-sero: sero(list(int)) {
 }
 
 define zen(): unit {
-  pin val = [1, 2, -123, 1384910234];
+  pin val = List[1, 2, -123, 1384910234];
   match decode(_list-int-sero, encode(_list-int-sero, val, 8)) {
   | Left(_) =>
     print("left\n")
