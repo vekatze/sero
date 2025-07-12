@@ -4,8 +4,8 @@ import {
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
-  this.move.make-get-kit {make-get-kit},
-  this.rule.sero {Sero, sero},
+  this.make-get-kit {make-get-kit},
+  this.sero {Sero, sero},
 }
 
 define decode<a>(m: sero(a), bytes: binary): ?a {

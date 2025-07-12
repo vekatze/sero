@@ -1,9 +1,9 @@
 import {
-  this.move.decode {decode},
-  this.move.encode {encode},
-  this.rule.get-kit {get-kit},
-  this.rule.put-kit {put-kit},
-  this.rule.sero {Sero, sero},
+  this.decode {decode},
+  this.encode {encode},
+  this.get-kit {get-kit},
+  this.put-kit {put-kit},
+  this.sero {Sero, sero},
 }
 
 define _put(_: &put-kit, _: &unit): unit {

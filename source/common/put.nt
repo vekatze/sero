@@ -1,5 +1,5 @@
 import {
-  binary-builder.move.append {
+  binary-builder.append {
     append-binary,
     append-float16,
     append-float32,
@@ -12,7 +12,7 @@ import {
   },
   core.binary {binary, binary-length},
   core.text {text-byte-length},
-  this.rule.put-kit {Put-Kit, put-kit},
+  this.put-kit {Put-Kit, put-kit},
 }
 
 define put-int8(k: &put-kit, x: int8): unit {

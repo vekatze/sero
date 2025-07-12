@@ -2,13 +2,13 @@ import {
   core.bool.show,
   core.int.io {print-int-line},
   core.text.io {print-line},
-  this.move.decode {decode},
-  this.move.encode {encode},
-  this.move.instance.bool {bool-sero},
-  this.move.instance.int64 {int64-sero},
-  this.rule.get-kit {get-kit},
-  this.rule.put-kit {put-kit},
-  this.rule.sero {Sero, sero},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.bool {bool-sero},
+  this.instance.int64 {int64-sero},
+  this.get-kit {get-kit},
+  this.put-kit {put-kit},
+  this.sero {Sero, sero},
 }
 
 inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, xy: &pair(a, b)) -> unit {

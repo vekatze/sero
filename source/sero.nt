@@ -1,6 +1,6 @@
 import {
-  this.rule.get-kit {get-kit},
-  this.rule.put-kit {put-kit},
+  this.get-kit {get-kit},
+  this.put-kit {put-kit},
 }
 
 data sero(a) {

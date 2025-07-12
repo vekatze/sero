@@ -1,14 +1,14 @@
 import {
-  binary-builder.move.extract {extract},
+  binary-builder.extract {extract},
   core.binary {binary},
   core.binary.io,
   core.file {close, open},
   core.file.flag {for-rw},
   core.file.mode {default-file-mode},
   core.system {system},
-  this.move.make-put-kit {make-put-kit},
-  this.rule.put-kit {Put-Kit, put-kit},
-  this.rule.sero {Sero, sero},
+  this.make-put-kit {make-put-kit},
+  this.put-kit {Put-Kit, put-kit},
+  this.sero {Sero, sero},
 }
 
 define _extract-binary(k: put-kit): binary {

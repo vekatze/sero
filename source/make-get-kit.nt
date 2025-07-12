@@ -4,7 +4,7 @@ import {
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
-  this.rule.get-kit {Get-Kit, get-kit},
+  this.get-kit {Get-Kit, get-kit},
 }
 
 define make-get-kit(bytes: binary): get-kit {

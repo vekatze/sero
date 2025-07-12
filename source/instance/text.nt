@@ -1,12 +1,12 @@
 import {
   core.text.io {print-line},
-  this.move.common.get {get-text},
-  this.move.common.put {put-text},
-  this.move.decode {decode},
-  this.move.encode {encode},
-  this.rule.get-kit {get-kit},
-  this.rule.put-kit {put-kit},
-  this.rule.sero {Sero, sero},
+  this.common.get {get-text},
+  this.common.put {put-text},
+  this.decode {decode},
+  this.encode {encode},
+  this.get-kit {get-kit},
+  this.put-kit {put-kit},
+  this.sero {Sero, sero},
 }
 
 define _put(k: &put-kit, x: &text): unit {

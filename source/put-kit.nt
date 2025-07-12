@@ -1,5 +1,5 @@
 import {
-  binary-builder.rule.builder {builder},
+  binary-builder.builder {builder},
 }
 
 data put-kit {
