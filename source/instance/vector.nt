@@ -7,8 +7,8 @@ import {
   this.common.put {put-int64},
   this.decode {decode},
   this.encode {encode},
-  this.instance.int64 {int64-sero},
   this.get-kit {get-kit},
+  this.instance.int64 {int64-sero},
   this.put-kit {put-kit},
   this.sero {Sero, sero},
 }

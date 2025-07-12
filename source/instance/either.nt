@@ -4,9 +4,9 @@ import {
   this.common.put {put-int8},
   this.decode {decode},
   this.encode {encode},
+  this.get-kit {get-kit},
   this.instance.bool {bool-sero},
   this.instance.int64 {int64-sero},
-  this.get-kit {get-kit},
   this.put-kit {put-kit},
   this.sero {Sero, sero},
 }
