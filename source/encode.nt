@@ -1,6 +1,6 @@
 import {
-  binary-builder.extract {extract},
   core.binary {binary},
+  core.binary-builder {extract},
   core.binary.io,
   core.file {close, open},
   core.file.flag {for-rw},

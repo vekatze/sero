@@ -1,5 +1,6 @@
 import {
-  binary-builder.append {
+  core.binary {binary, binary-length},
+  core.binary-builder {
     append-binary,
     append-float16,
     append-float32,
@@ -10,7 +11,6 @@ import {
     append-int8,
     append-text,
   },
-  core.binary {binary, binary-length},
   core.text {text-byte-length},
   this.put-kit {Put-Kit, put-kit},
 }

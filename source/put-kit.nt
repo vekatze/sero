@@ -1,9 +1,9 @@
 import {
-  binary-builder.builder {builder},
+  core.binary-builder {binary-builder},
 }
 
 data put-kit {
 | Put-Kit(
-    buffer: builder,
+    buffer: binary-builder,
   )
 }

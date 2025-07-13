@@ -1,9 +1,9 @@
 import {
-  binary-builder.make-builder {make-builder},
+  core.binary-builder {make-binary-builder},
   this.put-kit {Put-Kit, put-kit},
 }
 
 define make-put-kit(buffer-size: int): put-kit {
-  let buffer = make-builder(buffer-size);
+  let buffer = make-binary-builder(buffer-size);
   Put-Kit of {buffer}
 }
