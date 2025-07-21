@@ -1,5 +1,6 @@
 import {
   core.binary {binary, binary-length},
+  core.box {axiom-T},
   core.c-size {C-Size},
   core.cell {mutate},
   core.external {malloc},
@@ -11,7 +12,7 @@ import {
 
 define _proceed(cursor: &cell(int), offset: int): unit {
   mutate(cursor, function (x) {
-    add-int(x, offset)
+    quote {add-int(axiom-T(x), offset)}
   })
 }
 

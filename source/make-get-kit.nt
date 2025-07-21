@@ -1,6 +1,7 @@
 import {
   core.binary {binary},
   core.binary.io,
+  core.cell {make-cell},
   core.file {close, open},
   core.file.flag {for-r},
   core.system {system},
@@ -8,7 +9,7 @@ import {
 }
 
 define make-get-kit(bytes: binary): get-kit {
-  let cursor = make-cell(0);
+  let cursor = make-cell(quote {0});
   Get-Kit of {bytes, cursor}
 }
 
