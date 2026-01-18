@@ -13,9 +13,9 @@ define _put(k: &put-kit, x: &int8): unit {
   put-int8(k, *x)
 }
 
-define _get(k: &get-kit): ?meta int8 {
+define _get(k: &get-kit): ?+int8 {
   try v = get-int8(k);
-  Right(quote {v})
+  Right(lift {v})
 }
 
 inline int8-sero: sero(int8) {

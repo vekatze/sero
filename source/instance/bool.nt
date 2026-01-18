@@ -16,9 +16,9 @@ define _put(k: &put-kit, x: &bool): unit {
   }
 }
 
-define _get(k: &get-kit): ?meta bool {
+define _get(k: &get-kit): ?+bool {
   try v = get-int8(k);
-  Right(quote {eq-int8(v, 1)})
+  Right(lift {eq-int8(v, 1)})
 }
 
 inline bool-sero: sero(bool) {

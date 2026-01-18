@@ -24,7 +24,7 @@ inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
   }
 }
 
-inline _get<a>(m: sero(a)): (k: &get-kit) -> ?meta vector(a) {
+inline _get<a>(m: sero(a)): (k: &get-kit) -> ?+vector(a) {
   function (k) {
     try len = get-int64(k);
     let Sero of {get} = m;
@@ -34,7 +34,7 @@ inline _get<a>(m: sero(a)): (k: &get-kit) -> ?meta vector(a) {
         try value = get(k);
         Right(push-back(acc, axiom-T(value)))
       });
-    Right(magic cast(vector(a), meta vector(a), item))
+    Right(magic cast(vector(a), +vector(a), item))
   }
 }
 

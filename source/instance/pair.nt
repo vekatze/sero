@@ -21,16 +21,16 @@ inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, xy: &pair(a, b)) -> u
   }
 }
 
-inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?meta pair(a, b) {
+inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?+pair(a, b) {
   function (k) {
     let Sero of {get := get1} = m1;
     let Sero of {get := get2} = m2;
     try l = get1(k);
     try r = get2(k);
     Right(box {
-      letbox l' = l;
-      letbox r' = r;
-      Pair(l', r')
+      letbox l = l;
+      letbox r = r;
+      Pair(l, r)
     })
   }
 }

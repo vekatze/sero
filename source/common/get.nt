@@ -12,7 +12,7 @@ import {
 
 define _proceed(cursor: &cell(int), offset: int): unit {
   mutate(cursor, function (x) {
-    quote {add-int(axiom-T(x), offset)}
+    lift {add-int(axiom-T(x), offset)}
   })
 }
 

@@ -9,7 +9,7 @@ import {
 }
 
 define make-get-kit(bytes: binary): get-kit {
-  let cursor = make-cell(quote {0});
+  let cursor = make-cell(lift {0});
   Get-Kit of {bytes, cursor}
 }
 

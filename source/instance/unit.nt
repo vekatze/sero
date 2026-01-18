@@ -10,7 +10,7 @@ define _put(_: &put-kit, _: &unit): unit {
   Unit
 }
 
-define _get(_: &get-kit): ?meta unit {
+define _get(_: &get-kit): ?+unit {
   Right(box {Unit})
 }
 

@@ -13,9 +13,9 @@ define _put(k: &put-kit, x: &int64): unit {
   put-int64(k, *x)
 }
 
-define _get(k: &get-kit): ?meta int64 {
+define _get(k: &get-kit): ?+int64 {
   try v = get-int64(k);
-  Right(quote {v})
+  Right(lift {v})
 }
 
 inline int64-sero: sero(int64) {

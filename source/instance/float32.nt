@@ -13,9 +13,9 @@ define _put(k: &put-kit, x: &float32): unit {
   put-float32(k, *x)
 }
 
-define _get(k: &get-kit): ?meta float32 {
+define _get(k: &get-kit): ?+float32 {
   try v = get-int32(k);
-  Right(quote {magic cast(int32, float32, v)})
+  Right(lift {magic cast(int32, float32, v)})
 }
 
 inline float32-sero: sero(float32) {

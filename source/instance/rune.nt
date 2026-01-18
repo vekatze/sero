@@ -14,9 +14,9 @@ define _put(k: &put-kit, x: &rune): unit {
   put-int32(k, magic cast(&rune, int32, x))
 }
 
-define _get(k: &get-kit): ?meta rune {
+define _get(k: &get-kit): ?+rune {
   try v = get-int32(k);
-  Right(quote {magic cast(int32, rune, v)})
+  Right(lift {magic cast(int32, rune, v)})
 }
 
 inline rune-sero: sero(rune) {

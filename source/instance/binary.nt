@@ -15,9 +15,9 @@ define _put(k: &put-kit, x: &binary): unit {
   put-binary(k, x)
 }
 
-define _get(k: &get-kit): ?meta binary {
+define _get(k: &get-kit): ?+binary {
   try b = get-binary(k);
-  Right(quote {b})
+  Right(lift {b})
 }
 
 inline binary-sero: sero(binary) {

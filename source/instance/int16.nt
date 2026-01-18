@@ -13,9 +13,9 @@ define _put(k: &put-kit, x: &int16): unit {
   put-int16(k, *x)
 }
 
-define _get(k: &get-kit): ?meta int16 {
+define _get(k: &get-kit): ?+int16 {
   try v = get-int16(k);
-  Right(quote {v})
+  Right(lift {v})
 }
 
 inline int16-sero: sero(int16) {

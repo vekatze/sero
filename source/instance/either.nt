@@ -26,22 +26,22 @@ inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, x-or-y: &either(a, b)
   }
 }
 
-inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?meta either(a, b) {
+inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?+either(a, b) {
   function (k) {
     try tag = get-int8(k);
     if eq-int8(tag, 0) {
       let Sero of {get} = m1;
       try l = get(k);
       Right(box {
-        letbox l' = l;
-        Left(l')
+        letbox l = l;
+        Left(l)
       })
     } else-if eq-int8(tag, 1) {
       let Sero of {get} = m2;
       try r = get(k);
       Right(box {
-        letbox r' = r;
-        Right(r')
+        letbox r = r;
+        Right(r)
       })
     } else {
       none

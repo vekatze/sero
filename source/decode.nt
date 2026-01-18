@@ -17,8 +17,8 @@ define decode<a>(m: sero(a), bytes: binary): ?a {
       box {none}
     | Right(v) =>
       box {
-        letbox v' = v;
-        Right(v')
+        letbox v = v;
+        Right(v)
       }
     };
   let _ = h;

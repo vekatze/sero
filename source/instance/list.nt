@@ -25,7 +25,7 @@ inline _put<a>(!m: sero(a)): (k: &put-kit, xs: &list(a)) -> unit {
   }
 }
 
-inline _get<a>(!m: sero(a)): (k: &get-kit) -> ?meta list(a) {
+inline _get<a>(!m: sero(a)): (k: &get-kit) -> ?+list(a) {
   define self(k) {
     try tag = get-int8(k);
     if eq-int8(tag, 0) {
@@ -35,9 +35,9 @@ inline _get<a>(!m: sero(a)): (k: &get-kit) -> ?meta list(a) {
       try v = get(k);
       try vs = self(k);
       Right(box {
-        letbox v' = v;
-        letbox vs' = vs;
-        Cons(v', vs')
+        letbox v = v;
+        letbox vs = vs;
+        Cons(v, vs)
       })
     } else {
       none

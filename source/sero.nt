@@ -6,6 +6,6 @@ import {
 data sero(a) {
 | Sero(
     put: (k: &put-kit, value: &a) -> unit,
-    get: (k: &get-kit) -> ?meta a,
+    get: (k: &get-kit) -> ?+a,
   )
 }

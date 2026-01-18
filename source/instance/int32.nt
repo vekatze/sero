@@ -13,9 +13,9 @@ define _put(k: &put-kit, x: &int32): unit {
   put-int32(k, *x)
 }
 
-define _get(k: &get-kit): ?meta int32 {
+define _get(k: &get-kit): ?+int32 {
   try v = get-int32(k);
-  Right(quote {v})
+  Right(lift {v})
 }
 
 inline int32-sero: sero(int32) {
