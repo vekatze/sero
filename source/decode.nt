@@ -9,7 +9,7 @@ import {
 }
 
 define decode<a>(m: sero(a), bytes: binary): ?a {
-  let Sero of {get} = m;
+  let Sero{get} = m;
   let h = make-get-kit(bytes);
   letbox-T result on h =
     match get(h) {

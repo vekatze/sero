@@ -20,7 +20,7 @@ define _get(k: &get-kit): ?+rune {
 }
 
 inline rune-sero: sero(rune) {
-  Sero of {
+  Sero{
     put := _put,
     get := _get,
   }

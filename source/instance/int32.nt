@@ -19,7 +19,7 @@ define _get(k: &get-kit): ?+int32 {
 }
 
 inline int32-sero: sero(int32) {
-  Sero of {
+  Sero{
     put := _put,
     get := _get,
   }

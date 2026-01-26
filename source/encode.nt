@@ -12,14 +12,14 @@ import {
 }
 
 define _extract-binary(k: put-kit): binary {
-  let Put-Kit of {buffer} = k;
+  let Put-Kit{buffer} = k;
   extract(buffer)
 }
 
 define encode<a>(m: sero(a), value: &a, buffer-size: int): binary {
   let h = make-put-kit(buffer-size);
   let _ on h = {
-    let Sero of {put} = m;
+    let Sero{put} = m;
     put(h, value)
   };
   _extract-binary(h)

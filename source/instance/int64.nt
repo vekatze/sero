@@ -19,7 +19,7 @@ define _get(k: &get-kit): ?+int64 {
 }
 
 inline int64-sero: sero(int64) {
-  Sero of {
+  Sero{
     put := _put,
     get := _get,
   }

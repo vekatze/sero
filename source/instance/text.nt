@@ -19,7 +19,7 @@ define _get(k: &get-kit): ?+text {
 }
 
 inline text-sero: sero(text) {
-  Sero of {
+  Sero{
     put := _put,
     get := _get,
   }

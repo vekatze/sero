@@ -18,7 +18,7 @@ inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
     let len = core.vector.length(xs);
     put-int64(k, len);
     core.vector.for-N(xs, function (x, _) {
-      let Sero of {put} = m;
+      let Sero{put} = m;
       put(k, x)
     })
   }
@@ -27,7 +27,7 @@ inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
 inline _get<a>(m: sero(a)): (k: &get-kit) -> ?+vector(a) {
   function (k) {
     try len = get-int64(k);
-    let Sero of {get} = m;
+    let Sero{get} = m;
     let base: vector(a) = core.vector.make(len);
     try item =
       grow-E(base, len, function (acc, _) {
@@ -39,9 +39,9 @@ inline _get<a>(m: sero(a)): (k: &get-kit) -> ?+vector(a) {
 }
 
 inline vector-sero<a>(!m: sero(a)): sero(vector(a)) {
-  Sero of {
-    put := _put(!m),
-    get := _get(!m),
+  Sero{
+    put := _put(m),
+    get := _get(m),
   }
 }
 

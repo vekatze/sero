@@ -15,7 +15,7 @@ define _get(_: &get-kit): ?+unit {
 }
 
 inline unit-sero: sero(unit) {
-  Sero of {
+  Sero{
     put := _put,
     get := _get,
   }

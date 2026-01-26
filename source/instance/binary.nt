@@ -21,7 +21,7 @@ define _get(k: &get-kit): ?+binary {
 }
 
 inline binary-sero: sero(binary) {
-  Sero of {
+  Sero{
     put := _put,
     get := _get,
   }

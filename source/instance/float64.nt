@@ -19,7 +19,7 @@ define _get(k: &get-kit): ?+float64 {
 }
 
 inline float64-sero: sero(float64) {
-  Sero of {
+  Sero{
     put := _put,
     get := _get,
   }
