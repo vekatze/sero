@@ -11,8 +11,8 @@ import {
   this.sero {Sero, sero},
 }
 
-inline _put<a>(!m: sero(a)): (k: &put-kit, xs: &list(a)) -> unit {
-  define self(k, xs): unit {
+inline _put<a>(!m: sero(a)) -> (k: &put-kit, xs: &list(a)) -> unit {
+  define self(k, xs) -> unit {
     case xs {
     | Nil =>
       put-int8(k, 0)
@@ -25,8 +25,8 @@ inline _put<a>(!m: sero(a)): (k: &put-kit, xs: &list(a)) -> unit {
   }
 }
 
-inline _get<a>(!m: sero(a)): (k: &get-kit) -> ?+list(a) {
-  define self(k) {
+inline _get<a>(!m: sero(a)) -> (k: &get-kit) -> ?+list(a) {
+  define self(k) -> ?+list(a) {
     try tag = get-int8(k);
     if eq-int8(tag, 0) {
       Right(box {Nil})
@@ -45,18 +45,18 @@ inline _get<a>(!m: sero(a)): (k: &get-kit) -> ?+list(a) {
   }
 }
 
-inline list-sero<a>(!m: sero(a)): sero(list(a)) {
+inline list-sero<a>(!m: sero(a)) -> sero(list(a)) {
   Sero{
     put := _put(m),
     get := _get(m),
   }
 }
 
-inline _list-int-sero: sero(list(int)) {
+constant _list-int-sero: sero(list(int)) {
   list-sero(int64-sero)
 }
 
-define zen(): unit {
+define zen() -> unit {
   pin val = List[1, 2, -123, 1384910234];
   match decode(_list-int-sero, encode(_list-int-sero, val, 8)) {
   | Left(_) =>

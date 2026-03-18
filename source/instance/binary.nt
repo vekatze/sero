@@ -11,23 +11,23 @@ import {
   this.sero {Sero, sero},
 }
 
-define _put(k: &put-kit, x: &binary): unit {
+define _put(k: &put-kit, x: &binary) -> unit {
   put-binary(k, x)
 }
 
-define _get(k: &get-kit): ?+binary {
+define _get(k: &get-kit) -> ?+binary {
   try b = get-binary(k);
   Right(lift {b})
 }
 
-inline binary-sero: sero(binary) {
+constant binary-sero: sero(binary) {
   Sero{
     put := _put,
     get := _get,
   }
 }
 
-define zen(): unit {
+define zen() -> unit {
   tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
   match decode(binary-sero, encode(binary-sero, value, 12345)) {
   | Left(_) =>

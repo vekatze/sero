@@ -8,12 +8,12 @@ import {
   this.get-kit {Get-Kit, get-kit},
 }
 
-define make-get-kit(bytes: binary): get-kit {
+define make-get-kit(bytes: binary) -> get-kit {
   let cursor = make-cell(lift {0});
   Get-Kit{bytes, cursor}
 }
 
-define make-get-kit-from-file(path: &text): system(get-kit) {
+define make-get-kit-from-file(path: &text) -> system(get-kit) {
   try source-file = open(path, for-r, Nil);
   try bytes = core.binary.io.read(source-file, 1024);
   try _ = close(source-file);

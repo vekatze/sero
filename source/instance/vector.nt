@@ -13,7 +13,7 @@ import {
   this.sero {Sero, sero},
 }
 
-inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
+inline _put<a>(m: sero(a)) -> (k: &put-kit, xs: &vector(a)) -> unit {
   function (k, xs) {
     let len = core.vector.length(xs);
     put-int64(k, len);
@@ -24,7 +24,7 @@ inline _put<a>(m: sero(a)): (k: &put-kit, xs: &vector(a)) -> unit {
   }
 }
 
-inline _get<a>(m: sero(a)): (k: &get-kit) -> ?+vector(a) {
+inline _get<a>(m: sero(a)) -> (k: &get-kit) -> ?+vector(a) {
   function (k) {
     try len = get-int64(k);
     let Sero{get} = m;
@@ -38,18 +38,18 @@ inline _get<a>(m: sero(a)): (k: &get-kit) -> ?+vector(a) {
   }
 }
 
-inline vector-sero<a>(!m: sero(a)): sero(vector(a)) {
+inline vector-sero<a>(!m: sero(a)) -> sero(vector(a)) {
   Sero{
     put := _put(m),
     get := _get(m),
   }
 }
 
-inline _int-vector: sero(vector(int)) {
+constant _int-vector: sero(vector(int)) {
   vector-sero(int64-sero)
 }
 
-define zen(): unit {
+define zen() -> unit {
   pin val = core.vector.from-list(List[1, 2, -123, 1384910234]);
   match decode(_int-vector, encode(_int-vector, val, 8)) {
   | Left(_) =>

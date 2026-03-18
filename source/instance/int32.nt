@@ -9,23 +9,23 @@ import {
   this.sero {Sero, sero},
 }
 
-define _put(k: &put-kit, x: &int32): unit {
+define _put(k: &put-kit, x: &int32) -> unit {
   put-int32(k, *x)
 }
 
-define _get(k: &get-kit): ?+int32 {
+define _get(k: &get-kit) -> ?+int32 {
   try v = get-int32(k);
   Right(lift {v})
 }
 
-inline int32-sero: sero(int32) {
+constant int32-sero: sero(int32) {
   Sero{
     put := _put,
     get := _get,
   }
 }
 
-define zen(): unit {
+define zen() -> unit {
   pin val = 14909826;
   match decode(int32-sero, encode(int32-sero, val, 8)) {
   | Left(_) =>

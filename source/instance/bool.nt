@@ -8,7 +8,7 @@ import {
   this.sero {Sero, sero},
 }
 
-define _put(k: &put-kit, x: &bool): unit {
+define _put(k: &put-kit, x: &bool) -> unit {
   if *x {
     put-int8(k, 1)
   } else {
@@ -16,19 +16,19 @@ define _put(k: &put-kit, x: &bool): unit {
   }
 }
 
-define _get(k: &get-kit): ?+bool {
+define _get(k: &get-kit) -> ?+bool {
   try v = get-int8(k);
   Right(lift {eq-int8(v, 1)})
 }
 
-inline bool-sero: sero(bool) {
+constant bool-sero: sero(bool) {
   Sero{
     put := _put,
     get := _get,
   }
 }
 
-define zen(): unit {
+define zen() -> unit {
   pin val = True;
   match decode(bool-sero, encode(bool-sero, val, 1)) {
   | Left(_) =>

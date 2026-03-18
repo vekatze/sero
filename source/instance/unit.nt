@@ -6,22 +6,22 @@ import {
   this.sero {Sero, sero},
 }
 
-define _put(_: &put-kit, _: &unit): unit {
+define _put(_: &put-kit, _: &unit) -> unit {
   Unit
 }
 
-define _get(_: &get-kit): ?+unit {
+define _get(_: &get-kit) -> ?+unit {
   Right(box {Unit})
 }
 
-inline unit-sero: sero(unit) {
+constant unit-sero: sero(unit) {
   Sero{
     put := _put,
     get := _get,
   }
 }
 
-define zen(): unit {
+define zen() -> unit {
   pin val = Unit;
   match decode(unit-sero, encode(unit-sero, val, 8)) {
   | Left(_) =>

@@ -10,23 +10,23 @@ import {
   this.sero {Sero, sero},
 }
 
-define _put(k: &put-kit, x: &rune): unit {
+define _put(k: &put-kit, x: &rune) -> unit {
   put-int32(k, magic cast(&rune, int32, x))
 }
 
-define _get(k: &get-kit): ?+rune {
+define _get(k: &get-kit) -> ?+rune {
   try v = get-int32(k);
   Right(lift {magic cast(int32, rune, v)})
 }
 
-inline rune-sero: sero(rune) {
+constant rune-sero: sero(rune) {
   Sero{
     put := _put,
     get := _get,
   }
 }
 
-define zen(): unit {
+define zen() -> unit {
   pin val = `あ`;
   match decode(rune-sero, encode(rune-sero, val, 4)) {
   | Left(_) =>

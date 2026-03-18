@@ -9,23 +9,23 @@ import {
   this.sero {Sero, sero},
 }
 
-define _put(k: &put-kit, x: &text): unit {
+define _put(k: &put-kit, x: &text) -> unit {
   put-text(k, x)
 }
 
-define _get(k: &get-kit): ?+text {
+define _get(k: &get-kit) -> ?+text {
   try t = get-text(k);
   Right(lift {t})
 }
 
-inline text-sero: sero(text) {
+constant text-sero: sero(text) {
   Sero{
     put := _put,
     get := _get,
   }
 }
 
-define zen(): unit {
+define zen() -> unit {
   tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
   match decode(text-sero, encode(text-sero, value, 4)) {
   | Left(_) =>

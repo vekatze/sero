@@ -10,13 +10,13 @@ import {
   this.get-kit {Get-Kit, get-kit},
 }
 
-define _proceed(cursor: &cell(int), offset: int): unit {
+define _proceed(cursor: &cell(int), offset: int) -> unit {
   mutate(cursor, function (x) {
     lift {add-int(axiom-T(x), offset)}
   })
 }
 
-define _get-ptr(bytes: &binary, cursor: int, elem-size: int): ?pointer {
+define _get-ptr(bytes: &binary, cursor: int, elem-size: int) -> ?pointer {
   if lt-int(binary-length(bytes), add-int(cursor, elem-size)) {
     none
   } else {
@@ -24,7 +24,7 @@ define _get-ptr(bytes: &binary, cursor: int, elem-size: int): ?pointer {
   }
 }
 
-inline _get<a>(k: &get-kit, size: int, loader: (pointer) -> a): ?a {
+inline _get<a>(k: &get-kit, size: int, loader: (pointer) -> a) -> ?a {
   tie Get-Kit{bytes, cursor} = k;
   let c = core.cell.clone(cursor);
   try ptr = _get-ptr(bytes, c, size);
@@ -33,39 +33,39 @@ inline _get<a>(k: &get-kit, size: int, loader: (pointer) -> a): ?a {
   Right(result)
 }
 
-define get-int8(k: &get-kit): ?int8 {
+define get-int8(k: &get-kit) -> ?int8 {
   _get(k, 1, load-int8)
 }
 
-define get-int16(k: &get-kit): ?int16 {
+define get-int16(k: &get-kit) -> ?int16 {
   _get(k, 2, load-int16)
 }
 
-define get-int32(k: &get-kit): ?int32 {
+define get-int32(k: &get-kit) -> ?int32 {
   _get(k, 4, load-int32)
 }
 
-define get-int64(k: &get-kit): ?int64 {
+define get-int64(k: &get-kit) -> ?int64 {
   _get(k, 8, load-int)
 }
 
-define get-float16(k: &get-kit): ?float16 {
+define get-float16(k: &get-kit) -> ?float16 {
   _get(k, 2, function (p) {
     magic load(float16, p)
   })
 }
 
-define get-float32(k: &get-kit): ?float32 {
+define get-float32(k: &get-kit) -> ?float32 {
   _get(k, 4, function (p) {
     magic load(float32, p)
   })
 }
 
-define get-float64(k: &get-kit): ?float64 {
+define get-float64(k: &get-kit) -> ?float64 {
   _get(k, 8, load-float)
 }
 
-define get-binary(k: &get-kit): ?binary {
+define get-binary(k: &get-kit) -> ?binary {
   tie Get-Kit{bytes, cursor} = k;
   let c = core.cell.clone(cursor);
   try p = _get-ptr(bytes, c, 8);
@@ -79,7 +79,7 @@ define get-binary(k: &get-kit): ?binary {
   Right(result)
 }
 
-define get-text(k: &get-kit): ?text {
+define get-text(k: &get-kit) -> ?text {
   try b = get-binary(k);
   Right(_Text(b))
 }

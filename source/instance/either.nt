@@ -11,7 +11,7 @@ import {
   this.sero {Sero, sero},
 }
 
-inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, x-or-y: &either(a, b)) -> unit {
+inline _put<a, b>(m1: sero(a), m2: sero(b)) -> (k: &put-kit, x-or-y: &either(a, b)) -> unit {
   function (k, x-or-y) {
     case x-or-y {
     | Left(x) =>
@@ -26,7 +26,7 @@ inline _put<a, b>(m1: sero(a), m2: sero(b)): (k: &put-kit, x-or-y: &either(a, b)
   }
 }
 
-inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?+either(a, b) {
+inline _get<a, b>(m1: sero(a), m2: sero(b)) -> (k: &get-kit) -> ?+either(a, b) {
   function (k) {
     try tag = get-int8(k);
     if eq-int8(tag, 0) {
@@ -49,18 +49,18 @@ inline _get<a, b>(m1: sero(a), m2: sero(b)): (k: &get-kit) -> ?+either(a, b) {
   }
 }
 
-inline either-sero<a, b>(!m1: sero(a), !m2: sero(b)): sero(either(a, b)) {
+inline either-sero<a, b>(!m1: sero(a), !m2: sero(b)) -> sero(either(a, b)) {
   Sero{
     put := _put(m1, m2),
     get := _get(m1, m2),
   }
 }
 
-inline _either-int-bool: sero(either(int, bool)) {
+constant _either-int-bool: sero(either(int, bool)) {
   either-sero(int64-sero, bool-sero)
 }
 
-define zen(): unit {
+define zen() -> unit {
   pin val = Left(-1234);
   match decode(_either-int-bool, encode(_either-int-bool, val, 8)) {
   | Left(_) =>
