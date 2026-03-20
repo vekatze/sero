@@ -20,7 +20,7 @@ define _get(k: &get-kit) -> ?+rune {
 }
 
 constant rune-sero: sero(rune) {
-  Sero{
+  Sero {
     put := _put,
     get := _get,
   }

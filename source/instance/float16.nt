@@ -19,7 +19,7 @@ define _get(k: &get-kit) -> ?+float16 {
 }
 
 constant float16-sero: sero(float16) {
-  Sero{
+  Sero {
     put := _put,
     get := _get,
   }

@@ -12,14 +12,14 @@ import {
 }
 
 inline _put<a, b>(m1: sero(a), m2: sero(b)) -> (k: &put-kit, x-or-y: &either(a, b)) -> unit {
-  function (k, x-or-y) {
+  (k, x-or-y) => {
     case x-or-y {
     | Left(x) =>
-      let Sero{put} = m1;
+      let Sero {put} = m1;
       put-int8(k, 0);
       put(k, x)
     | Right(y) =>
-      let Sero{put} = m2;
+      let Sero {put} = m2;
       put-int8(k, 1);
       put(k, y)
     }
@@ -27,17 +27,17 @@ inline _put<a, b>(m1: sero(a), m2: sero(b)) -> (k: &put-kit, x-or-y: &either(a, 
 }
 
 inline _get<a, b>(m1: sero(a), m2: sero(b)) -> (k: &get-kit) -> ?+either(a, b) {
-  function (k) {
+  (k) => {
     try tag = get-int8(k);
     if eq-int8(tag, 0) {
-      let Sero{get} = m1;
+      let Sero {get} = m1;
       try l = get(k);
       Right(box {
         letbox l = l;
         Left(l)
       })
     } else-if eq-int8(tag, 1) {
-      let Sero{get} = m2;
+      let Sero {get} = m2;
       try r = get(k);
       Right(box {
         letbox r = r;
@@ -50,7 +50,7 @@ inline _get<a, b>(m1: sero(a), m2: sero(b)) -> (k: &get-kit) -> ?+either(a, b) {
 }
 
 inline either-sero<a, b>(!m1: sero(a), !m2: sero(b)) -> sero(either(a, b)) {
-  Sero{
+  Sero {
     put := _put(m1, m2),
     get := _get(m1, m2),
   }

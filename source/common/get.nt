@@ -11,7 +11,7 @@ import {
 }
 
 define _proceed(cursor: &cell(int), offset: int) -> unit {
-  mutate(cursor, function (x) {
+  mutate(cursor, (x) => {
     lift {add-int(axiom-T(x), offset)}
   })
 }
@@ -25,7 +25,7 @@ define _get-ptr(bytes: &binary, cursor: int, elem-size: int) -> ?pointer {
 }
 
 inline _get<a>(k: &get-kit, size: int, loader: (pointer) -> a) -> ?a {
-  tie Get-Kit{bytes, cursor} = k;
+  tie Get-Kit {bytes, cursor} = k;
   let c = core.cell.clone(cursor);
   try ptr = _get-ptr(bytes, c, size);
   let result = loader(ptr);
@@ -50,13 +50,13 @@ define get-int64(k: &get-kit) -> ?int64 {
 }
 
 define get-float16(k: &get-kit) -> ?float16 {
-  _get(k, 2, function (p) {
+  _get(k, 2, (p) => {
     magic load(float16, p)
   })
 }
 
 define get-float32(k: &get-kit) -> ?float32 {
-  _get(k, 4, function (p) {
+  _get(k, 4, (p) => {
     magic load(float32, p)
   })
 }
@@ -66,7 +66,7 @@ define get-float64(k: &get-kit) -> ?float64 {
 }
 
 define get-binary(k: &get-kit) -> ?binary {
-  tie Get-Kit{bytes, cursor} = k;
+  tie Get-Kit {bytes, cursor} = k;
   let c = core.cell.clone(cursor);
   try p = _get-ptr(bytes, c, 8);
   let len = load-int(p);

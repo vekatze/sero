@@ -36,7 +36,7 @@ define zen() -> unit {
       | Left(_) =>
         print("right-left")
       | Right(xs) =>
-        for(xs, function (x) {
+        for(xs, (x) => {
           print("right-right: ");
           print-int-line(x)
         })
