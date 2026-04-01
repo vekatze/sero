@@ -1,6 +1,6 @@
 import {
   core.rune.show {show-rune},
-  core.text.io {print-line},
+  core.string.io {print-line},
   this.common.get {get-int32},
   this.common.put {put-int32},
   this.decode {decode},

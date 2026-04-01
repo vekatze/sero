@@ -1,7 +1,7 @@
 import {
   core.bool.show,
   core.int.io {print-int-line},
-  core.text.io {print-line},
+  core.string.io {print-line},
   this.decode {decode},
   this.encode {encode},
   this.get-kit {get-kit},

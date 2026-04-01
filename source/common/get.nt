@@ -6,7 +6,7 @@ import {
   core.external {malloc},
   core.memory {load-float, load-int, load-int16, load-int32, load-int8, store-int},
   core.pointer {shift},
-  core.text {_Text},
+  core.string {_String},
   this.get-kit {Get-Kit, get-kit},
 }
 
@@ -79,7 +79,7 @@ define get-binary(k: &get-kit) -> ?binary {
   Right(result)
 }
 
-define get-text(k: &get-kit) -> ?text {
+define get-string(k: &get-kit) -> ?string {
   try b = get-binary(k);
-  Right(_Text(b))
+  Right(_String(b))
 }

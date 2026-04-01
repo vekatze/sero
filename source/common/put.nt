@@ -9,9 +9,9 @@ import {
     append-int32,
     append-int64,
     append-int8,
-    append-text,
+    append-string,
   },
-  core.text {text-byte-length},
+  core.string {string-byte-length},
   this.put-kit {Put-Kit, put-kit},
 }
 
@@ -57,9 +57,9 @@ define put-binary(k: &put-kit, x: &binary) -> unit {
   append-binary(buffer, x)
 }
 
-define put-text(k: &put-kit, x: &text) -> unit {
+define put-string(k: &put-kit, x: &string) -> unit {
   tie Put-Kit {buffer} = k;
-  let len = text-byte-length(x);
+  let len = string-byte-length(x);
   put-int64(k, len);
-  append-text(buffer, x)
+  append-string(buffer, x)
 }

@@ -1,7 +1,7 @@
 import {
-  core.text.io {print-line},
-  this.common.get {get-text},
-  this.common.put {put-text},
+  core.string.io {print-line},
+  this.common.get {get-string},
+  this.common.put {put-string},
   this.decode {decode},
   this.encode {encode},
   this.get-kit {get-kit},
@@ -9,16 +9,16 @@ import {
   this.sero {Sero, sero},
 }
 
-define _put(k: &put-kit, x: &text) -> unit {
-  put-text(k, x)
+define _put(k: &put-kit, x: &string) -> unit {
+  put-string(k, x)
 }
 
-define _get(k: &get-kit) -> ?+text {
-  try t = get-text(k);
+define _get(k: &get-kit) -> ?+string {
+  try t = get-string(k);
   Right(lift {t})
 }
 
-constant text-sero: sero(text) {
+constant string-sero: sero(string) {
   Sero {
     put := _put,
     get := _get,
@@ -27,7 +27,7 @@ constant text-sero: sero(text) {
 
 define zen() -> unit {
   tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
-  match decode(text-sero, encode(text-sero, value, 4)) {
+  match decode(string-sero, encode(string-sero, value, 4)) {
   | Left(_) =>
     print("left")
   | Right(v) =>

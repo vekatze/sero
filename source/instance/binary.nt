@@ -1,7 +1,7 @@
 import {
   core.binary {binary},
-  core.text {_Text},
-  core.text.io {print-line},
+  core.string {_String},
+  core.string.io {print-line},
   this.common.get {get-binary},
   this.common.put {put-binary},
   this.decode {decode},
@@ -28,12 +28,12 @@ constant binary-sero: sero(binary) {
 }
 
 define zen() -> unit {
-  tie _Text(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
+  tie _String(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
   match decode(binary-sero, encode(binary-sero, value, 12345)) {
   | Left(_) =>
     print("left")
   | Right(v) =>
-    pin v = _Text(v);
+    pin v = _String(v);
     print("value: ");
     print-line(v);
   }

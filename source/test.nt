@@ -1,8 +1,8 @@
 import {
   core.int.io {print-int-line},
   core.list {for},
+  core.string.io {print-line},
   core.system {get-error-message},
-  core.text.io {print-line},
   this.decode {decode-file},
   this.encode {encode-file},
   this.instance.int64 {int64-sero},
