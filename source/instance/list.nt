@@ -12,7 +12,7 @@ import {
 }
 
 inline _put<a>(!m: sero(a)) -> (k: &put-kit, xs: &list(a)) -> unit {
-  define self(k, xs) -> unit {
+  define self(k: &put-kit, xs: &list(a)) -> unit {
     case xs {
     | Nil =>
       put-int8(k, 0)
@@ -26,7 +26,7 @@ inline _put<a>(!m: sero(a)) -> (k: &put-kit, xs: &list(a)) -> unit {
 }
 
 inline _get<a>(!m: sero(a)) -> (k: &get-kit) -> ?+list(a) {
-  define self(k) -> ?+list(a) {
+  define self(k: &get-kit) -> ?+list(a) {
     try tag = get-int8(k);
     if eq-int8(tag, 0) {
       Right(box {Nil})
