@@ -19,7 +19,7 @@ define _get(k: &get-kit) -> ?+string {
 }
 
 constant string-sero: sero(string) {
-  Sero {
+  Sero{
     put := _put,
     get := _get,
   }

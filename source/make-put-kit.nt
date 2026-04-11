@@ -5,5 +5,5 @@ import {
 
 define make-put-kit(buffer-size: int) -> put-kit {
   let buffer = make-binary-builder(buffer-size);
-  Put-Kit {buffer}
+  Put-Kit{buffer}
 }

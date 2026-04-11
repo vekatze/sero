@@ -19,7 +19,7 @@ define _get(k: &get-kit) -> ?+int8 {
 }
 
 constant int8-sero: sero(int8) {
-  Sero {
+  Sero{
     put := _put,
     get := _get,
   }

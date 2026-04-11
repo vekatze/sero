@@ -22,7 +22,7 @@ define _get(k: &get-kit) -> ?+bool {
 }
 
 constant bool-sero: sero(bool) {
-  Sero {
+  Sero{
     put := _put,
     get := _get,
   }

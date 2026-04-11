@@ -10,7 +10,7 @@ import {
 
 define make-get-kit(bytes: binary) -> get-kit {
   let cursor = make-cell(lift {0});
-  Get-Kit {bytes, cursor}
+  Get-Kit{bytes, cursor}
 }
 
 define make-get-kit-from-file(path: &string) -> system(get-kit) {

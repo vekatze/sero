@@ -17,7 +17,7 @@ inline _put<a>(!m: sero(a)) -> (k: &put-kit, xs: &list(a)) -> unit {
     | Nil =>
       put-int8(k, 0)
     | Cons(y, ys) =>
-      let Sero {put} = m;
+      let Sero{put} = m;
       put-int8(k, 1);
       put(k, y);
       self(k, ys)
@@ -31,7 +31,7 @@ inline _get<a>(!m: sero(a)) -> (k: &get-kit) -> ?+list(a) {
     if eq-int8(tag, 0) {
       Right(box {Nil})
     } else-if eq-int8(tag, 1) {
-      let Sero {get} = m;
+      let Sero{get} = m;
       try v = get(k);
       try vs = self(k);
       Right(box {
@@ -46,7 +46,7 @@ inline _get<a>(!m: sero(a)) -> (k: &get-kit) -> ?+list(a) {
 }
 
 inline list-sero<a>(!m: sero(a)) -> sero(list(a)) {
-  Sero {
+  Sero{
     put := _put(m),
     get := _get(m),
   }
