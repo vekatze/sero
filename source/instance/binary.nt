@@ -1,13 +1,7 @@
 import {
   core.binary {binary},
-  core.string {_String},
-  core.string.io {print-line},
-  this.common.get {get-binary},
-  this.common.put {put-binary},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
+  this.get-kit {get-binary, get-kit},
+  this.put-kit {put-binary, put-kit},
   this.sero {Sero, sero},
 }
 
@@ -24,17 +18,5 @@ constant binary-sero: sero(binary) {
   Sero{
     put := _put,
     get := _get,
-  }
-}
-
-define zen() -> unit {
-  tie _String(value) = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
-  match decode(binary-sero, encode(binary-sero, value, 12345)) {
-  | Left(_) =>
-    print("left")
-  | Right(v) =>
-    pin v = _String(v);
-    print("value: ");
-    print-line(v);
   }
 }

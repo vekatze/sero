@@ -1,0 +1,27 @@
+import {
+  core.int.io {print-int-line},
+  core.list {for},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.int64 {int64-sero},
+  this.instance.list {list-sero},
+  this.sero {sero},
+}
+
+constant _list-int-sero: sero(list(int)) {
+  list-sero(int64-sero)
+}
+
+define zen() -> unit {
+  pin val = List[1, 2, -123, 1384910234];
+  match decode(_list-int-sero, encode(_list-int-sero, val, 8)) {
+  | Left(_) =>
+    print("left\n")
+  | Right(vs) =>
+    print("int-list\n");
+    for(vs, (v) => {
+      print("val: ");
+      print-int-line(v);
+    })
+  }
+}

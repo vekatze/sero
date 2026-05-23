@@ -1,11 +1,6 @@
 import {
-  core.float.io {print-float-line},
-  this.common.get {get-int32},
-  this.common.put {put-float32},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
+  this.get-kit {get-float32, get-kit},
+  this.put-kit {put-float32, put-kit},
   this.sero {Sero, sero},
 }
 
@@ -14,24 +9,13 @@ define _put(k: &put-kit, x: &float32) -> unit {
 }
 
 define _get(k: &get-kit) -> ?+float32 {
-  try v = get-int32(k);
-  Right(lift {magic cast(int32, float32, v)})
+  try v = get-float32(k);
+  Right(lift {v})
 }
 
 constant float32-sero: sero(float32) {
   Sero{
     put := _put,
     get := _get,
-  }
-}
-
-define zen() -> unit {
-  pin val = -3.8;
-  match decode(float32-sero, encode(float32-sero, val, 8)) {
-  | Left(_) =>
-    print("left")
-  | Right(v) =>
-    print("value: ");
-    print-float-line(fpext-float32-float(v), 6);
   }
 }

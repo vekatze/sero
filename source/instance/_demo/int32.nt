@@ -1,0 +1,17 @@
+import {
+  core.int.io {print-int-line},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.int32 {int32-sero},
+}
+
+define zen() -> unit {
+  pin val = 14909826;
+  match decode(int32-sero, encode(int32-sero, val, 8)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    print("value: ");
+    print-int-line(sext-int32-int(v));
+  }
+}

@@ -1,0 +1,17 @@
+import {
+  core.int.io {print-int-line},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.int8 {int8-sero},
+}
+
+define zen() -> unit {
+  pin val = 127;
+  match decode(int8-sero, encode(int8-sero, val, 4)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    print("value: ");
+    print-int-line(sext-int8-int(v));
+  }
+}

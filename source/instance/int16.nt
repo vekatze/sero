@@ -1,11 +1,6 @@
 import {
-  core.int.io {print-int-line},
-  this.common.get {get-int16},
-  this.common.put {put-int16},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
+  this.get-kit {get-int16, get-kit},
+  this.put-kit {put-int16, put-kit},
   this.sero {Sero, sero},
 }
 
@@ -22,16 +17,5 @@ constant int16-sero: sero(int16) {
   Sero{
     put := _put,
     get := _get,
-  }
-}
-
-define zen() -> unit {
-  pin val = -12345;
-  match decode(int16-sero, encode(int16-sero, val, 8)) {
-  | Left(_) =>
-    print("left")
-  | Right(v) =>
-    print("value: ");
-    print-int-line(sext-int16-int(v));
   }
 }

@@ -1,39 +1,23 @@
 import {
-  core.rune.show {show-rune},
-  core.string.io {print-line},
-  this.common.get {get-int32},
-  this.common.put {put-int32},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
+  core.rune {to-int32},
+  core.rune.unsafe {from-int32},
+  this.get-kit {get-int32, get-kit},
+  this.put-kit {put-int32, put-kit},
   this.sero {Sero, sero},
 }
 
 define _put(k: &put-kit, x: &rune) -> unit {
-  put-int32(k, magic cast(&rune, int32, x))
+  put-int32(k, to-int32(*x))
 }
 
 define _get(k: &get-kit) -> ?+rune {
   try v = get-int32(k);
-  Right(lift {magic cast(int32, rune, v)})
+  Right(lift {from-int32(v)})
 }
 
 constant rune-sero: sero(rune) {
   Sero{
     put := _put,
     get := _get,
-  }
-}
-
-define zen() -> unit {
-  pin val = `あ`;
-  match decode(rune-sero, encode(rune-sero, val, 4)) {
-  | Left(_) =>
-    print("left")
-  | Right(v) =>
-    pin v = show-rune(v);
-    print("value: ");
-    print-line(v);
   }
 }

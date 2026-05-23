@@ -1,10 +1,98 @@
 import {
-  core.binary {binary},
+  core.binary {allocate, binary},
+  core.binary.pointer {get-content-pointer},
+  core.box {axiom-T},
+  core.cell {cell, clone, make-cell, mutate},
+  core.memory.unsafe {
+    load-float,
+    load-float16,
+    load-float32,
+    load-int,
+    load-int16,
+    load-int32,
+    load-int8,
+    memcpy,
+  },
+  core.pointer {shift},
+  core.string.unsafe {from-binary},
 }
 
 data get-kit {
-| Get-Kit(
+| _Get-Kit(
     bytes: binary,
     cursor: cell(int),
   )
+}
+
+define make-get-kit(bytes: binary) -> get-kit {
+  let cursor = make-cell(lift {0});
+  _Get-Kit{bytes, cursor}
+}
+
+define _proceed(cursor: &cell(int), offset: int) -> unit {
+  mutate(cursor, (x) => {
+    lift {add-int(axiom-T(x), offset)}
+  })
+}
+
+define _get-ptr(bytes: &binary, cursor: int, elem-size: int) -> ?pointer {
+  if lt-int(core.binary.length(bytes), add-int(cursor, elem-size)) {
+    none
+  } else {
+    Right(shift(get-content-pointer(bytes), cursor))
+  }
+}
+
+inline _get<a>(k: &get-kit, size: int, loader: (pointer) -> a) -> ?a {
+  tie _Get-Kit{bytes, cursor} = k;
+  let c = clone(cursor);
+  try ptr = _get-ptr(bytes, c, size);
+  let result = loader(ptr);
+  _proceed(cursor, size);
+  Right(result)
+}
+
+define get-int8(k: &get-kit) -> ?int8 {
+  _get(k, 1, load-int8)
+}
+
+define get-int16(k: &get-kit) -> ?int16 {
+  _get(k, 2, load-int16)
+}
+
+define get-int32(k: &get-kit) -> ?int32 {
+  _get(k, 4, load-int32)
+}
+
+define get-int64(k: &get-kit) -> ?int64 {
+  _get(k, 8, load-int)
+}
+
+define get-float16(k: &get-kit) -> ?float16 {
+  _get(k, 2, load-float16)
+}
+
+define get-float32(k: &get-kit) -> ?float32 {
+  _get(k, 4, load-float32)
+}
+
+define get-float64(k: &get-kit) -> ?float64 {
+  _get(k, 8, load-float)
+}
+
+define get-binary(k: &get-kit) -> ?binary {
+  tie _Get-Kit{bytes, cursor} = k;
+  let c = clone(cursor);
+  try p = _get-ptr(bytes, c, 8);
+  let len = load-int(p);
+  let result = allocate(len);
+  let result-pointer on result = get-content-pointer(result);
+  memcpy(result-pointer, shift(p, 8), len);
+  _proceed(cursor, add-int(len, 8));
+  Right(result)
+}
+
+define get-string(k: &get-kit) -> ?string {
+  try b = get-binary(k);
+  Right(from-binary(b))
 }

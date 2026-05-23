@@ -1,11 +1,6 @@
 import {
-  core.string.io {print-line},
-  this.common.get {get-string},
-  this.common.put {put-string},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
+  this.get-kit {get-kit, get-string},
+  this.put-kit {put-kit, put-string},
   this.sero {Sero, sero},
 }
 
@@ -22,17 +17,5 @@ constant string-sero: sero(string) {
   Sero{
     put := _put,
     get := _get,
-  }
-}
-
-define zen() -> unit {
-  tie value = "枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで";
-  match decode(string-sero, encode(string-sero, value, 4)) {
-  | Left(_) =>
-    print("left")
-  | Right(v) =>
-    pin v = v;
-    print("value: ");
-    print-line(v);
   }
 }

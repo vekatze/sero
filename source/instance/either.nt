@@ -1,13 +1,6 @@
 import {
-  core.int.io {print-int-line},
-  this.common.get {get-int8},
-  this.common.put {put-int8},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.instance.bool {bool-sero},
-  this.instance.int64 {int64-sero},
-  this.put-kit {put-kit},
+  this.get-kit {get-int8, get-kit},
+  this.put-kit {put-int8, put-kit},
   this.sero {Sero, sero},
 }
 
@@ -53,25 +46,5 @@ inline either-sero<a, b>(!m1: sero(a), !m2: sero(b)) -> sero(either(a, b)) {
   Sero{
     put := _put(m1, m2),
     get := _get(m1, m2),
-  }
-}
-
-constant _either-int-bool: sero(either(int, bool)) {
-  either-sero(int64-sero, bool-sero)
-}
-
-define zen() -> unit {
-  pin val = Left(-1234);
-  match decode(_either-int-bool, encode(_either-int-bool, val, 8)) {
-  | Left(_) =>
-    print("error\n")
-  | Right(x-or-y) =>
-    match x-or-y {
-    | Left(x) =>
-      print("int: ");
-      print-int-line(x);
-    | Right(_) =>
-      print("bool\n")
-    }
   }
 }

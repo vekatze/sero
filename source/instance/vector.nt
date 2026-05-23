@@ -1,15 +1,9 @@
 import {
   core.box {axiom-T},
   core.control {grow-E},
-  core.int.io {print-int-line},
   core.vector {push-back},
-  this.common.get {get-int64},
-  this.common.put {put-int64},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.instance.int64 {int64-sero},
-  this.put-kit {put-kit},
+  this.get-kit {get-int64, get-kit},
+  this.put-kit {put-int64, put-kit},
   this.sero {Sero, sero},
 }
 
@@ -42,24 +36,5 @@ inline vector-sero<a>(!m: sero(a)) -> sero(vector(a)) {
   Sero{
     put := _put(m),
     get := _get(m),
-  }
-}
-
-constant _int-vector: sero(vector(int)) {
-  vector-sero(int64-sero)
-}
-
-define zen() -> unit {
-  pin val = core.vector.from-list(List[1, 2, -123, 1384910234]);
-  match decode(_int-vector, encode(_int-vector, val, 8)) {
-  | Left(_) =>
-    print("left\n")
-  | Right(vs) =>
-    print("int-vector\n");
-    pin vs = vs;
-    core.vector.for-N(vs, (v, _) => {
-      print("val: ");
-      print-int-line(*v);
-    })
   }
 }

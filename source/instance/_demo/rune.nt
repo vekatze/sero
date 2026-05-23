@@ -1,0 +1,18 @@
+import {
+  core.rune.show {show-rune},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.rune {rune-sero},
+}
+
+define zen() -> unit {
+  pin val = `あ`;
+  match decode(rune-sero, encode(rune-sero, val, 4)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    pin v = show-rune(v);
+    print("value: ");
+    print-line(v);
+  }
+}

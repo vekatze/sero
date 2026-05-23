@@ -1,11 +1,6 @@
 import {
-  core.int.io {print-int-line},
-  this.common.get {get-int64},
-  this.common.put {put-int64},
-  this.decode {decode},
-  this.encode {encode},
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
+  this.get-kit {get-int64, get-kit},
+  this.put-kit {put-int64, put-kit},
   this.sero {Sero, sero},
 }
 
@@ -22,16 +17,5 @@ constant int64-sero: sero(int64) {
   Sero{
     put := _put,
     get := _get,
-  }
-}
-
-define zen() -> unit {
-  pin val = -9223372036854775807;
-  match decode(int64-sero, encode(int64-sero, val, 8)) {
-  | Left(_) =>
-    print("left")
-  | Right(v) =>
-    print("value: ");
-    print-int-line(v);
   }
 }

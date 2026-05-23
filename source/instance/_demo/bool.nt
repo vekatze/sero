@@ -1,0 +1,20 @@
+import {
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.bool {bool-sero},
+}
+
+define zen() -> unit {
+  pin val = True;
+  match decode(bool-sero, encode(bool-sero, val, 1)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    let v = v;
+    if v {
+      print("true\n")
+    } else {
+      print("false\n")
+    }
+  }
+}

@@ -1,12 +1,5 @@
 import {
-  core.bool.show,
-  core.int.io {print-int-line},
-  core.string.io {print-line},
-  this.decode {decode},
-  this.encode {encode},
   this.get-kit {get-kit},
-  this.instance.bool {bool-sero},
-  this.instance.int64 {int64-sero},
   this.put-kit {put-kit},
   this.sero {Sero, sero},
 }
@@ -39,24 +32,5 @@ inline pair-sero<a, b>(!m1: sero(a), !m2: sero(b)) -> sero(pair(a, b)) {
   Sero{
     put := _put(m1, m2),
     get := _get(m1, m2),
-  }
-}
-
-constant _pair-int-bool: sero(pair(int, bool)) {
-  pair-sero(int64-sero, bool-sero)
-}
-
-define zen() -> unit {
-  pin val = Pair(-1234, True);
-  match decode(_pair-int-bool, encode(_pair-int-bool, val, 8)) {
-  | Left(_) =>
-    print("left\n")
-  | Right(xy) =>
-    let Pair(x, y) = xy;
-    print("int: ");
-    print-int-line(x);
-    print("bool: ");
-    pin y = core.bool.show.show(y);
-    print-line(y);
   }
 }

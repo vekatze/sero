@@ -1,0 +1,19 @@
+import {
+  core.string {to-binary},
+  core.string.unsafe {from-binary},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.binary {binary-sero},
+}
+
+define zen() -> unit {
+  pin value = *to-binary("枝ごとに花散りまがへ今はとて春の過ぎゆく道見えぬまで");
+  match decode(binary-sero, encode(binary-sero, value, 12345)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    pin v = from-binary(v);
+    print("value: ");
+    print-line(v);
+  }
+}

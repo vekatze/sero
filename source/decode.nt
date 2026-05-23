@@ -1,10 +1,10 @@
 import {
   core.binary {binary},
   core.binary.io,
-  core.file {close, open},
-  core.file.flag {for-r},
+  core.file.access-mode {Read},
+  core.file.descriptor {close, open},
   core.system {system},
-  this.make-get-kit {make-get-kit},
+  this.get-kit {make-get-kit},
   this.sero {Sero, sero},
 }
 
@@ -26,7 +26,7 @@ define decode<a>(m: sero(a), bytes: binary) -> ?a {
 }
 
 define decode-file<a>(m: sero(a), path: &string) -> system(?a) {
-  try source-file = open(path, for-r, Nil);
+  try source-file = open(path, Read);
   try bytes = core.binary.io.read(source-file, 1024);
   try _ = close(source-file);
   Right(decode(m, bytes))

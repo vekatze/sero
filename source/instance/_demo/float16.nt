@@ -1,0 +1,17 @@
+import {
+  core.float.io {print-float-line},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.float16 {float16-sero},
+}
+
+define zen() -> unit {
+  pin val = -3.8;
+  match decode(float16-sero, encode(float16-sero, val, 8)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    print("value: ");
+    print-float-line(fpext-float16-float(v), 6);
+  }
+}

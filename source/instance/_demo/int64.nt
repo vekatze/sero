@@ -1,0 +1,17 @@
+import {
+  core.int.io {print-int-line},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.int64 {int64-sero},
+}
+
+define zen() -> unit {
+  pin val = -9223372036854775807;
+  match decode(int64-sero, encode(int64-sero, val, 8)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    print("value: ");
+    print-int-line(v);
+  }
+}

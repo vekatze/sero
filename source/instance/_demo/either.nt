@@ -1,0 +1,29 @@
+import {
+  core.int.io {print-int-line},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.bool {bool-sero},
+  this.instance.either {either-sero},
+  this.instance.int64 {int64-sero},
+  this.sero {sero},
+}
+
+constant _either-int-bool: sero(either(int, bool)) {
+  either-sero(int64-sero, bool-sero)
+}
+
+define zen() -> unit {
+  pin val = Left(-1234);
+  match decode(_either-int-bool, encode(_either-int-bool, val, 8)) {
+  | Left(_) =>
+    print("error\n")
+  | Right(x-or-y) =>
+    match x-or-y {
+    | Left(x) =>
+      print("int: ");
+      print-int-line(x);
+    | Right(_) =>
+      print("bool\n")
+    }
+  }
+}

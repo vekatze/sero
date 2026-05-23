@@ -1,0 +1,17 @@
+import {
+  core.int.io {print-int-line},
+  this.decode {decode},
+  this.encode {encode},
+  this.instance.int16 {int16-sero},
+}
+
+define zen() -> unit {
+  pin val = -12345;
+  match decode(int16-sero, encode(int16-sero, val, 8)) {
+  | Left(_) =>
+    print("left")
+  | Right(v) =>
+    print("value: ");
+    print-int-line(sext-int16-int(v));
+  }
+}
