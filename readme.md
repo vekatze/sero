@@ -5,7 +5,7 @@
 ## Installation
 
 ```sh
-neut get sero https://github.com/vekatze/sero/raw/main/archive/0-1-46.tar.zst
+neut get sero https://github.com/vekatze/sero/raw/main/archive/0-1-47.tar.zst
 ```
 
 ## Types
