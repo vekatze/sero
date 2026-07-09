@@ -1,8 +1,8 @@
 import {
-  core.rune.show {show-rune},
-  this.decode {decode},
-  this.encode {encode},
-  this.instance.rune {rune-sero},
+  core::rune.show {show-rune},
+  decode {decode},
+  encode {encode},
+  instance.rune {rune-sero},
 }
 
 define zen() -> unit {

@@ -1,7 +1,7 @@
 import {
-  this.get-kit {get-float64, get-kit},
-  this.put-kit {put-float64, put-kit},
-  this.sero {Sero, sero},
+  get-kit {get-float64, get-kit},
+  put-kit {put-float64, put-kit},
+  sero {Sero, sero},
 }
 
 define _put(k: &put-kit, x: &float64) -> unit {

@@ -1,12 +1,12 @@
 import {
-  core.int.io {print-int-line},
-  core.list {for},
-  core.system {get-error-message},
-  this.decode {decode-file},
-  this.encode {encode-file},
-  this.instance.int64 {int64-sero},
-  this.instance.list {list-sero},
-  this.sero {sero},
+  core::int.io {print-int-line},
+  core::list {for},
+  core::system {get-error-message},
+  decode {decode-file},
+  encode {encode-file},
+  instance.int64 {int64-sero},
+  instance.list {list-sero},
+  sero {sero},
 }
 
 constant _list-int-sero: sero(list(int)) {
@@ -14,7 +14,7 @@ constant _list-int-sero: sero(list(int)) {
 }
 
 define zen() -> unit {
-  pin value: list(int) = List[1, 2, 3, 42342, 5, 6];
+  pin value: list(int) = List::[1, 2, 3, 42342, 5, 6];
   let path = "test.bin";
   let encode-result = encode-file(_list-int-sero, value, 10, path);
   match encode-result {

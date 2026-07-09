@@ -1,9 +1,9 @@
 import {
-  core.string {to-binary},
-  core.string.unsafe {from-binary},
-  this.decode {decode},
-  this.encode {encode},
-  this.instance.binary {binary-sero},
+  core::string {to-binary},
+  core::string.unsafe {from-binary},
+  decode {decode},
+  encode {encode},
+  instance.binary {binary-sero},
 }
 
 define zen() -> unit {

@@ -1,8 +1,8 @@
 import {
-  core.float.io {print-float-line},
-  this.decode {decode},
-  this.encode {encode},
-  this.instance.float64 {float64-sero},
+  core::float.io {print-float-line},
+  decode {decode},
+  encode {encode},
+  instance.float64 {float64-sero},
 }
 
 define zen() -> unit {
@@ -12,6 +12,6 @@ define zen() -> unit {
     print("left")
   | Right(v) =>
     print("value: ");
-    print-float-line(v, 6);
+    print-float-line(v);
   }
 }

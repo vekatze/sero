@@ -1,10 +1,10 @@
 import {
-  core.int.io {print-int-line},
-  this.decode {decode},
-  this.encode {encode},
-  this.instance.int64 {int64-sero},
-  this.instance.vector {vector-sero},
-  this.sero {sero},
+  core::int.io {print-int-line},
+  decode {decode},
+  encode {encode},
+  instance.int64 {int64-sero},
+  instance.vector {vector-sero},
+  sero {sero},
 }
 
 constant _int-vector: sero(vector(int)) {
@@ -12,14 +12,14 @@ constant _int-vector: sero(vector(int)) {
 }
 
 define zen() -> unit {
-  pin val = core.vector.from-list(List[1, 2, -123, 1384910234]);
+  pin val = core::vector.from-list(List::[1, 2, -123, 1384910234]);
   match decode(_int-vector, encode(_int-vector, val, 8)) {
   | Left(_) =>
     print("left\n")
   | Right(vs) =>
     print("int-vector\n");
     pin vs = vs;
-    core.vector.for-N(vs, (v, _) => {
+    core::vector.for-N(vs, (v, _) => {
       print("val: ");
       print-int-line(*v);
     })

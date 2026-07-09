@@ -1,7 +1,7 @@
 import {
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
-  this.sero {Sero, sero},
+  get-kit {get-kit},
+  put-kit {put-kit},
+  sero {Sero, sero},
 }
 
 inline _put<a, b>(m1: sero(a), m2: sero(b)) -> (k: &put-kit, xy: &pair(a, b)) -> unit {

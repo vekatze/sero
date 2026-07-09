@@ -1,7 +1,7 @@
 import {
-  this.decode {decode},
-  this.encode {encode},
-  this.instance.bool {bool-sero},
+  decode {decode},
+  encode {encode},
+  instance.bool {bool-sero},
 }
 
 define zen() -> unit {

@@ -1,8 +1,8 @@
 import {
-  core.int.io {print-int-line},
-  this.decode {decode},
-  this.encode {encode},
-  this.instance.int8 {int8-sero},
+  core::int.io {print-int-line},
+  decode {decode},
+  encode {encode},
+  instance.int8 {int8-sero},
 }
 
 define zen() -> unit {

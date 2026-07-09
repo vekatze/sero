@@ -1,11 +1,11 @@
 import {
-  core.int.io {print-int-line},
-  this.decode {decode},
-  this.encode {encode},
-  this.instance.bool {bool-sero},
-  this.instance.either {either-sero},
-  this.instance.int64 {int64-sero},
-  this.sero {sero},
+  core::int.io {print-int-line},
+  decode {decode},
+  encode {encode},
+  instance.bool {bool-sero},
+  instance.either {either-sero},
+  instance.int64 {int64-sero},
+  sero {sero},
 }
 
 constant _either-int-bool: sero(either(int, bool)) {

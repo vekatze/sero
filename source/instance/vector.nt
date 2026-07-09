@@ -1,17 +1,17 @@
 import {
-  core.box {axiom-T},
-  core.control {grow-E},
-  core.vector {push-back},
-  this.get-kit {get-int64, get-kit},
-  this.put-kit {put-int64, put-kit},
-  this.sero {Sero, sero},
+  core::control {grow-E},
+  core::layer {axiom-T},
+  core::vector {push-back},
+  get-kit {get-int64, get-kit},
+  put-kit {put-int64, put-kit},
+  sero {Sero, sero},
 }
 
 inline _put<a>(m: sero(a)) -> (k: &put-kit, xs: &vector(a)) -> unit {
   (k, xs) => {
-    let len = core.vector.length(xs);
+    let len = core::vector.length(xs);
     put-int64(k, len);
-    core.vector.for-N(xs, (x, _) => {
+    core::vector.for-N(xs, (x, _) => {
       let Sero{put} = m;
       put(k, x)
     })
@@ -22,7 +22,7 @@ inline _get<a>(m: sero(a)) -> (k: &get-kit) -> ?+vector(a) {
   (k) => {
     try len = get-int64(k);
     let Sero{get} = m;
-    let base: vector(a) = core.vector.make(len);
+    let base: vector(a) = core::vector.make(len);
     try item =
       grow-E(base, len, (acc, _) => {
         try value = get(k);

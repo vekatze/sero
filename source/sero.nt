@@ -1,6 +1,6 @@
 import {
-  this.get-kit {get-kit},
-  this.put-kit {put-kit},
+  get-kit {get-kit},
+  put-kit {put-kit},
 }
 
 data sero(a) {

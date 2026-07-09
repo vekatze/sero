@@ -1,9 +1,9 @@
 import {
-  core.binary {allocate, binary},
-  core.binary.pointer {get-content-pointer},
-  core.box {axiom-T},
-  core.cell {cell, clone, make-cell, mutate},
-  core.memory.unsafe {
+  core::binary {allocate},
+  core::binary.pointer {get-content-pointer},
+  core::cell {cell, clone, make-cell, mutate},
+  core::layer {axiom-T},
+  core::memory.unsafe {
     load-float,
     load-float16,
     load-float32,
@@ -13,8 +13,8 @@ import {
     load-int8,
     memcpy,
   },
-  core.pointer {shift},
-  core.string.unsafe {from-binary},
+  core::pointer {shift},
+  core::string.unsafe {from-binary},
 }
 
 data get-kit {
@@ -36,7 +36,7 @@ define _proceed(cursor: &cell(int), offset: int) -> unit {
 }
 
 define _get-ptr(bytes: &binary, cursor: int, elem-size: int) -> ?pointer {
-  if lt-int(core.binary.length(bytes), add-int(cursor, elem-size)) {
+  if lt-int(core::binary.length(bytes), add-int(cursor, elem-size)) {
     none
   } else {
     Right(shift(get-content-pointer(bytes), cursor))

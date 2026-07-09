@@ -1,6 +1,6 @@
 import {
-  core.binary {binary},
-  core.binary.builder {
+  core::binary {binary},
+  core::binary.builder {
     append-binary,
     append-float16,
     append-float32,
@@ -14,7 +14,7 @@ import {
     extract,
     make-binary-builder,
   },
-  core.string {byte-length},
+  core::string {byte-length},
 }
 
 data put-kit {
@@ -70,7 +70,7 @@ define put-float64(k: &put-kit, x: float64) -> unit {
 
 define put-binary(k: &put-kit, x: &binary) -> unit {
   tie _Put-Kit{buffer} = k;
-  let len = core.binary.length(x);
+  let len = core::binary.length(x);
   put-int64(k, len);
   append-binary(buffer, x)
 }

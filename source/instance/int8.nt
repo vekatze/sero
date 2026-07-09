@@ -1,7 +1,7 @@
 import {
-  this.get-kit {get-int8, get-kit},
-  this.put-kit {put-int8, put-kit},
-  this.sero {Sero, sero},
+  get-kit {get-int8, get-kit},
+  put-kit {put-int8, put-kit},
+  sero {Sero, sero},
 }
 
 define _put(k: &put-kit, x: &int8) -> unit {
