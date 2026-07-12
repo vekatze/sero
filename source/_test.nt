@@ -2,15 +2,40 @@ import {
   core::int.io {print-int-line},
   core::list {for},
   core::system {get-error-message},
-  decode {decode-file},
-  encode {encode-file},
-  instance.int64 {int64-sero},
-  instance.list {list-sero},
+  core::vector {from-list},
+  decode {decode, decode-file},
+  encode {encode, encode-file},
+  instance.generic {derive},
   sero {sero},
 }
 
 constant _list-int-sero: sero(list(int)) {
-  list-sero(int64-sero)
+  derive::()
+}
+
+data tree {
+| Leaf(string)
+| Node(tree, tree)
+}
+
+constant _tree-sero: sero(tree) {
+  derive::()
+}
+
+data packet {
+| Packet(id: int, label: string)
+}
+
+constant _packet-sero: sero(packet) {
+  derive::()
+}
+
+constant _unit-sero: sero(unit) {
+  derive::()
+}
+
+constant _vector-int-sero: sero(vector(int)) {
+  derive::()
 }
 
 define zen() -> unit {
@@ -44,6 +69,63 @@ define zen() -> unit {
   }
 }
 
+define zen-tree() -> unit {
+  pin value = Node(Leaf(*"left"), Node(Leaf(*"middle"), Leaf(*"right")));
+  let path = "test.bin";
+  let encode-result = encode-file(_tree-sero, value, 32, path);
+  match encode-result {
+  | Left(_) =>
+    print-line("tree encode failed")
+  | Right(_) =>
+    let decode-result = decode-file(_tree-sero, path);
+    match decode-result {
+    | Left(_) =>
+      print-line("tree decode failed")
+    | Right(Left(_)) =>
+      print-line("tree decode returned none")
+    | Right(Right(_)) =>
+      print-line("tree roundtrip succeeded")
+    }
+  }
+}
+
+define zen-packet() -> unit {
+  pin value = Packet(42, *"single constructor");
+  pin bytes = encode(_packet-sero, value, 32);
+  match decode(_packet-sero, *bytes) {
+  | Left(_) =>
+    print-line("packet decode returned none")
+  | Right(_) =>
+    print-line("packet roundtrip succeeded")
+  }
+}
+
+define zen-unit() -> unit {
+  pin value = Unit;
+  pin bytes = encode(_unit-sero, value, 1);
+  match decode(_unit-sero, *bytes) {
+  | Left(_) =>
+    print-line("unit decode returned none")
+  | Right(_) =>
+    print-line("unit roundtrip succeeded")
+  }
+}
+
+define zen-vector() -> unit {
+  pin value = from-list(List::[7, 8, 9]);
+  pin bytes = encode(_vector-int-sero, value, 16);
+  match decode(_vector-int-sero, *bytes) {
+  | Left(_) =>
+    print-line("vector decode returned none")
+  | Right(_) =>
+    print-line("vector roundtrip succeeded")
+  }
+}
+
 define main() -> unit {
-  zen()
+  zen();
+  zen-tree();
+  zen-packet();
+  zen-unit();
+  zen-vector()
 }

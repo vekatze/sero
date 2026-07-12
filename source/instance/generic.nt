@@ -1,0 +1,419 @@
+import {
+  core::c-size {C-Size},
+  core::control {grow-E},
+  core::layer {axiom-T},
+  core::memory {malloc},
+  core::memory.unsafe {free, memcpy, store-int},
+  core::pointer {shift},
+  core::rune {to-int32},
+  core::rune.unsafe {from-int32},
+  core::type-value {
+    Algebraic,
+    Binary,
+    Box-T,
+    Direct,
+    Enum,
+    Field,
+    Float16,
+    Float32,
+    Float64,
+    Int1,
+    Int16,
+    Int2,
+    Int32,
+    Int4,
+    Int64,
+    Int8,
+    Mixed,
+    Noema,
+    Rune,
+    Wrapper,
+    constructor,
+    field,
+  },
+  core::type-value.meta {
+    algebraic-discriminant,
+    algebraic-header-slot-count,
+    constructor-fields,
+    constructor-payload-slot-count,
+    constructor-switch,
+    data-arg-count,
+    field-layout-of,
+    field-pointer,
+    field-slot-count,
+    fields-with-cursors,
+    nth-field-slot-pointer,
+  },
+  core::unsafe {cast-inline},
+  core::vector {push-back},
+  core::word,
+  get-kit {
+    get-binary,
+    get-float16,
+    get-float32,
+    get-float64,
+    get-int16,
+    get-int32,
+    get-int64,
+    get-int8,
+    get-kit,
+  },
+  put-kit {
+    put-binary,
+    put-float16,
+    put-float32,
+    put-float64,
+    put-int16,
+    put-int32,
+    put-int64,
+    put-int8,
+    put-kit,
+  },
+  sero {Sero, sero},
+}
+
+nominal {
+  define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit,
+  define-meta _get-data<a>(k: '&get-kit) -> '?+a,
+}
+
+inline-meta _put-fields<a>(
+  field-cursors: list(pair(field, int)),
+  header: int,
+  data-arg-num: int,
+  x: '&a,
+  k: '&put-kit,
+) -> 'unit {
+  match field-cursors {
+  | Nil =>
+    quote {Unit}
+  | Cons(!entry, rest) =>
+    let Pair(f, cursor) = entry;
+    let !f = f;
+    let Field(_, t, _) = f;
+    unpack-type t = t;
+    quote {
+      let field-ptr = cast-inline<pointer, &t>(unquote {field-pointer(f, header, data-arg-num, cursor, x)});
+      unquote {_put-data<t>(k, quote {field-ptr})};
+      unquote {_put-fields<a>(rest, header, data-arg-num, x, k)}
+    }
+  }
+}
+
+inline-meta _put-algebraic<a>(
+  cons: list(constructor),
+  header: int,
+  data-arg-num: int,
+  disc: 'int,
+  x: '&a,
+  k: '&put-kit,
+) -> 'unit {
+  constructor-switch(cons, disc, quote {Unit}, (c) => {
+    _put-fields<a>(fields-with-cursors(constructor-fields(c), 0), header, data-arg-num, x, k)
+  })
+}
+
+inline-meta _store-params<a>(params: list(type), slot: int, p: 'pointer, cont: '?+a) -> '?+a {
+  match params {
+  | Nil =>
+    cont
+  | Cons(t, rest) =>
+    unpack-type t = t;
+    quote {
+      store-int(
+        magic cast(type, int, pack-type {t}),
+        shift(unquote {p}, mul-int(core::word.size, unquote {promote {slot}})),
+      );
+      unquote {_store-params<a>(rest, add-int(slot, 1), p, cont)}
+    }
+  }
+}
+
+inline-meta _get-fields<a>(
+  field-cursors: list(pair(field, int)),
+  header: int,
+  data-arg-num: int,
+  p: 'pointer,
+  k: '&get-kit,
+  params: list(type),
+) -> '?+a {
+  match field-cursors {
+  | Nil =>
+    _store-params<a>(params, header, p, quote {Right(lift {magic cast(pointer, a, unquote {p})})})
+  | Cons(!entry, rest) =>
+    let Pair(f, cursor) = entry;
+    let !f = f;
+    let Field(_, t, _) = f;
+    let !layout = field-layout-of(f);
+    let slot-ptr = quote {nth-field-slot-pointer(unquote {promote {header}}, unquote {promote {data-arg-num}}, unquote {promote {cursor}}, unquote {p})};
+    unpack-type t = t;
+    let rest-code = _get-fields<a>(rest, header, data-arg-num, p, k, params);
+    match layout {
+    | Direct =>
+      quote {
+        try v = unquote {_get-data<t>(k)};
+        store-int(magic cast(t, int, axiom-T(v)), unquote {slot-ptr});
+        unquote {rest-code}
+      }
+    | Mixed(_) =>
+      let slots = field-slot-count(layout);
+      quote {
+        try v = unquote {_get-data<t>(k)};
+        let v-ptr = magic cast(t, pointer, axiom-T(v));
+        memcpy(unquote {slot-ptr}, v-ptr, mul-int(core::word.size, unquote {promote {slots}}));
+        free(v-ptr);
+        unquote {rest-code}
+      }
+    }
+  }
+}
+
+inline-meta _get-constructor<a>(
+  params: list(type),
+  !c: constructor,
+  disc-index: int,
+  header: int,
+  data-arg-num: int,
+  k: '&get-kit,
+) -> '?+a {
+  let fields = constructor-fields(c);
+  let slots = add-int(header, add-int(data-arg-num, constructor-payload-slot-count(c)));
+  quote {
+    let p = malloc(C-Size(mul-int(core::word.size, unquote {promote {slots}})));
+    unquote {
+      let fields-code = _get-fields<a>(fields-with-cursors(fields, 0), header, data-arg-num, quote {p}, k, params);
+      if gt-int(header, 0) {
+        quote {
+          store-int(unquote {promote {disc-index}}, p);
+          unquote {fields-code}
+        }
+      } else {
+        fields-code
+      }
+    }
+  }
+}
+
+inline-meta _get-algebraic-at<a>(
+  params: list(type),
+  cons: list(constructor),
+  index: int,
+  header: int,
+  data-arg-num: int,
+  disc: 'int,
+  k: '&get-kit,
+) -> '?+a {
+  match cons {
+  | Nil =>
+    quote {none}
+  | Cons(!c, rest) =>
+    quote {
+      if eq-int(unquote {disc}, unquote {promote {index}}) {
+        unquote {_get-constructor<a>(params, c, index, header, data-arg-num, k)}
+      } else {
+        unquote {_get-algebraic-at<a>(params, rest, add-int(index, 1), header, data-arg-num, disc, k)}
+      }
+    }
+  }
+}
+
+inline-meta _get-algebraic<a>(
+  params: list(type),
+  cons: list(constructor),
+  header: int,
+  data-arg-num: int,
+  k: '&get-kit,
+) -> '?+a {
+  if gt-int(header, 0) {
+    quote {
+      try disc = get-int64(unquote {k});
+      unquote {_get-algebraic-at<a>(params, cons, 0, header, data-arg-num, quote {disc}, k)}
+    }
+  } else {
+    match cons {
+    | Nil =>
+      quote {none}
+    | Cons(c, _) =>
+      _get-constructor<a>(params, c, 0, header, data-arg-num, k)
+    }
+  }
+}
+
+define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
+  let type-info = magic inspect-type(a);
+  match type-info {
+  | Int1 =>
+    quote {put-int8(unquote {k}, magic cast(int1, int8, magic cast(&a, int1, unquote {x})))}
+  | Int2 =>
+    quote {put-int8(unquote {k}, magic cast(int2, int8, magic cast(&a, int2, unquote {x})))}
+  | Int4 =>
+    quote {put-int8(unquote {k}, magic cast(int4, int8, magic cast(&a, int4, unquote {x})))}
+  | Int8 =>
+    quote {put-int8(unquote {k}, magic cast(&a, int8, unquote {x}))}
+  | Int16 =>
+    quote {put-int16(unquote {k}, magic cast(&a, int16, unquote {x}))}
+  | Int32 =>
+    quote {put-int32(unquote {k}, magic cast(&a, int32, unquote {x}))}
+  | Int64 =>
+    quote {put-int64(unquote {k}, magic cast(&a, int64, unquote {x}))}
+  | Float16 =>
+    quote {put-float16(unquote {k}, magic cast(&a, float16, unquote {x}))}
+  | Float32 =>
+    quote {put-float32(unquote {k}, magic cast(&a, float32, unquote {x}))}
+  | Float64 =>
+    quote {put-float64(unquote {k}, magic cast(&a, float64, unquote {x}))}
+  | Rune =>
+    quote {put-int32(unquote {k}, to-int32(magic cast(&a, rune, unquote {x})))}
+  | Binary =>
+    quote {put-binary(unquote {k}, magic cast(&a, &binary, unquote {x}))}
+  | core::type-value.Vector(t) =>
+    unpack-type t = t;
+    quote {
+      let xs: &vector(t) = cast-inline<&a, &vector(t)>(unquote {x});
+      put-int64(unquote {k}, core::vector.length(xs));
+      core::vector.for-N(xs, (item, _) => {
+        unquote {_put-data<t>(k, quote {item})}
+      })
+    }
+  | Wrapper(t) =>
+    unpack-type t = t;
+    quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
+  | Noema(t) =>
+    unpack-type t = t;
+    quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
+  | Box-T(t) =>
+    unpack-type t = t;
+    quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
+  | Enum(_) =>
+    quote {put-int64(unquote {k}, magic cast(&a, int64, unquote {x}))}
+  | Algebraic(_, !params, !cons) =>
+    let header = algebraic-header-slot-count(cons);
+    let data-arg-num = data-arg-count(params);
+    if gt-int(header, 0) {
+      quote {
+        let disc = unquote {algebraic-discriminant(cons, x)};
+        put-int64(unquote {k}, disc);
+        unquote {_put-algebraic<a>(cons, header, data-arg-num, quote {disc}, x, k)}
+      }
+    } else {
+      quote {
+        let disc = unquote {algebraic-discriminant(cons, x)};
+        unquote {_put-algebraic<a>(cons, header, data-arg-num, quote {disc}, x, k)}
+      }
+    }
+  | _ =>
+    magic compile-error("sero.derive: unsupported type")
+  }
+}
+
+define-meta _get-data<a>(k: '&get-kit) -> '?+a {
+  let type-info = magic inspect-type(a);
+  match type-info {
+  | Int1 =>
+    quote {
+      try v = get-int8(unquote {k});
+      Right(lift {magic cast(int1, a, magic cast(int8, int1, v))})
+    }
+  | Int2 =>
+    quote {
+      try v = get-int8(unquote {k});
+      Right(lift {magic cast(int2, a, magic cast(int8, int2, v))})
+    }
+  | Int4 =>
+    quote {
+      try v = get-int8(unquote {k});
+      Right(lift {magic cast(int4, a, magic cast(int8, int4, v))})
+    }
+  | Int8 =>
+    quote {
+      try v = get-int8(unquote {k});
+      Right(lift {magic cast(int8, a, v)})
+    }
+  | Int16 =>
+    quote {
+      try v = get-int16(unquote {k});
+      Right(lift {magic cast(int16, a, v)})
+    }
+  | Int32 =>
+    quote {
+      try v = get-int32(unquote {k});
+      Right(lift {magic cast(int32, a, v)})
+    }
+  | Int64 =>
+    quote {
+      try v = get-int64(unquote {k});
+      Right(lift {magic cast(int64, a, v)})
+    }
+  | Float16 =>
+    quote {
+      try v = get-float16(unquote {k});
+      Right(lift {magic cast(float16, a, v)})
+    }
+  | Float32 =>
+    quote {
+      try v = get-float32(unquote {k});
+      Right(lift {magic cast(float32, a, v)})
+    }
+  | Float64 =>
+    quote {
+      try v = get-float64(unquote {k});
+      Right(lift {magic cast(float64, a, v)})
+    }
+  | Rune =>
+    quote {
+      try v = get-int32(unquote {k});
+      Right(lift {magic cast(rune, a, from-int32(v))})
+    }
+  | Binary =>
+    quote {
+      try v = get-binary(unquote {k});
+      Right(lift {magic cast(binary, a, v)})
+    }
+  | core::type-value.Vector(t) =>
+    unpack-type t = t;
+    quote {
+      try len = get-int64(unquote {k});
+      let base: vector(t) = core::vector.make(len);
+      try items =
+        grow-E(base, len, (acc, _) => {
+          try item = unquote {_get-data<t>(k)};
+          Right(push-back(acc, axiom-T(item)))
+        });
+      Right(magic cast(vector(t), +a, items))
+    }
+  | Wrapper(t) =>
+    unpack-type t = t;
+    quote {
+      try v = unquote {_get-data<t>(k)};
+      Right(lift {cast-inline<t, a>(axiom-T(v))})
+    }
+  | Enum(_) =>
+    quote {
+      try v = get-int64(unquote {k});
+      Right(lift {magic cast(int64, a, v)})
+    }
+  | Algebraic(_, !params, !cons) =>
+    let header = algebraic-header-slot-count(cons);
+    let data-arg-num = data-arg-count(params);
+    _get-algebraic<a>(params, cons, header, data-arg-num, k)
+  | _ =>
+    magic compile-error("sero.derive: unsupported type")
+  }
+}
+
+inline-meta derive<a>() -> 'sero(a) {
+  quote {
+    Sero{
+      put := {
+        (k, x) => {
+          unquote {_put-data<a>(quote {k}, quote {x})}
+        }
+      },
+      get := {
+        (k) => {
+          unquote {_get-data<a>(quote {k})}
+        }
+      },
+    }
+  }
+}
