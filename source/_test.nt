@@ -1,131 +1,295 @@
 import {
-  core::int.io {print-int-line},
-  core::list {for},
-  core::system {get-error-message},
-  core::vector {from-list},
-  decode {decode, decode-file},
-  encode {encode, encode-file},
-  instance.generic {derive},
+  core::eq.generic {eq-data},
+  core::file.descriptor {stdout},
+  core::type-value {Float16, Float32, Float64},
+  noa::gen {gen},
+  noa::gen.generic {Finite-Float-Special-Values, Printable-Ascii, derive},
+  noa::suite {make-noa-kit},
+  noa::suite.spec {check, property, spec},
+  decode {decode},
+  encode {encode},
+  instance.generic,
   sero {sero},
 }
 
-constant _list-int-sero: sero(list(int)) {
-  derive::()
+data regular {
+| Empty
+| Fields(int, string, bool)
+| Nested(list(int), vector(int))
+}
+
+data unary {
+| Unary(int)
+}
+
+data enumish {
+| Alpha
+| Beta
+| Gamma
+}
+
+data inner {
+| Inner(int, int)
+}
+
+data mixed {
+| Mixed-None
+| Mixed-Some(payload: inner mix, tag: int)
 }
 
 data tree {
-| Leaf(string)
-| Node(tree, tree)
+| Leaf
+| Node(tree, int, tree)
 }
 
-constant _tree-sero: sero(tree) {
-  derive::()
+data widths {
+| Widths(int8, int16, int32, float32, rune)
 }
 
-data packet {
-| Packet(id: int, label: string)
+inline-meta roundtrip-equal<a>(x: '&a, y: '&a) -> 'bool {
+  let type-info = magic inspect-type(a);
+  match type-info {
+  | Float16 =>
+    quote {
+      let x = magic cast(&a, float16, unquote {x});
+      let y = magic cast(&a, float16, unquote {y});
+      if eq-float16(x, x) {
+        eq-float16(x, y)
+      } else {
+        not(eq-float16(y, y))
+      }
+    }
+  | Float32 =>
+    quote {
+      let x = magic cast(&a, float32, unquote {x});
+      let y = magic cast(&a, float32, unquote {y});
+      if eq-float32(x, x) {
+        eq-float32(x, y)
+      } else {
+        not(eq-float32(y, y))
+      }
+    }
+  | Float64 =>
+    quote {
+      let x = magic cast(&a, float64, unquote {x});
+      let y = magic cast(&a, float64, unquote {y});
+      if eq-float(x, x) {
+        eq-float(x, y)
+      } else {
+        not(eq-float(y, y))
+      }
+    }
+  | _ =>
+    quote {eq-data::(unquote {x}, unquote {y})}
+  }
 }
 
-constant _packet-sero: sero(packet) {
-  derive::()
+inline-meta roundtrip<a>(label: '&string, !g: 'gen(a), !m: 'sero(a)) -> 'spec {
+  quote {
+    property::(
+      unquote {label},
+      unquote {g},
+      (x: &a) => {
+        pin bytes = encode(unquote {m}, x, 4096);
+        match decode(unquote {m}, *bytes) {
+        | Left(_) =>
+          False
+        | Right(decoded) =>
+          pin decoded = decoded;
+          unquote {roundtrip-equal<a>(quote {x}, quote {decoded})}
+        }
+      },
+    )
+  }
+}
+
+constant _int-sero: sero(int) {
+  instance.generic.derive::()
 }
 
 constant _unit-sero: sero(unit) {
-  derive::()
+  instance.generic.derive::()
+}
+
+constant _float-sero: sero(float) {
+  instance.generic.derive::()
+}
+
+constant _rune-sero: sero(rune) {
+  instance.generic.derive::()
+}
+
+constant _string-sero: sero(string) {
+  instance.generic.derive::()
+}
+
+constant _binary-sero: sero(binary) {
+  instance.generic.derive::()
+}
+
+constant _list-int-sero: sero(list(int)) {
+  instance.generic.derive::()
 }
 
 constant _vector-int-sero: sero(vector(int)) {
-  derive::()
+  instance.generic.derive::()
 }
 
-define zen() -> unit {
-  pin value: list(int) = List::[1, 2, 3, 42342, 5, 6];
-  let path = "test.bin";
-  let encode-result = encode-file(_list-int-sero, value, 10, path);
-  match encode-result {
-  | Left(e) =>
-    pin e = get-error-message(e);
-    print("left-encode: ");
-    print-line(e)
-  | Right(_) =>
-    let v = decode-file(_list-int-sero, path);
-    match v {
-    | Left(e) =>
-      pin e = get-error-message(e);
-      print("left-decode: ");
-      print-line(e)
-    | Right(v) =>
-      print("right\n");
-      match v {
-      | Left(_) =>
-        print("right-left")
-      | Right(xs) =>
-        for(xs, (x) => {
-          print("right-right: ");
-          print-int-line(x)
-        })
-      }
-    }
-  }
+constant _pair-sero: sero(pair(int, bool)) {
+  instance.generic.derive::()
 }
 
-define zen-tree() -> unit {
-  pin value = Node(Leaf(*"left"), Node(Leaf(*"middle"), Leaf(*"right")));
-  let path = "test.bin";
-  let encode-result = encode-file(_tree-sero, value, 32, path);
-  match encode-result {
-  | Left(_) =>
-    print-line("tree encode failed")
-  | Right(_) =>
-    let decode-result = decode-file(_tree-sero, path);
-    match decode-result {
-    | Left(_) =>
-      print-line("tree decode failed")
-    | Right(Left(_)) =>
-      print-line("tree decode returned none")
-    | Right(Right(_)) =>
-      print-line("tree roundtrip succeeded")
-    }
-  }
+constant _either-sero: sero(either(int, string)) {
+  instance.generic.derive::()
 }
 
-define zen-packet() -> unit {
-  pin value = Packet(42, *"single constructor");
-  pin bytes = encode(_packet-sero, value, 32);
-  match decode(_packet-sero, *bytes) {
-  | Left(_) =>
-    print-line("packet decode returned none")
-  | Right(_) =>
-    print-line("packet roundtrip succeeded")
-  }
+constant _nested-container-sero: sero(list(vector(int))) {
+  instance.generic.derive::()
 }
 
-define zen-unit() -> unit {
-  pin value = Unit;
-  pin bytes = encode(_unit-sero, value, 1);
-  match decode(_unit-sero, *bytes) {
-  | Left(_) =>
-    print-line("unit decode returned none")
-  | Right(_) =>
-    print-line("unit roundtrip succeeded")
-  }
+constant _regular-sero: sero(regular) {
+  instance.generic.derive::()
 }
 
-define zen-vector() -> unit {
-  pin value = from-list(List::[7, 8, 9]);
-  pin bytes = encode(_vector-int-sero, value, 16);
-  match decode(_vector-int-sero, *bytes) {
-  | Left(_) =>
-    print-line("vector decode returned none")
-  | Right(_) =>
-    print-line("vector roundtrip succeeded")
-  }
+constant _unary-sero: sero(unary) {
+  instance.generic.derive::()
+}
+
+constant _enumish-sero: sero(enumish) {
+  instance.generic.derive::()
+}
+
+constant _mixed-sero: sero(mixed) {
+  instance.generic.derive::()
+}
+
+constant _tree-sero: sero(tree) {
+  instance.generic.derive::()
+}
+
+constant _widths-sero: sero(widths) {
+  instance.generic.derive::()
+}
+
+define _cases() -> list(spec) {
+  List::[
+    roundtrip::(
+      "int",
+      derive::()[int-lo := -1000000, int-hi := 1000000],
+      _int-sero,
+    ),
+    roundtrip::(
+      "unit",
+      derive::(),
+      _unit-sero,
+    ),
+    roundtrip::(
+      "finite float",
+      derive::()[float-lo := -1000000.0, float-hi := 1000000.0, float-special-values := Finite-Float-Special-Values],
+      _float-sero,
+    ),
+    roundtrip::(
+      "float",
+      derive::(),
+      _float-sero,
+    ),
+    roundtrip::(
+      "special float",
+      derive::()[float-special-ratio := 1.0],
+      _float-sero,
+    ),
+    roundtrip::(
+      "rune",
+      derive::(),
+      _rune-sero,
+    ),
+    roundtrip::(
+      "string",
+      derive::()[rune-category := Printable-Ascii],
+      _string-sero,
+    ),
+    roundtrip::(
+      "binary",
+      derive::()[rune-category := Printable-Ascii],
+      _binary-sero,
+    ),
+    roundtrip::(
+      "list(int)",
+      derive::()[int-lo := -100, int-hi := 100],
+      _list-int-sero,
+    ),
+    roundtrip::(
+      "vector(int)",
+      derive::()[int-lo := -100, int-hi := 100],
+      _vector-int-sero,
+    ),
+    roundtrip::(
+      "pair(int, bool)",
+      derive::()[int-lo := -100, int-hi := 100],
+      _pair-sero,
+    ),
+    roundtrip::(
+      "either(int, string)",
+      derive::()[int-lo := -100, int-hi := 100, rune-category := Printable-Ascii],
+      _either-sero,
+    ),
+    roundtrip::(
+      "nested list(vector(int))",
+      derive::()[int-lo := -100, int-hi := 100],
+      _nested-container-sero,
+    ),
+    roundtrip::(
+      "regular ADT",
+      derive::()[int-lo := -100, int-hi := 100, rune-category := Printable-Ascii],
+      _regular-sero,
+    ),
+    roundtrip::(
+      "unary ADT",
+      derive::()[int-lo := -100, int-hi := 100],
+      _unary-sero,
+    ),
+    roundtrip::(
+      "enum-style ADT",
+      derive::(),
+      _enumish-sero,
+    ),
+    roundtrip::(
+      "ADT with mixed field",
+      derive::()[int-lo := -100, int-hi := 100],
+      _mixed-sero,
+    ),
+    roundtrip::(
+      "recursive ADT",
+      derive::()[int-lo := -100, int-hi := 100],
+      _tree-sero,
+    ),
+    roundtrip::(
+      "primitive widths",
+      derive::()[
+        float-lo := -1000000.0,
+        float-hi := 1000000.0,
+        float-special-values := Finite-Float-Special-Values,
+        rune-category := Printable-Ascii,
+      ],
+      _widths-sero,
+    ),
+  ]
 }
 
 define main() -> unit {
-  zen();
-  zen-tree();
-  zen-packet();
-  zen-unit();
-  zen-vector()
+  let _ = Empty;
+  let _ = Fields;
+  let _ = Nested;
+  let _ = Unary;
+  let _ = Alpha;
+  let _ = Beta;
+  let _ = Gamma;
+  let _ = Inner;
+  let _ = Mixed-None;
+  let _ = Mixed-Some;
+  let _ = Leaf;
+  let _ = Node;
+  let _ = Widths;
+  pin k = make-noa-kit(stdout, 4096, 100, 100, False);
+  check(k, _cases())
 }
