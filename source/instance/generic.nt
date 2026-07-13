@@ -1,4 +1,5 @@
 import {
+  core::array {access, length, make, push-back},
   core::c-size {C-Size},
   core::control {grow-E},
   core::layer {axiom-T},
@@ -9,6 +10,7 @@ import {
   core::rune.unsafe {from-int32},
   core::type-value {
     Algebraic,
+    Array,
     Binary,
     Box-T,
     Direct,
@@ -45,7 +47,6 @@ import {
     nth-field-slot-pointer,
   },
   core::unsafe {cast-inline},
-  core::vector {push-back},
   core::word,
   get-kit {
     get-binary,
@@ -275,6 +276,28 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
         unquote {_put-data<t>(k, quote {item})}
       })
     }
+  | Array(t) =>
+    unpack-type t = t;
+    quote {
+      let xs: &array(t) = cast-inline<&a, &array(t)>(unquote {x});
+      let len = length(xs);
+      put-int64(unquote {k}, len);
+      let loop =
+        define self(index: int) -> unit {
+          if lt-int(index, len) {
+            match access(xs, index) {
+            | Left(_) =>
+              Unit
+            | Right(item) =>
+              unquote {_put-data<t>(k, quote {item})};
+              self(add-int(index, 1))
+            }
+          } else {
+            Unit
+          }
+        };
+      loop(0)
+    }
   | Wrapper(t) =>
     unpack-type t = t;
     quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
@@ -377,9 +400,26 @@ define-meta _get-data<a>(k: '&get-kit) -> '?+a {
       try items =
         grow-E(base, len, (acc, _) => {
           try item = unquote {_get-data<t>(k)};
-          Right(push-back(acc, axiom-T(item)))
+          Right(core::vector.push-back(acc, axiom-T(item)))
         });
       Right(magic cast(vector(t), +a, items))
+    }
+  | Array(t) =>
+    unpack-type t = t;
+    quote {
+      try len = get-int64(unquote {k});
+      let base: array(t) = make::(len);
+      let loop =
+        define self(index: int, acc: array(t)) ->> ?array(t) {
+          if lt-int(index, len) {
+            try item = unquote {_get-data<t>(k)};
+            self(add-int(index, 1), push-back(acc, axiom-T(item)))
+          } else {
+            Right(acc)
+          }
+        };
+      try items = loop(0, base);
+      Right(magic cast(array(t), +a, items))
     }
   | Wrapper(t) =>
     unpack-type t = t;
