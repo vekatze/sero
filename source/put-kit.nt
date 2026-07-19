@@ -1,5 +1,4 @@
 import {
-  core::binary {binary},
   core::binary.builder {
     append-binary,
     append-float16,
@@ -70,7 +69,7 @@ define put-float64(k: &put-kit, x: float64) -> unit {
 
 define put-binary(k: &put-kit, x: &binary) -> unit {
   tie _Put-Kit{buffer} = k;
-  let len = core::binary.length(x);
+  let len = core::binary::length(x);
   put-int64(k, len);
   append-binary(buffer, x)
 }

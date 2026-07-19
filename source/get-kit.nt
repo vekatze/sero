@@ -36,7 +36,7 @@ define _proceed(cursor: &cell(int), offset: int) -> unit {
 }
 
 define _get-ptr(bytes: &binary, cursor: int, elem-size: int) -> ?pointer {
-  if lt-int(core::binary.length(bytes), add-int(cursor, elem-size)) {
+  if lt-int(core::binary::length(bytes), add-int(cursor, elem-size)) {
     none
   } else {
     Right(shift(get-content-pointer(bytes), cursor))

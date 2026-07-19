@@ -48,7 +48,7 @@ import {
   },
   core::unsafe {cast-inline},
   core::word,
-  get-kit {
+  this::get-kit {
     get-binary,
     get-float16,
     get-float32,
@@ -59,7 +59,7 @@ import {
     get-int8,
     get-kit,
   },
-  put-kit {
+  this::put-kit {
     put-binary,
     put-float16,
     put-float32,
@@ -70,7 +70,7 @@ import {
     put-int8,
     put-kit,
   },
-  sero {Sero, sero},
+  this::sero {Sero, sero},
 }
 
 nominal {
@@ -123,7 +123,7 @@ inline-meta _store-params<a>(params: list(type), slot: int, p: 'pointer, cont: '
     quote {
       store-int(
         magic cast(type, int, pack-type {t}),
-        shift(unquote {p}, mul-int(core::word.size, unquote {promote {slot}})),
+        shift(unquote {p}, mul-int(core::word::size, unquote {promote {slot}})),
       );
       unquote {_store-params<a>(rest, add-int(slot, 1), p, cont)}
     }
@@ -161,7 +161,7 @@ inline-meta _get-fields<a>(
       quote {
         try v = unquote {_get-data<t>(k)};
         let v-ptr = magic cast(t, pointer, axiom-T(v));
-        memcpy(unquote {slot-ptr}, v-ptr, mul-int(core::word.size, unquote {promote {slots}}));
+        memcpy(unquote {slot-ptr}, v-ptr, mul-int(core::word::size, unquote {promote {slots}}));
         free(v-ptr);
         unquote {rest-code}
       }
@@ -180,7 +180,7 @@ inline-meta _get-constructor<a>(
   let fields = constructor-fields(c);
   let slots = add-int(header, add-int(data-arg-num, constructor-payload-slot-count(c)));
   quote {
-    let p = malloc(C-Size(mul-int(core::word.size, unquote {promote {slots}})));
+    let p = malloc(C-Size(mul-int(core::word::size, unquote {promote {slots}})));
     unquote {
       let fields-code = _get-fields<a>(fields-with-cursors(fields, 0), header, data-arg-num, quote {p}, k, params);
       if gt-int(header, 0) {
@@ -267,12 +267,12 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
     quote {put-int32(unquote {k}, to-int32(magic cast(&a, rune, unquote {x})))}
   | Binary =>
     quote {put-binary(unquote {k}, magic cast(&a, &binary, unquote {x}))}
-  | core::type-value.Vector(t) =>
+  | core::type-value::Vector(t) =>
     unpack-type t = t;
     quote {
       let xs: &vector(t) = cast-inline<&a, &vector(t)>(unquote {x});
-      put-int64(unquote {k}, core::vector.length(xs));
-      core::vector.for-N(xs, (item, _) => {
+      put-int64(unquote {k}, core::vector::length(xs));
+      core::vector::for-N(xs, (item, _) => {
         unquote {_put-data<t>(k, quote {item})}
       })
     }
@@ -392,15 +392,15 @@ define-meta _get-data<a>(k: '&get-kit) -> '?+a {
       try v = get-binary(unquote {k});
       Right(lift {magic cast(binary, a, v)})
     }
-  | core::type-value.Vector(t) =>
+  | core::type-value::Vector(t) =>
     unpack-type t = t;
     quote {
       try len = get-int64(unquote {k});
-      let base: vector(t) = core::vector.make(len);
+      let base: vector(t) = core::vector::make(len);
       try items =
         grow-E(base, len, (acc, _) => {
           try item = unquote {_get-data<t>(k)};
-          Right(core::vector.push-back(acc, axiom-T(item)))
+          Right(core::vector::push-back(acc, axiom-T(item)))
         });
       Right(magic cast(vector(t), +a, items))
     }

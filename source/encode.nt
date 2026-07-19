@@ -1,12 +1,11 @@
 import {
-  core::binary {binary},
   core::binary.io,
   core::file.access-mode {Read-Write},
   core::file.descriptor {close, open},
   core::file.mode {default-file-mode},
   core::system {system},
-  put-kit {extract-binary, make-put-kit},
-  sero {Sero, sero},
+  this::put-kit {extract-binary, make-put-kit},
+  this::sero {Sero, sero},
 }
 
 define encode<a>(m: sero(a), value: &a, buffer-size: int) -> binary {
@@ -21,6 +20,6 @@ define encode<a>(m: sero(a), value: &a, buffer-size: int) -> binary {
 define encode-file<a>(m: sero(a), value: &a, buffer-size: int, path: &string) -> system(unit) {
   pin bytes = encode(m, value, buffer-size);
   try target-file = open(path, Read-Write)[truncate := True, create := Right(default-file-mode)];
-  try _ = core::binary.io.write(target-file, bytes);
+  try _ = core::binary.io::write(target-file, bytes);
   close(target-file)
 }

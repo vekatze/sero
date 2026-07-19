@@ -1,5 +1,4 @@
 import {
-  core::array {array},
   core::eq.generic {eq-data},
   core::file.descriptor {stdout},
   core::type-value {Float16, Float32, Float64},
@@ -7,10 +6,10 @@ import {
   noa::gen.generic {Finite-Float-Special-Values, Printable-Ascii, derive},
   noa::suite {make-noa-kit},
   noa::suite.spec {check, property, spec},
-  decode {decode},
-  encode {encode},
-  instance.generic,
-  sero {sero},
+  this::decode {decode},
+  this::encode {encode},
+  this::instance.generic,
+  this::sero {sero},
 }
 
 data regular {
@@ -105,75 +104,75 @@ inline-meta roundtrip<a>(label: '&string, !g: 'gen(a), !m: 'sero(a)) -> 'spec {
 }
 
 constant _int-sero: sero(int) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _unit-sero: sero(unit) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _float-sero: sero(float) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _rune-sero: sero(rune) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _string-sero: sero(string) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _binary-sero: sero(binary) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _list-int-sero: sero(list(int)) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _vector-int-sero: sero(vector(int)) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _array-list-int-sero: sero(array(list(int))) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _pair-sero: sero(pair(int, bool)) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _either-sero: sero(either(int, string)) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _nested-container-sero: sero(list(vector(int))) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _regular-sero: sero(regular) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _unary-sero: sero(unary) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _enumish-sero: sero(enumish) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _mixed-sero: sero(mixed) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _tree-sero: sero(tree) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 constant _widths-sero: sero(widths) {
-  instance.generic.derive::()
+  this::instance.generic::derive::()
 }
 
 define _cases() -> list(spec) {
