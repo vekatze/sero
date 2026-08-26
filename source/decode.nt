@@ -25,8 +25,8 @@ define decode<a>(m: sero(a), bytes: binary) -> ?a {
 }
 
 define decode-file<a>(m: sero(a), path: &string) -> system(?a) {
-  try source-file = open(path, Read);
-  try bytes = core::binary.io::read(source-file, 1024);
-  try _ = close(source-file);
+  try source-file = open@(path, Read);
+  try bytes = core::binary.io::read@(source-file, 1024);
+  try _ = close@(source-file);
   Right(decode(m, bytes))
 }

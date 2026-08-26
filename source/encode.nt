@@ -19,7 +19,7 @@ define encode<a>(m: sero(a), value: &a, buffer-size: int) -> binary {
 
 define encode-file<a>(m: sero(a), value: &a, buffer-size: int, path: &string) -> system(unit) {
   pin bytes = encode(m, value, buffer-size);
-  try target-file = open(path, Read-Write)[truncate := True, create := Right(default-file-mode)];
-  try _ = core::binary.io::write(target-file, bytes);
-  close(target-file)
+  try target-file = open@(path, Read-Write)[truncate := True, create := Right(default-file-mode)];
+  try _ = core::binary.io::write@(target-file, bytes);
+  close@(target-file)
 }

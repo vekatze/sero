@@ -3,6 +3,7 @@ import {
   core::c-size {C-Size},
   core::control {grow-E},
   core::layer {axiom-T},
+  core::list.meta {fold-left},
   core::memory {malloc},
   core::memory.unsafe {free, memcpy, store-int},
   core::pointer {shift},
@@ -75,7 +76,7 @@ import {
 
 nominal {
   define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit,
-  define-meta _get-data<a>(k: '&get-kit) -> '?+a,
+  define-meta _get-data<actual a>(k: '&get-kit) -> '?+a,
 }
 
 inline-meta _put-fields<a>(
@@ -88,7 +89,7 @@ inline-meta _put-fields<a>(
   match field-cursors {
   | Nil =>
     quote {Unit}
-  | Cons(!entry, rest) =>
+  | Cons(entry, rest) =>
     let Pair(f, cursor) = entry;
     let !f = f;
     let Field(_, t, _) = f;
@@ -114,7 +115,7 @@ inline-meta _put-algebraic<a>(
   })
 }
 
-inline-meta _store-params<a>(params: list(type), slot: int, p: 'pointer, cont: '?+a) -> '?+a {
+inline-meta _store-params<actual a>(params: list(type), slot: int, p: 'pointer, cont: '?+a) -> '?+a {
   match params {
   | Nil =>
     cont
@@ -130,7 +131,18 @@ inline-meta _store-params<a>(params: list(type), slot: int, p: 'pointer, cont: '
   }
 }
 
-inline-meta _get-fields<a>(
+inline-meta _max-payload-slot-count(cons: list(constructor)) -> int {
+  fold-left(0, cons, (acc, c) => {
+    let here = constructor-payload-slot-count(c);
+    if gt-int(here, acc) {
+      here
+    } else {
+      acc
+    }
+  })
+}
+
+inline-meta _get-fields<actual a>(
   field-cursors: list(pair(field, int)),
   header: int,
   data-arg-num: int,
@@ -141,13 +153,13 @@ inline-meta _get-fields<a>(
   match field-cursors {
   | Nil =>
     _store-params<a>(params, header, p, quote {Right(lift {magic cast(pointer, a, unquote {p})})})
-  | Cons(!entry, rest) =>
+  | Cons(entry, rest) =>
     let Pair(f, cursor) = entry;
     let !f = f;
     let Field(_, t, _) = f;
     let !layout = field-layout-of(f);
     let slot-ptr = quote {nth-field-slot-pointer(unquote {promote {header}}, unquote {promote {data-arg-num}}, unquote {promote {cursor}}, unquote {p})};
-    unpack-type t = t;
+    unpack-type unsafe-actual t = t;
     let rest-code = _get-fields<a>(rest, header, data-arg-num, p, k, params);
     match layout {
     | Direct =>
@@ -169,16 +181,17 @@ inline-meta _get-fields<a>(
   }
 }
 
-inline-meta _get-constructor<a>(
+inline-meta _get-constructor<actual a>(
   params: list(type),
-  !c: constructor,
+  c: constructor,
   disc-index: int,
   header: int,
   data-arg-num: int,
+  payload-slots: int,
   k: '&get-kit,
 ) -> '?+a {
   let fields = constructor-fields(c);
-  let slots = add-int(header, add-int(data-arg-num, constructor-payload-slot-count(c)));
+  let slots = add-int(header, add-int(data-arg-num, payload-slots));
   quote {
     let p = malloc(C-Size(mul-int(core::word::size, unquote {promote {slots}})));
     unquote {
@@ -195,47 +208,49 @@ inline-meta _get-constructor<a>(
   }
 }
 
-inline-meta _get-algebraic-at<a>(
+inline-meta _get-algebraic-at<actual a>(
   params: list(type),
   cons: list(constructor),
   index: int,
   header: int,
   data-arg-num: int,
+  payload-slots: int,
   disc: 'int,
   k: '&get-kit,
 ) -> '?+a {
   match cons {
   | Nil =>
     quote {none}
-  | Cons(!c, rest) =>
+  | Cons(c, rest) =>
     quote {
       if eq-int(unquote {disc}, unquote {promote {index}}) {
-        unquote {_get-constructor<a>(params, c, index, header, data-arg-num, k)}
+        unquote {_get-constructor<a>(params, c, index, header, data-arg-num, payload-slots, k)}
       } else {
-        unquote {_get-algebraic-at<a>(params, rest, add-int(index, 1), header, data-arg-num, disc, k)}
+        unquote {_get-algebraic-at<a>(params, rest, add-int(index, 1), header, data-arg-num, payload-slots, disc, k)}
       }
     }
   }
 }
 
-inline-meta _get-algebraic<a>(
+inline-meta _get-algebraic<actual a>(
   params: list(type),
-  cons: list(constructor),
+  !cons: list(constructor),
   header: int,
   data-arg-num: int,
   k: '&get-kit,
 ) -> '?+a {
+  let payload-slots = _max-payload-slot-count(cons);
   if gt-int(header, 0) {
     quote {
       try disc = get-int64(unquote {k});
-      unquote {_get-algebraic-at<a>(params, cons, 0, header, data-arg-num, quote {disc}, k)}
+      unquote {_get-algebraic-at<a>(params, cons, 0, header, data-arg-num, payload-slots, quote {disc}, k)}
     }
   } else {
     match cons {
     | Nil =>
       quote {none}
     | Cons(c, _) =>
-      _get-constructor<a>(params, c, 0, header, data-arg-num, k)
+      _get-constructor<a>(params, c, 0, header, data-arg-num, payload-slots, k)
     }
   }
 }
@@ -285,7 +300,7 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
       let loop =
         define self(index: int) -> unit {
           if lt-int(index, len) {
-            match access(xs, index) {
+            match access@(xs, index) {
             | Left(_) =>
               Unit
             | Right(item) =>
@@ -309,7 +324,7 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
     quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
   | Enum(_) =>
     quote {put-int64(unquote {k}, magic cast(&a, int64, unquote {x}))}
-  | Algebraic(_, !params, !cons) =>
+  | Algebraic(_, params, !cons) =>
     let header = algebraic-header-slot-count(cons);
     let data-arg-num = data-arg-count(params);
     if gt-int(header, 0) {
@@ -329,7 +344,7 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
   }
 }
 
-define-meta _get-data<a>(k: '&get-kit) -> '?+a {
+define-meta _get-data<actual a>(k: '&get-kit) -> '?+a {
   let type-info = magic inspect-type(a);
   match type-info {
   | Int1 =>
@@ -393,7 +408,7 @@ define-meta _get-data<a>(k: '&get-kit) -> '?+a {
       Right(lift {magic cast(binary, a, v)})
     }
   | core::type-value::Vector(t) =>
-    unpack-type t = t;
+    unpack-type unsafe-actual t = t;
     quote {
       try len = get-int64(unquote {k});
       let base: vector(t) = core::vector::make(len);
@@ -405,24 +420,24 @@ define-meta _get-data<a>(k: '&get-kit) -> '?+a {
       Right(magic cast(vector(t), +a, items))
     }
   | Array(t) =>
-    unpack-type t = t;
+    unpack-type unsafe-sized unsafe-actual t = t;
     quote {
       try len = get-int64(unquote {k});
-      let base: array(t) = make::(len);
+      let base: array(t) = make(len);
       let loop =
-        define self(index: int, acc: array(t)) ->> ?array(t) {
+        define self@(index: int, acc: array(t)) -> ?array(t) {
           if lt-int(index, len) {
             try item = unquote {_get-data<t>(k)};
-            self(add-int(index, 1), push-back(acc, axiom-T(item)))
+            self@(add-int(index, 1), push-back(acc, ~axiom-T(item)))
           } else {
             Right(acc)
           }
         };
-      try items = loop(0, base);
+      try items = loop@(0, base);
       Right(magic cast(array(t), +a, items))
     }
   | Wrapper(t) =>
-    unpack-type t = t;
+    unpack-type unsafe-actual t = t;
     quote {
       try v = unquote {_get-data<t>(k)};
       Right(lift {cast-inline<t, a>(axiom-T(v))})
@@ -441,7 +456,7 @@ define-meta _get-data<a>(k: '&get-kit) -> '?+a {
   }
 }
 
-inline-meta derive<a>() -> 'sero(a) {
+inline-meta derive<actual a>() -> 'sero(a) {
   quote {
     Sero{
       put := {

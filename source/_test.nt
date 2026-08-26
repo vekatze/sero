@@ -34,7 +34,7 @@ data inner {
 
 data mixed {
 | Mixed-None
-| Mixed-Some(payload: inner mix, tag: int)
+| Mixed-Some(~payload: inner, tag: int)
 }
 
 data tree {
@@ -84,7 +84,7 @@ inline-meta roundtrip-equal<a>(x: '&a, y: '&a) -> 'bool {
   }
 }
 
-inline-meta roundtrip<a>(label: '&string, !g: 'gen(a), !m: 'sero(a)) -> 'spec {
+inline-meta roundtrip<a>(label: '&string, g: 'gen(a), !m: 'sero(a)) -> 'spec {
   quote {
     property::(
       unquote {label},
@@ -299,6 +299,6 @@ define main() -> unit {
   let _ = Leaf;
   let _ = Node;
   let _ = Widths;
-  pin k = make-noa-kit(stdout, 4096, 100, 100, False);
+  pin k = make-noa-kit@(stdout, 4096, 100, 100, False);
   check(k, _cases())
 }
