@@ -5,7 +5,7 @@
 ## Installation
 
 ```sh
-neut get sero https://github.com/vekatze/sero/raw/main/archive/0.2.1.tar.zst
+neut get sero https://github.com/vekatze/sero/raw/main/archive/0.2.2.tar.zst
 ```
 
 ## Types
@@ -42,7 +42,7 @@ define decode-file<a>(m: sero(a), path: &string) -> system(?a)
 
 ```neut
 // Derives a serializer for `a`.
-inline-meta derive<a>() -> 'sero(a)
+inline-meta derive<actual a>() -> 'sero(a)
 ```
 
 ## Example
