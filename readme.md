@@ -5,7 +5,7 @@
 ## Installation
 
 ```sh
-neut get sero https://github.com/vekatze/sero/raw/main/archive/0-1-47.tar.zst
+neut get sero https://github.com/vekatze/sero/raw/main/archive/0.2.1.tar.zst
 ```
 
 ## Types
@@ -21,10 +21,10 @@ data sero(a) {
   )
 }
 
-// Encodes a value into a binary value.
+// Encodes a value into binary data.
 define encode<a>(m: sero(a), value: &a, buffer-size: int) -> binary
 
-// Decodes a value from a binary value.
+// Decodes a value from binary data.
 define decode<a>(m: sero(a), bytes: binary) -> ?a
 ```
 
@@ -38,56 +38,31 @@ define encode-file<a>(m: sero(a), value: &a, buffer-size: int, path: &string) ->
 define decode-file<a>(m: sero(a), path: &string) -> system(?a)
 ```
 
-### Instances
+### Derivation
 
 ```neut
-constant unit-sero: sero(unit)
-
-constant bool-sero: sero(bool)
-
-constant int8-sero: sero(int8)
-constant int16-sero: sero(int16)
-constant int32-sero: sero(int32)
-constant int64-sero: sero(int64)
-
-constant float16-sero: sero(float16)
-constant float32-sero: sero(float32)
-constant float64-sero: sero(float64)
-
-constant rune-sero: sero(rune)
-
-constant string-sero: sero(string)
-
-constant binary-sero: sero(binary)
-
-inline either-sero<a, b>(!m1: sero(a), !m2: sero(b)) -> sero(either(a, b))
-
-inline pair-sero<a, b>(!m1: sero(a), !m2: sero(b)) -> sero(pair(a, b))
-
-inline list-sero<a>(!m: sero(a)) -> sero(list(a))
-
-inline vector-sero<a>(!m: sero(a)) -> sero(vector(a))
+// Derives a serializer for `a`.
+inline-meta derive<a>() -> 'sero(a)
 ```
 
 ## Example
 
 ```neut
 import {
-  core.int.io {print-int-line},
-  core.list {for},
-  this.decode {decode-file},
-  this.encode {encode-file},
-  this.instance.int64 {int64-sero},
-  this.instance.list {list-sero},
-  this.sero {sero},
+  core::int.io {print-int-line},
+  core::list {for},
+  this::decode {decode-file},
+  this::encode {encode-file},
+  this::instance.generic {derive},
+  this::sero {sero},
 }
 
 constant _list-int-sero: sero(list(int)) {
-  list-sero(int64-sero)
+  derive::()
 }
 
 define zen() -> unit {
-  pin value: list(int) = List[1, 2, 3, 42342, 5, 6];
+  pin value: list(int) = List::[1, 2, 3, 42342, 5, 6];
   let path = "test.bin";
   let encode-result = encode-file(_list-int-sero, value, 10, path);
   match encode-result {
