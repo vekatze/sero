@@ -1,10 +1,10 @@
 import {
   core::array {access, length, make, push-back},
-  core::c-size {C-Size},
+  core::c-size {to-c-size},
   core::control {grow-E},
   core::layer {axiom-T},
   core::memory {malloc},
-  core::memory.unsafe {free, memcpy, store-int},
+  core::memory.unsafe {free, memcpy, store-int, store-int16, store-int32, store-int8, store-pointer},
   core::pointer {shift},
   core::rune {to-int32},
   core::rune.unsafe {from-int32},
@@ -48,6 +48,7 @@ import {
     nth-field-pointer,
     payload-start,
     pointer-byte-size,
+    store-at-width,
   },
   core::unsafe {cast-inline},
   this::get-kit {
@@ -76,8 +77,20 @@ import {
 }
 
 nominal {
-  define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit,
-  define-meta _get-data<actual a>(k: '&get-kit) -> '?^a,
+  define-meta put-data<a>(k: '&put-kit, x: '&a) -> 'unit,
+  define-meta get-data<actual a>(k: '&get-kit) -> '?^a,
+}
+
+inline-meta _store-at-byte-size(size: int, value: 'int, addr: 'pointer) -> 'unit {
+  if eq-int(size, 1) {
+    quote {store-int8(trunc-int-int8(unquote {value}), unquote {addr})}
+  } else-if eq-int(size, 2) {
+    quote {store-int16(trunc-int-int16(unquote {value}), unquote {addr})}
+  } else-if eq-int(size, 4) {
+    quote {store-int32(trunc-int-int32(unquote {value}), unquote {addr})}
+  } else {
+    quote {store-int(unquote {value}, unquote {addr})}
+  }
 }
 
 inline-meta _put-fields<a>(
@@ -95,7 +108,7 @@ inline-meta _put-fields<a>(
     unpack-type t = t;
     quote {
       let field-ptr = cast-inline<int, &t>(unquote {field-slot(f, cursor, x)});
-      unquote {_put-data<t>(k, quote {field-ptr})};
+      unquote {put-data<t>(k, quote {field-ptr})};
       unquote {_put-fields<a>(rest, x, k)}
     }
   }
@@ -120,8 +133,8 @@ inline-meta _store-params<actual a>(params: list(type), offset: int, p: 'pointer
   | Cons(t, rest) =>
     unpack-type t = t;
     quote {
-      store-int(
-        magic cast(type, int, pack-type {t}),
+      store-pointer(
+        magic cast(type, pointer, pack-type {t}),
         shift(unquote {p}, unquote {promote {offset}}),
       );
       unquote {_store-params<a>(rest, add-int(offset, pointer-byte-size()), p, cont)}
@@ -148,16 +161,16 @@ inline-meta _get-fields<actual a>(
     unpack-type unsafe-actual t = t;
     let rest-code = _get-fields<a>(rest, header, p, k, params);
     match layout {
-    | Direct(_) =>
+    | Direct(width) =>
       quote {
-        try v = unquote {_get-data<t>(k)};
-        store-int(magic cast(t, int, axiom-T(v)), unquote {slot-ptr});
+        try v = unquote {get-data<t>(k)};
+        unquote {store-at-width(width, quote {magic cast(t, int, axiom-T(v))}, slot-ptr)};
         unquote {rest-code}
       }
     | Mixed(_) =>
       let byte-size = field-storage-byte-size(f);
       quote {
-        try v = unquote {_get-data<t>(k)};
+        try v = unquote {get-data<t>(k)};
         let v-ptr = magic cast(t, pointer, axiom-T(v));
         memcpy(unquote {slot-ptr}, v-ptr, unquote {promote {byte-size}});
         free(v-ptr);
@@ -178,12 +191,12 @@ inline-meta _get-constructor<actual a>(
 ) -> '?^a {
   let fields = constructor-fields(c);
   quote {
-    let p = malloc(C-Size(unquote {promote {cell-size}}));
+    let p = malloc(to-c-size(unquote {promote {cell-size}}));
     unquote {
       let fields-code = _get-fields<a>(fields-with-cursors(fields, start), header, quote {p}, k, params);
       if gt-int(header, 0) {
         quote {
-          store-int(unquote {promote {disc-index}}, p);
+          unquote {_store-at-byte-size(header, promote {disc-index}, quote {p})};
           unquote {fields-code}
         }
       } else {
@@ -240,7 +253,7 @@ inline-meta _get-algebraic<actual a>(
   }
 }
 
-define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
+define-meta put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
   let type-info = magic inspect-type(a);
   match type-info {
   | Int1 =>
@@ -273,7 +286,7 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
       let xs: &vector(t) = cast-inline<&a, &vector(t)>(unquote {x});
       put-int64(unquote {k}, core::vector::length(xs));
       core::vector::for-N(xs, (item, _) => {
-        unquote {_put-data<t>(k, quote {item})}
+        unquote {put-data<t>(k, quote {item})}
       })
     }
   | Array(t) =>
@@ -289,7 +302,7 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
             | Left(_) =>
               Unit
             | Right(item) =>
-              unquote {_put-data<t>(k, quote {item})};
+              unquote {put-data<t>(k, quote {item})};
               self(add-int(index, 1))
             }
           } else {
@@ -300,13 +313,13 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
     }
   | Wrapper(t) =>
     unpack-type t = t;
-    quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
+    quote {unquote {put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
   | Noema(t) =>
     unpack-type t = t;
-    quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
+    quote {unquote {put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
   | Box-T(t) =>
     unpack-type t = t;
-    quote {unquote {_put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
+    quote {unquote {put-data<t>(k, quote {cast-inline<&a, &t>(unquote {x})})}}
   | Enum(_) =>
     quote {put-int64(unquote {k}, magic cast(&a, int64, unquote {x}))}
   | Algebraic(_, params, !cons) =>
@@ -329,7 +342,7 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
   }
 }
 
-define-meta _get-data<actual a>(k: '&get-kit) -> '?^a {
+define-meta get-data<actual a>(k: '&get-kit) -> '?^a {
   let type-info = magic inspect-type(a);
   match type-info {
   | Int1 =>
@@ -399,7 +412,7 @@ define-meta _get-data<actual a>(k: '&get-kit) -> '?^a {
       let base: vector(t) = core::vector::make(len);
       try items =
         grow-E(base, len, (acc, _) => {
-          try item = unquote {_get-data<t>(k)};
+          try item = unquote {get-data<t>(k)};
           Right(core::vector::push-back(acc, axiom-T(item)))
         });
       Right(magic cast(vector(t), ^a, items))
@@ -412,7 +425,7 @@ define-meta _get-data<actual a>(k: '&get-kit) -> '?^a {
       let loop =
         define self(index: int, acc: array(t)) ->> ?array(t) {
           if lt-int(index, len) {
-            try item = unquote {_get-data<t>(k)};
+            try item = unquote {get-data<t>(k)};
             self@(add-int(index, 1), push-back(acc, ~axiom-T(item)))
           } else {
             Right(acc)
@@ -424,7 +437,7 @@ define-meta _get-data<actual a>(k: '&get-kit) -> '?^a {
   | Wrapper(t) =>
     unpack-type unsafe-actual t = t;
     quote {
-      try v = unquote {_get-data<t>(k)};
+      try v = unquote {get-data<t>(k)};
       Right(lift {cast-inline<t, a>(axiom-T(v))})
     }
   | Enum(_) =>
@@ -446,12 +459,12 @@ inline-meta derive<actual a>() -> 'sero(a) {
     Sero{
       put := {
         (k, x) => {
-          unquote {_put-data<a>(quote {k}, quote {x})}
+          unquote {put-data<a>(quote {k}, quote {x})}
         }
       },
       get := {
         (k) => {
-          unquote {_get-data<a>(quote {k})}
+          unquote {get-data<a>(quote {k})}
         }
       },
     }
