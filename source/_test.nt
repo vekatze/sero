@@ -34,7 +34,7 @@ data inner {
 
 data mixed {
 | Mixed-None
-| Mixed-Some(~payload: inner, tag: int)
+| Mixed-Some(+payload: inner, tag: int)
 }
 
 data tree {

@@ -3,7 +3,6 @@ import {
   core::c-size {C-Size},
   core::control {grow-E},
   core::layer {axiom-T},
-  core::list.meta {fold-left},
   core::memory {malloc},
   core::memory.unsafe {free, memcpy, store-int},
   core::pointer {shift},
@@ -35,20 +34,22 @@ import {
     field,
   },
   core::type-value.meta {
+    algebraic-cell-byte-size,
     algebraic-discriminant,
-    algebraic-header-slot-count,
+    algebraic-header-byte-size,
+    align-up,
     constructor-fields,
-    constructor-payload-slot-count,
     constructor-switch,
     data-arg-count,
     field-layout-of,
-    field-pointer,
-    field-slot-count,
+    field-slot,
+    field-storage-byte-size,
     fields-with-cursors,
-    nth-field-slot-pointer,
+    nth-field-pointer,
+    payload-start,
+    pointer-byte-size,
   },
   core::unsafe {cast-inline},
-  core::word,
   this::get-kit {
     get-binary,
     get-float16,
@@ -76,13 +77,11 @@ import {
 
 nominal {
   define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit,
-  define-meta _get-data<actual a>(k: '&get-kit) -> '?+a,
+  define-meta _get-data<actual a>(k: '&get-kit) -> '?^a,
 }
 
 inline-meta _put-fields<a>(
   field-cursors: list(pair(field, int)),
-  header: int,
-  data-arg-num: int,
   x: '&a,
   k: '&put-kit,
 ) -> 'unit {
@@ -95,27 +94,26 @@ inline-meta _put-fields<a>(
     let Field(_, t, _) = f;
     unpack-type t = t;
     quote {
-      let field-ptr = cast-inline<pointer, &t>(unquote {field-pointer(f, header, data-arg-num, cursor, x)});
+      let field-ptr = cast-inline<int, &t>(unquote {field-slot(f, cursor, x)});
       unquote {_put-data<t>(k, quote {field-ptr})};
-      unquote {_put-fields<a>(rest, header, data-arg-num, x, k)}
+      unquote {_put-fields<a>(rest, x, k)}
     }
   }
 }
 
 inline-meta _put-algebraic<a>(
   cons: list(constructor),
-  header: int,
-  data-arg-num: int,
+  start: int,
   disc: 'int,
   x: '&a,
   k: '&put-kit,
 ) -> 'unit {
   constructor-switch(cons, disc, quote {Unit}, (c) => {
-    _put-fields<a>(fields-with-cursors(constructor-fields(c), 0), header, data-arg-num, x, k)
+    _put-fields<a>(fields-with-cursors(constructor-fields(c), start), x, k)
   })
 }
 
-inline-meta _store-params<actual a>(params: list(type), slot: int, p: 'pointer, cont: '?+a) -> '?+a {
+inline-meta _store-params<actual a>(params: list(type), offset: int, p: 'pointer, cont: '?^a) -> '?^a {
   match params {
   | Nil =>
     cont
@@ -124,56 +122,44 @@ inline-meta _store-params<actual a>(params: list(type), slot: int, p: 'pointer, 
     quote {
       store-int(
         magic cast(type, int, pack-type {t}),
-        shift(unquote {p}, mul-int(core::word::size, unquote {promote {slot}})),
+        shift(unquote {p}, unquote {promote {offset}}),
       );
-      unquote {_store-params<a>(rest, add-int(slot, 1), p, cont)}
+      unquote {_store-params<a>(rest, add-int(offset, pointer-byte-size()), p, cont)}
     }
   }
-}
-
-inline-meta _max-payload-slot-count(cons: list(constructor)) -> int {
-  fold-left(0, cons, (acc, c) => {
-    let here = constructor-payload-slot-count(c);
-    if gt-int(here, acc) {
-      here
-    } else {
-      acc
-    }
-  })
 }
 
 inline-meta _get-fields<actual a>(
   field-cursors: list(pair(field, int)),
   header: int,
-  data-arg-num: int,
   p: 'pointer,
   k: '&get-kit,
   params: list(type),
-) -> '?+a {
+) -> '?^a {
   match field-cursors {
   | Nil =>
-    _store-params<a>(params, header, p, quote {Right(lift {magic cast(pointer, a, unquote {p})})})
+    _store-params<a>(params, align-up(pointer-byte-size(), header), p, quote {Right(lift {magic cast(pointer, a, unquote {p})})})
   | Cons(entry, rest) =>
     let Pair(f, cursor) = entry;
     let !f = f;
     let Field(_, t, _) = f;
-    let !layout = field-layout-of(f);
-    let slot-ptr = quote {nth-field-slot-pointer(unquote {promote {header}}, unquote {promote {data-arg-num}}, unquote {promote {cursor}}, unquote {p})};
+    let layout = field-layout-of(f);
+    let slot-ptr = quote {nth-field-pointer(unquote {promote {cursor}}, unquote {p})};
     unpack-type unsafe-actual t = t;
-    let rest-code = _get-fields<a>(rest, header, data-arg-num, p, k, params);
+    let rest-code = _get-fields<a>(rest, header, p, k, params);
     match layout {
-    | Direct =>
+    | Direct(_) =>
       quote {
         try v = unquote {_get-data<t>(k)};
         store-int(magic cast(t, int, axiom-T(v)), unquote {slot-ptr});
         unquote {rest-code}
       }
     | Mixed(_) =>
-      let slots = field-slot-count(layout);
+      let byte-size = field-storage-byte-size(f);
       quote {
         try v = unquote {_get-data<t>(k)};
         let v-ptr = magic cast(t, pointer, axiom-T(v));
-        memcpy(unquote {slot-ptr}, v-ptr, mul-int(core::word::size, unquote {promote {slots}}));
+        memcpy(unquote {slot-ptr}, v-ptr, unquote {promote {byte-size}});
         free(v-ptr);
         unquote {rest-code}
       }
@@ -186,16 +172,15 @@ inline-meta _get-constructor<actual a>(
   c: constructor,
   disc-index: int,
   header: int,
-  data-arg-num: int,
-  payload-slots: int,
+  start: int,
+  cell-size: int,
   k: '&get-kit,
-) -> '?+a {
+) -> '?^a {
   let fields = constructor-fields(c);
-  let slots = add-int(header, add-int(data-arg-num, payload-slots));
   quote {
-    let p = malloc(C-Size(mul-int(core::word::size, unquote {promote {slots}})));
+    let p = malloc(C-Size(unquote {promote {cell-size}}));
     unquote {
-      let fields-code = _get-fields<a>(fields-with-cursors(fields, 0), header, data-arg-num, quote {p}, k, params);
+      let fields-code = _get-fields<a>(fields-with-cursors(fields, start), header, quote {p}, k, params);
       if gt-int(header, 0) {
         quote {
           store-int(unquote {promote {disc-index}}, p);
@@ -213,20 +198,20 @@ inline-meta _get-algebraic-at<actual a>(
   cons: list(constructor),
   index: int,
   header: int,
-  data-arg-num: int,
-  payload-slots: int,
+  start: int,
+  cell-size: int,
   disc: 'int,
   k: '&get-kit,
-) -> '?+a {
+) -> '?^a {
   match cons {
   | Nil =>
     quote {none}
   | Cons(c, rest) =>
     quote {
       if eq-int(unquote {disc}, unquote {promote {index}}) {
-        unquote {_get-constructor<a>(params, c, index, header, data-arg-num, payload-slots, k)}
+        unquote {_get-constructor<a>(params, c, index, header, start, cell-size, k)}
       } else {
-        unquote {_get-algebraic-at<a>(params, rest, add-int(index, 1), header, data-arg-num, payload-slots, disc, k)}
+        unquote {_get-algebraic-at<a>(params, rest, add-int(index, 1), header, start, cell-size, disc, k)}
       }
     }
   }
@@ -234,23 +219,23 @@ inline-meta _get-algebraic-at<actual a>(
 
 inline-meta _get-algebraic<actual a>(
   params: list(type),
-  !cons: list(constructor),
+  cons: list(constructor),
   header: int,
-  data-arg-num: int,
+  start: int,
+  cell-size: int,
   k: '&get-kit,
-) -> '?+a {
-  let payload-slots = _max-payload-slot-count(cons);
+) -> '?^a {
   if gt-int(header, 0) {
     quote {
       try disc = get-int64(unquote {k});
-      unquote {_get-algebraic-at<a>(params, cons, 0, header, data-arg-num, payload-slots, quote {disc}, k)}
+      unquote {_get-algebraic-at<a>(params, cons, 0, header, start, cell-size, quote {disc}, k)}
     }
   } else {
     match cons {
     | Nil =>
       quote {none}
     | Cons(c, _) =>
-      _get-constructor<a>(params, c, 0, header, data-arg-num, payload-slots, k)
+      _get-constructor<a>(params, c, 0, header, start, cell-size, k)
     }
   }
 }
@@ -325,18 +310,18 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
   | Enum(_) =>
     quote {put-int64(unquote {k}, magic cast(&a, int64, unquote {x}))}
   | Algebraic(_, params, !cons) =>
-    let header = algebraic-header-slot-count(cons);
-    let data-arg-num = data-arg-count(params);
+    let header = algebraic-header-byte-size(cons);
+    let start = payload-start(cons, data-arg-count(params));
     if gt-int(header, 0) {
       quote {
         let disc = unquote {algebraic-discriminant(cons, x)};
         put-int64(unquote {k}, disc);
-        unquote {_put-algebraic<a>(cons, header, data-arg-num, quote {disc}, x, k)}
+        unquote {_put-algebraic<a>(cons, start, quote {disc}, x, k)}
       }
     } else {
       quote {
         let disc = unquote {algebraic-discriminant(cons, x)};
-        unquote {_put-algebraic<a>(cons, header, data-arg-num, quote {disc}, x, k)}
+        unquote {_put-algebraic<a>(cons, start, quote {disc}, x, k)}
       }
     }
   | _ =>
@@ -344,7 +329,7 @@ define-meta _put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
   }
 }
 
-define-meta _get-data<actual a>(k: '&get-kit) -> '?+a {
+define-meta _get-data<actual a>(k: '&get-kit) -> '?^a {
   let type-info = magic inspect-type(a);
   match type-info {
   | Int1 =>
@@ -417,7 +402,7 @@ define-meta _get-data<actual a>(k: '&get-kit) -> '?+a {
           try item = unquote {_get-data<t>(k)};
           Right(core::vector::push-back(acc, axiom-T(item)))
         });
-      Right(magic cast(vector(t), +a, items))
+      Right(magic cast(vector(t), ^a, items))
     }
   | Array(t) =>
     unpack-type unsafe-sized unsafe-actual t = t;
@@ -425,7 +410,7 @@ define-meta _get-data<actual a>(k: '&get-kit) -> '?+a {
       try len = get-int64(unquote {k});
       let base: array(t) = make(len);
       let loop =
-        define self@(index: int, acc: array(t)) -> ?array(t) {
+        define self(index: int, acc: array(t)) ->> ?array(t) {
           if lt-int(index, len) {
             try item = unquote {_get-data<t>(k)};
             self@(add-int(index, 1), push-back(acc, ~axiom-T(item)))
@@ -434,7 +419,7 @@ define-meta _get-data<actual a>(k: '&get-kit) -> '?+a {
           }
         };
       try items = loop@(0, base);
-      Right(magic cast(array(t), +a, items))
+      Right(magic cast(array(t), ^a, items))
     }
   | Wrapper(t) =>
     unpack-type unsafe-actual t = t;
@@ -448,9 +433,9 @@ define-meta _get-data<actual a>(k: '&get-kit) -> '?+a {
       Right(lift {magic cast(int64, a, v)})
     }
   | Algebraic(_, !params, !cons) =>
-    let header = algebraic-header-slot-count(cons);
-    let data-arg-num = data-arg-count(params);
-    _get-algebraic<a>(params, cons, header, data-arg-num, k)
+    let header = algebraic-header-byte-size(cons);
+    let arg-num = data-arg-count(params);
+    _get-algebraic<a>(params, cons, header, payload-start(cons, arg-num), algebraic-cell-byte-size(cons, arg-num), k)
   | _ =>
     magic compile-error("sero.derive: unsupported type")
   }
