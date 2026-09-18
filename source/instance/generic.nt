@@ -50,7 +50,7 @@ import {
     pointer-byte-size,
     store-at-width,
   },
-  core::unsafe {cast-inline},
+  core::unsafe {cast, cast-inline},
   this::get-kit {
     get-binary,
     get-float16,
@@ -126,7 +126,7 @@ inline-meta _put-algebraic<a>(
   })
 }
 
-inline-meta _store-params<actual a>(params: list(type), offset: int, p: 'pointer, cont: '?^a) -> '?^a {
+inline-meta _store-params<b>(params: list(type), offset: int, p: 'pointer, cont: 'b) -> 'b {
   match params {
   | Nil =>
     cont
@@ -137,44 +137,49 @@ inline-meta _store-params<actual a>(params: list(type), offset: int, p: 'pointer
         magic cast(type, pointer, pack-type {t}),
         shift(unquote {p}, unquote {promote {offset}}),
       );
-      unquote {_store-params<a>(rest, add-int(offset, pointer-byte-size()), p, cont)}
+      unquote {_store-params<b>(rest, add-int(offset, pointer-byte-size()), p, cont)}
     }
   }
 }
 
-inline-meta _get-fields<actual a>(
+inline-meta _get-fields(
   field-cursors: list(pair(field, int)),
-  header: int,
-  p: 'pointer,
   k: '&get-kit,
-  params: list(type),
-) -> '?^a {
+  alloc-code: '?pointer,
+) -> '?pointer {
   match field-cursors {
   | Nil =>
-    _store-params<a>(params, align-up(pointer-byte-size(), header), p, quote {Right(lift {magic cast(pointer, a, unquote {p})})})
+    alloc-code
   | Cons(entry, rest) =>
     let Pair(f, cursor) = entry;
     let !f = f;
     let Field(_, t, _) = f;
     let layout = field-layout-of(f);
-    let slot-ptr = quote {nth-field-pointer(unquote {promote {cursor}}, unquote {p})};
     unpack-type unsafe-actual t = t;
-    let rest-code = _get-fields<a>(rest, header, p, k, params);
+    let rest-code = _get-fields(rest, k, alloc-code);
     match layout {
     | Direct(width) =>
       quote {
         try v = unquote {get-data<t>(k)};
-        unquote {store-at-width(width, quote {magic cast(t, int, axiom-T(v))}, slot-ptr)};
-        unquote {rest-code}
+        try p = unquote {rest-code};
+        unquote {
+          store-at-width(
+            width,
+            quote {magic cast(t, int, axiom-T(v))},
+            quote {nth-field-pointer(unquote {promote {cursor}}, p)},
+          )
+        };
+        Right(p)
       }
     | Mixed(_) =>
       let byte-size = field-storage-byte-size(f);
       quote {
         try v = unquote {get-data<t>(k)};
-        let v-ptr = magic cast(t, pointer, axiom-T(v));
-        memcpy(unquote {slot-ptr}, v-ptr, unquote {promote {byte-size}});
+        try p = unquote {rest-code};
+        let v-ptr = cast<t, pointer>(axiom-T(v));
+        memcpy(nth-field-pointer(unquote {promote {cursor}}, p), v-ptr, unquote {promote {byte-size}});
         free(v-ptr);
-        unquote {rest-code}
+        Right(p)
       }
     }
   }
@@ -190,19 +195,24 @@ inline-meta _get-constructor<actual a>(
   k: '&get-kit,
 ) -> '?^a {
   let fields = constructor-fields(c);
-  quote {
-    let p = malloc(to-c-size(unquote {promote {cell-size}}));
-    unquote {
-      let fields-code = _get-fields<a>(fields-with-cursors(fields, start), header, quote {p}, k, params);
-      if gt-int(header, 0) {
-        quote {
-          unquote {_store-at-byte-size(header, promote {disc-index}, quote {p})};
-          unquote {fields-code}
+  let alloc-code =
+    quote {
+      let p = malloc(to-c-size(unquote {promote {cell-size}}));
+      unquote {
+        let params-code = _store-params<?pointer>(params, align-up(pointer-byte-size(), header), quote {p}, quote {Right(p)});
+        if gt-int(header, 0) {
+          quote {
+            unquote {_store-at-byte-size(header, promote {disc-index}, quote {p})};
+            unquote {params-code}
+          }
+        } else {
+          params-code
         }
-      } else {
-        fields-code
       }
-    }
+    };
+  quote {
+    try p = unquote {_get-fields(fields-with-cursors(fields, start), k, alloc-code)};
+    Right(lift {magic cast(pointer, a, p)})
   }
 }
 
