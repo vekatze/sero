@@ -9,24 +9,21 @@
     test-wasm {
       main "_test.nt",
       platform "wasm32",
-      execute [
-        "wasmtime",
-        "{{executable}}",
-      ],
+      execute "wasmtime {{executable}}",
     },
   },
   dependency {
     core {
-      digest "Qe2KnYyyiHFOtvqExQep5NplSMDmd-BwVUOweR0MpXA",
+      digest "XfFV2TbkGgQbBv9N7WgZbP4J9QIE8NO9e2o9YhtmyVA",
       mirror [
-        "https://github.com/vekatze/neut-core/raw/main/archive/0.57.7.tar.zst",
+        "https://github.com/vekatze/neut-core/raw/main/archive/0.57.8.tar.zst",
       ],
       enable-preset true,
     },
     noa {
-      digest "g6WHvha32T9oqxHdWmRQ5REY4uz4LfmstyPKoonWqT4",
+      digest "_tidy0-6otOXozxCtDWpvIlb3ESjC5eJUptybErE1o8",
       mirror [
-        "https://github.com/vekatze/noa/raw/main/archive/0.5.4.tar.zst",
+        "https://github.com/vekatze/noa/raw/main/archive/0.5.5.tar.zst",
       ],
     },
   },
