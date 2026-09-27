@@ -15,7 +15,6 @@ import {
     Box-T,
     Direct,
     Enum,
-    Field,
     Float16,
     Float32,
     Float64,
@@ -38,13 +37,14 @@ import {
     algebraic-discriminant,
     algebraic-header-byte-size,
     align-up,
-    constructor-fields,
+    concrete-field-type,
+    constructor-fields-with-cursors,
     constructor-switch,
     data-arg-count,
+    ensure-constructible,
     field-layout-of,
     field-slot,
     field-storage-byte-size,
-    fields-with-cursors,
     nth-field-pointer,
     payload-start,
     pointer-byte-size,
@@ -104,8 +104,7 @@ inline-meta _put-fields<a>(
   | Cons(entry, rest) =>
     let Pair(f, cursor) = entry;
     let !f = f;
-    let Field(_, t, _) = f;
-    unpack-type t = t;
+    unpack-type t = concrete-field-type(f);
     quote {
       let field-ptr = cast-inline<int, &t>(unquote {field-slot(f, cursor, x)});
       unquote {put-data<t>(k, quote {field-ptr})};
@@ -122,7 +121,7 @@ inline-meta _put-algebraic<a>(
   k: '&put-kit,
 ) -> 'unit {
   constructor-switch(cons, disc, quote {Unit}, (c) => {
-    _put-fields<a>(fields-with-cursors(constructor-fields(c), start), x, k)
+    _put-fields<a>(constructor-fields-with-cursors(c, start), x, k)
   })
 }
 
@@ -153,9 +152,8 @@ inline-meta _get-fields(
   | Cons(entry, rest) =>
     let Pair(f, cursor) = entry;
     let !f = f;
-    let Field(_, t, _) = f;
     let layout = field-layout-of(f);
-    unpack-type unsafe-actual t = t;
+    unpack-type unsafe-actual t = concrete-field-type(f);
     let rest-code = _get-fields(rest, k, alloc-code);
     match layout {
     | Direct(width) =>
@@ -187,14 +185,14 @@ inline-meta _get-fields(
 
 inline-meta _get-constructor<actual a>(
   params: list(type),
-  c: constructor,
+  !c: constructor,
   disc-index: int,
   header: int,
   start: int,
   cell-size: int,
   k: '&get-kit,
 ) -> '?^a {
-  let fields = constructor-fields(c);
+  ensure-constructible(c);
   let alloc-code =
     quote {
       let p = malloc(to-c-size(unquote {promote {cell-size}}));
@@ -211,7 +209,7 @@ inline-meta _get-constructor<actual a>(
       }
     };
   quote {
-    try p = unquote {_get-fields(fields-with-cursors(fields, start), k, alloc-code)};
+    try p = unquote {_get-fields(constructor-fields-with-cursors(c, start), k, alloc-code)};
     Right(lift {magic cast(pointer, a, p)})
   }
 }
