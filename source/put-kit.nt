@@ -10,6 +10,8 @@ import {
     append-int8,
     append-string,
     binary-builder,
+    borrow-content,
+    clear as clear-builder,
     extract,
     make-binary-builder,
   },
@@ -30,6 +32,16 @@ define make-put-kit(buffer-size: int) -> put-kit {
 define extract-binary(k: put-kit) -> binary {
   let _Put-Kit{buffer} = k;
   extract(buffer)
+}
+
+define clear(k: &put-kit) -> unit {
+  tie _Put-Kit{buffer} = k;
+  clear-builder(buffer)
+}
+
+inline borrow-binary<actual a>(k: &put-kit, f: (&binary) -> ^a) -> a {
+  tie _Put-Kit{buffer} = k;
+  borrow-content(buffer, f)
 }
 
 define put-int8(k: &put-kit, x: int8) -> unit {
