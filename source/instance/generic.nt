@@ -37,7 +37,6 @@ import {
     algebraic-discriminant,
     algebraic-header-byte-size,
     align-up,
-    concrete-field-type,
     constructor-fields-with-cursors,
     constructor-switch,
     data-arg-count,
@@ -45,6 +44,7 @@ import {
     field-layout-of,
     field-slot,
     field-storage-byte-size,
+    known-field-type,
     nth-field-pointer,
     payload-start,
     pointer-byte-size,
@@ -104,7 +104,7 @@ inline-meta _put-fields<a>(
   | Cons(entry, rest) =>
     let Pair(f, cursor) = entry;
     let !f = f;
-    unpack-type t = concrete-field-type(f);
+    unpack-type t = known-field-type(f);
     quote {
       let field-ptr = cast-inline<int, &t>(unquote {field-slot(f, cursor, x)});
       unquote {put-data<t>(k, quote {field-ptr})};
@@ -153,7 +153,7 @@ inline-meta _get-fields(
     let Pair(f, cursor) = entry;
     let !f = f;
     let layout = field-layout-of(f);
-    unpack-type unsafe-actual t = concrete-field-type(f);
+    unpack-type unsafe-actual t = known-field-type(f);
     let rest-code = _get-fields(rest, k, alloc-code);
     match layout {
     | Direct(width) =>
@@ -303,21 +303,20 @@ define-meta put-data<a>(k: '&put-kit, x: '&a) -> 'unit {
       let xs: &array(t) = cast-inline<&a, &array(t)>(unquote {x});
       let len = length(xs);
       put-int64(unquote {k}, len);
-      let loop =
-        define self(index: int) -> unit {
-          if lt-int(index, len) {
-            match access@(xs, index) {
-            | Left(_) =>
-              Unit
-            | Right(item) =>
-              unquote {put-data<t>(k, quote {item})};
-              self(add-int(index, 1))
-            }
-          } else {
+      define go(index: int) -> unit {
+        if lt-int(index, len) {
+          match access@(xs, index) {
+          | Left(_) =>
             Unit
+          | Right(item) =>
+            unquote {put-data<t>(k, quote {item})};
+            go(add-int(index, 1))
           }
-        };
-      loop(0)
+        } else {
+          Unit
+        }
+      };
+      go(0)
     }
   | Wrapper(t) =>
     unpack-type t = t;
@@ -430,16 +429,15 @@ define-meta get-data<actual a>(k: '&get-kit) -> '?^a {
     quote {
       try len = get-int64(unquote {k});
       let base: array(t) = make(len);
-      let loop =
-        define self(index: int, acc: array(t)) ->> ?array(t) {
-          if lt-int(index, len) {
-            try item = unquote {get-data<t>(k)};
-            self@(add-int(index, 1), push-back(acc, ~axiom-T(item)))
-          } else {
-            Right(acc)
-          }
-        };
-      try items = loop@(0, base);
+      define go(index: int, acc: array(t)) ->> ?array(t) {
+        if lt-int(index, len) {
+          try item = unquote {get-data<t>(k)};
+          go@(add-int(index, 1), push-back(acc, ~axiom-T(item)))
+        } else {
+          Right(acc)
+        }
+      };
+      try items = go@(0, base);
       Right(magic cast(array(t), ^a, items))
     }
   | Wrapper(t) =>
